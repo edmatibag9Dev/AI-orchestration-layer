@@ -4,6 +4,19 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-07-15] — Phase 1 plumbing proven: demo verified, OpenRouter lane live
+
+### Added
+- `CONTRIBUTING.md`: canonical commit-format and README standards (was missing from the initial scaffold; required by the repo standard).
+- `BUILD-PLAN.md` Phase 1 status block: Ringer cloned and demo verified in Ringside; OpenCode 1.18.2 + OpenRouter lane wired (Seatbelt wrapper, default `z-ai/glm-5.2`) and proven with a one-task manifest — executed check PASS on attempt 1, 9,480 tokens, ≈$0.012. Grok lane declined. Remaining for Phase 1 exit: first real 2–4-task manifest + `install-agent`.
+
+### Changed
+- `README.md`: Build Notes reflect live Phase 1 plumbing; Known Limitations adds the worker-CLI currency lesson (Codex 0.139.0 rejected by its own default model until self-updated to 0.144.4); Files table includes `CONTRIBUTING.md`.
+- `AGENTS.md`: file map includes `CONTRIBUTING.md`.
+
+### Fixed
+- `samples/sample.swarm.json`: top-level field was `name`, but Ringer requires `run_name` — the committed sample failed `./ringer.py lint` (verification gate 2). Renamed; now lints clean (2 tasks) against Ringer at 2026-07-15.
+
 ## [2026-07-15] — Initial commit: locked architecture plan + Phase 4a pilot live
 
 ### Added

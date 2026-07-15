@@ -25,6 +25,7 @@ This repo is the planning and build home for the next layer of a personal AI har
 | `SPEC-judge-check.md` | Interface contract for the LLM-judge check pattern (Phase 2). |
 | `SPEC-self-healing-loop.md` | Sentinel/repair pattern for scheduled jobs (Phase 4a — pilot live). |
 | `samples/sample.swarm.json` | Reference manifest (committed sample; real manifests are gitignored). |
+| `CONTRIBUTING.md` | Commit format + README standards (canonical copy). |
 | `CHANGELOG.md` | Dated log of notable changes. |
 | `manifests/` | Real swarm manifests (gitignored — reference live work). |
 | `runs/`, `*.jsonl` | Eval logs and run artifacts (gitignored). |
@@ -50,12 +51,13 @@ Architecture synthesized from: the Ringer guide (unlock-ai.natebjones.com/guides
 ## Known Limitations / Workarounds
 
 - The LLM-judge false-pass rate is unknown until shadow-mode calibration completes; the judge gates nothing until judge/owner agreement is ≥80%. Externally facing deliverables keep a permanent human gate regardless.
+- Worker CLIs must be kept current: an out-of-date Codex CLI (0.139.0) was rejected wholesale by its own default model (`gpt-5.6-sol` requires a newer CLI) — every demo task failed until the CLI self-updated to 0.144.4.
 - Ringer worktree footgun: passing tasks get their worktrees deleted — checks must copy deliverables out before exiting 0.
 - A Cowork sandbox cannot run git on mounted folders; commits and pushes are run by the owner in Terminal.
 
 ## Build Notes
 
-Planning-stage repo — no runtime code yet. Phase 1 adopts Ringer as-is (single-file Python orchestrator, Python 3.11+) rather than building a dispatcher; Phase 2 adds the only novel component (judge checks) as plain shell/Python scripts conforming to `SPEC-judge-check.md`; Phase 3 builds one harness on the Claude Agent SDK. The router is deliberately last: routing decisions come from accumulated per-model, per-task-type pass rates, not intuition.
+Phase 1 plumbing is live as of 2026-07-15: Ringer demo verified, and two worker lanes proven end to end — Codex CLI (plan-billed) and OpenCode + OpenRouter (`z-ai/glm-5.2`, ≈$0.01 per verified task; key held in OpenCode's auth store, never in this repo). No runtime code lives here yet. Phase 1 adopts Ringer as-is (single-file Python orchestrator, Python 3.11+) rather than building a dispatcher; Phase 2 adds the only novel component (judge checks) as plain shell/Python scripts conforming to `SPEC-judge-check.md`; Phase 3 builds one harness on the Claude Agent SDK. The router is deliberately last: routing decisions come from accumulated per-model, per-task-type pass rates, not intuition.
 
 ## Update / Refresh Instructions
 

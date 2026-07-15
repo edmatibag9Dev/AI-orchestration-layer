@@ -1,5 +1,5 @@
 {
-  "name": "sample-swarm",
+  "run_name": "sample-swarm",
   "workdir": "/absolute/path/to/workdir",
   "tasks": [
     {

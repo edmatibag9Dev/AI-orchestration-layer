@@ -20,6 +20,7 @@ Design in one line: **frontier model writes specs and reviews; cheap verified wo
 | `SPEC-judge-check.md` | yes | Interface contract for LLM-judge checks (Phase 2). |
 | `SPEC-self-healing-loop.md` | yes | Sentinel/repair pattern for scheduled jobs (Phase 4a). |
 | `samples/sample.swarm.json` | yes | Scrubbed reference manifest. |
+| `CONTRIBUTING.md` | yes | Commit format + README standards (canonical copy). |
 | `CHANGELOG.md` | yes | Dated change log. |
 | `manifests/` | **no (gitignored)** | Real swarm manifests — reference live work and client context. |
 | `runs/`, `*.jsonl`, `*.log` | **no (gitignored)** | Eval logs and run artifacts — machine-local history. |
