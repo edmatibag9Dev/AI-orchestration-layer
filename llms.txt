@@ -1,0 +1,21 @@
+# AI Orchestration Layer
+
+> Planning and build home for a personal AI orchestration stack: a frontier model
+> writes specs and reviews, cheap parallel workers execute, checks (exit codes or
+> calibrated LLM judges) verify, and an append-only eval log eventually drives routing.
+> Built bottom-up: Ringer dispatch → judge checks → harnesses → Chief-of-Agents router.
+
+## Start here
+- [AGENTS.md](AGENTS.md): canonical agent guide — file map, data contract, invariants.
+- [README.md](README.md): human quickstart and command reference.
+- [BUILD-PLAN.md](BUILD-PLAN.md): architecture, phased plan, decisions, risks, metrics.
+
+## Engine / Data
+- [SPEC-judge-check.md](SPEC-judge-check.md): the judge-check interface contract (Phase 2).
+- [SPEC-self-healing-loop.md](SPEC-self-healing-loop.md): sentinel/repair pattern for scheduled jobs (Phase 4a, pilot live).
+- [samples/sample.swarm.json](samples/sample.swarm.json): scrubbed reference Ringer manifest.
+
+## Key rules
+- Checks exit 0 only on a verified artifact; worker self-reports are never evidence.
+- Judge model is never the producer; judges gate nothing before shadow-mode calibration (>=80% agreement), and never gate external deliverables.
+- Real manifests, eval logs, and client context are gitignored; only scrubbed samples are committed.

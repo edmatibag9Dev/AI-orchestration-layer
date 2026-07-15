@@ -1,0 +1,19 @@
+# Generated output & real/personal data — never commit
+
+# Real swarm manifests (reference live work / client context)
+manifests/
+# Run artifacts and eval history
+runs/
+*.jsonl
+*.log
+
+# Local-only config holding personal identifiers (scrubbed from committed docs)
+CONFIG.local.md
+
+# Language / OS noise
+__pycache__/
+*.pyc
+node_modules/
+.DS_Store
+
+# Note: scrubbed samples of ignored content live in samples/ so the repo previews.

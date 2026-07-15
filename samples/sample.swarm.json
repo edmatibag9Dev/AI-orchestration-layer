@@ -1,0 +1,28 @@
+{
+  "name": "sample-swarm",
+  "workdir": "/absolute/path/to/workdir",
+  "tasks": [
+    {
+      "key": "fix-lint-warnings",
+      "spec": "Self-contained brief: fix all ruff lint warnings in src/. Do not change behavior. Run the test suite before finishing.",
+      "check": "cd src && ruff check . && python3 -m pytest -q",
+      "expect_files": ["src/.ruff_clean_marker"],
+      "verified": "Ruff reports zero warnings and the full test suite passes.",
+      "task_type": "code-cleanup",
+      "engine": "opencode",
+      "model": "<cheap-model-id>",
+      "timeout_s": 900
+    },
+    {
+      "key": "briefing-draft",
+      "spec": "Self-contained brief: draft the daily research briefing per the attached outline. Every claim must cite a dated source. Write output to out/briefing.md.",
+      "check": "python3 checks/judge.py --rubric rubrics/briefing.md --artifact out/briefing.md --judge-model <judge-model-id> --shadow",
+      "expect_files": ["out/briefing.md"],
+      "verified": "Judge scored the briefing against the briefing rubric (shadow mode: logged, not gating).",
+      "task_type": "research-briefing",
+      "engine": "opencode",
+      "model": "<cheap-model-id>",
+      "timeout_s": 900
+    }
+  ]
+}
