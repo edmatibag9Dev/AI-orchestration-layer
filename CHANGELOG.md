@@ -4,6 +4,18 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-07-22b] — Phase 2 started: LLM-judge shadow mode live on the morning briefing
+
+### Added
+- `checks/judge.py` — SPEC-judge-check implementation (exit 0/1/2, FAILED LINES block,
+  `--shadow` logging to gitignored `runs/judge-shadow.jsonl`, `--owner-verdict` agreement rows).
+  Judge transport: OpenCode CLI (OpenRouter key never leaves its auth store).
+- `rubrics/morning-briefing.md` v1 — 10 judge-checkable requirements distilled from the
+  briefing editorial spec v2.5.
+- Calibration: 4 archived editions scored in shadow mode (1.00/0.90/0.90/0.90); first real
+  catch on day one (unlinked tickers in take bodies, verified) plus one rubric-revision
+  candidate (R4 wording) and one logged judge inconsistency (R10).
+
 ## [2026-07-22] — Phase 1 COMPLETE: two real swarms verified, 21 repos fixed
 
 ### Added
