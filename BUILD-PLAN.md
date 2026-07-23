@@ -1,6 +1,6 @@
 # BUILD-PLAN.md — AI Orchestration Layer
 
-**Date:** 2026-07-15 · **Status:** Planning locked, Phase 1 approved
+**Date:** 2026-07-15 · **Status:** Phase 1 COMPLETE (2026-07-22) — Phase 2 (judge checks) is next
 **Sources:** Ringer guide (Nate B. Jones), harness anatomy (Claire Vo / Claude Agent SDK), loop-of-loops, 4 Patterns, steer-vs-dispatch Run Spec.
 
 ---
@@ -53,6 +53,11 @@ Goal: proven plumbing + eval log accumulating.
 - **Exit criteria:** one real swarm, all tasks verified by executed checks, results reviewed in Ringside, eval rows in the JSONL.
 - **Kill signal:** two weeks without a genuine swarm-shaped batch → the code workload is thinner than assumed; rebalance toward Phases 2–3. Do not invent demo tasks.
 - **Status (2026-07-15): plumbing proven, both lanes live.** Ringer cloned (`~/Documents/Claude/ringer`), config installed, demo verified in Ringside. Setup finding: the demo initially failed 0/3 because Codex CLI 0.139.0 predates its own default model (`gpt-5.6-sol` rejects older CLIs) — fixed by the CLI's self-updater (→0.144.4); keep worker CLIs current. OpenRouter lane wired (OpenCode 1.18.2 via Homebrew, Seatbelt wrapper from the Ringer clone, default `z-ai/glm-5.2`) and proven with a one-task manifest: executed check PASS on attempt 1, 9,480 tokens, ≈$0.012. Grok lane declined (no plan). Spec-craft lesson from the demo itself: a spec ending "…containing exactly: alpha ready." sometimes gets the trailing period written into the artifact — the executed check caught it every time; keep literal content on its own line or in delimiters. **Remaining for exit:** first real 2–4-task manifest from the backlog, reviewed in Ringside; `./ringer.py install-agent`.
+- **Status (2026-07-22): PHASE 1 COMPLETE — exit criteria met.** `install-agent` run (skill + hooks live). Two real swarms from the genuine backlog, all verified by executed checks, reviewed in Ringside:
+  - `repo-backlog-sweep` (4 tasks, Codex + GLM): regenerated ai-task-manager's drifted AGENTS.md file map (pushed); root-caused the token-dashboard usage-breakdown bug — `run-all.sh` never invoked `ingest-usage.mjs`; a sandbox reproduction proved the ingester itself works (fix shipped + verified end-to-end same day); audited all 25 active repos' AGENTS.md file maps against their real trees — 21 of 25 drifted.
+  - `agents-drift-fix` (20 tasks, 15 GLM / 5 Codex): regenerated every drifted File map to the `Path | Committed? | Purpose` standard. 16 first-try, 4 retry-rescued, 0 final failures; all 20 pushed.
+  - Eval log at 46 rows across 4 task types. First real routing evidence — docs work: GLM 5.2 0.76 first-try at ~23k tokens/task (~1–2¢), Codex 0.83 first-try at ~78k tokens. Recurring worker failure mode both models share: attempt 1 occasionally produces *no output file*; executed checks caught it every time.
+  - Check-craft lessons: scope path extraction to the table's Path column (backticked prose in other columns caused a false FAIL); have workers write deliverables in their own task dir and let the check copy into the target repo — sidesteps sandbox write restrictions on every engine.
 
 Guardrails inherited from Ringer: stdin closed, sandbox explicit, verification executes the artifact, raw logs only. Worktree footgun: checks copy deliverables out before exit 0.
 
