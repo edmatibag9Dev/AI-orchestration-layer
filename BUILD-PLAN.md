@@ -71,6 +71,24 @@ Goal: extend the check contract to judgment work without trusting an unverified 
 - Budget note: judging is frontier-quality work and eats plan budget — correct per the thesis, but realized savings < the pitch. Track in the token dashboard.
 - **Status (2026-07-22): STARTED — judge live in shadow mode.** `checks/judge.py` implements SPEC-judge-check exactly (exit 0/1/2, mandatory FAILED LINES, `--shadow` always-0 + append-only `runs/judge-shadow.jsonl`, `--owner-verdict` for agreement rows). First rubric: `rubrics/morning-briefing.md` v1 (10 lines from briefing editorial spec v2.5). Judge = GLM 5.2 via OpenCode (judge ≠ producer: briefing is Claude-produced; key stays in OpenCode's auth store). Calibration on the 4 archived editions (07-19..07-22): scores 1.00 / 0.90 / 0.90 / 0.90, all shadow-PASS. Signal quality on day one: one real catch (07-22 has bare unlinked tickers in take bodies — verified true, violates the briefing spec), one rubric-wording gap (R4 conflates content phrases like "GA unconfirmed" with publication-date hedges — revision candidate per invariant 6), one judge inconsistency (R10 marked fail with evidence that says pass — logged, this is what shadow mode measures). Probe lesson recorded: judge.py must run check-side (orchestrator), never inside a sandboxed worker — worker sandboxes cannot append the shadow log, and the script now exits 2 loudly in that case.
 
+## Phase 2.5 — Globalize read-side bootstrap (before Phase 3; ~1 session)
+
+Slotted 2026-07-24. Gap: agents only consult Open Brain when Ed directs them — the read-side
+adapter SPEC-activation §4 (C11) designed is installed solely in the AI-Memory-System project
+CLAUDE.md; global sessions start memory-blind. Design lives in the AI-Memory-System repo; this
+item is the install/sequencing home.
+
+- Three-layer recall stack (agreed 2026-07-24): (A) deterministic session-start cold-boot
+  globally, (B) Tier-1 live-retrieval skill unchanged for mid-session recall — explicitly NOT
+  per-prompt retrieval (noise/latency; honest-expectations clause), (C) Tier-2 manifest as
+  fixed stage 0 of every recurring task and Phase-3 harness.
+- Cross-agent rule: Ringer workers never read Open Brain; the orchestrator assembles context
+  into worker specs. Direct non-Claude readers remain a memory-system Phase 4 feature.
+- Mechanism for (A): global CLAUDE.md instruction vs SessionStart hook — decision pending
+  (hook-curl variant raises an auth-key-on-disk governance question).
+- Exit criteria: new ad-hoc session calls `cold_boot_index` unprompted; firing rate measurable
+  from `activation_audit` after ~2 weeks; 5s timeout fail-open honored.
+
 ## Phase 3 — Presales harness (weeks 6+)
 
 - Claude Agent SDK. Candidate: gap-analysis pipeline (intake requirements → requirement matrix → ratings → internal + external docs).
