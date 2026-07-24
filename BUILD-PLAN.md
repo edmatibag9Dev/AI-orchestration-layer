@@ -1,6 +1,6 @@
 # BUILD-PLAN.md — AI Orchestration Layer
 
-**Date:** 2026-07-15 · **Status:** Phase 1 COMPLETE (2026-07-22) · Phase 2 STARTED (2026-07-22) — shadow mode live on the morning briefing
+**Date:** 2026-07-15 · **Status:** Phase 1 COMPLETE (2026-07-22) · Phase 2 STARTED (2026-07-22) — shadow mode live on the morning briefing · Phase 2.5 INSTALLED (2026-07-24) · Phase 2.6 slotted (2026-07-24)
 **Sources:** Ringer guide (Nate B. Jones), harness anatomy (Claire Vo / Claude Agent SDK), loop-of-loops, 4 Patterns, steer-vs-dispatch Run Spec.
 
 ---
@@ -98,6 +98,32 @@ item is the install/sequencing home.
 - Exit criteria: new ad-hoc session calls `cold_boot_index` unprompted; firing rate ≥95%
   measured from `activation_audit` after ~2 weeks; 5s timeout fail-open honored.
 
+## Phase 2.6 — Escalation policy + sampling plan (before Phase 3; ~1 session)
+
+Slotted 2026-07-24 (adversarial review). Gap: owner attention is the scarcest resource in the
+system and the only one not instrumented — every agent re-derives when to interrupt Ed, and
+review is all-or-nothing (review-everything now, review-nothing after judge graduation).
+
+- **One decision-rights contract**, versioned here as `ESCALATION-POLICY.md`, classifying every
+  decision an agent can hit into four lanes:
+  1. **Auto-proceed + log** — reversible, in-spec, covered by an executed check.
+  2. **Batch to digest** — noteworthy, not blocking; lands as a digest line, never an interrupt.
+  3. **Block-and-ask** — scope changes, irreversible or outward-facing actions, spend above threshold.
+  4. **Never automate** — permanent human gates (prospect-facing sends, financial actions, phase starts).
+- **Sampling plan** replaces review-everything after judge graduation: audit N% of *passing*
+  artifacts, escalate the rate when a sample fails, decay it when clean. Counters Goodhart on
+  executed checks — quality dimensions not encoded in the check otherwise degrade silently.
+- **Eval-log amendment (effective immediately):** every reviewed failure gets tagged
+  `fault: spec | worker | check`, so the flywheel can separate ambiguous specs from weak models
+  from broken checks. Without attribution the scoreboard can't compound.
+- **Metric:** Ed-interrupts per build, tracked alongside tokens — trending down without
+  under-asking incidents.
+- The policy is an input to every Phase-3 harness spec and every scheduled-task prompt:
+  enforced by manifest/harness design (agents read it at dispatch), not by model memory.
+- **Exit criteria:** policy file committed; the four lanes referenced from ≥1 live manifest and
+  ≥1 scheduled task; sampling active on the first post-graduation judge workload; `fault` field
+  appearing in new eval rows.
+
 ## Phase 3 — Presales harness (weeks 6+)
 
 - Claude Agent SDK. Candidate: gap-analysis pipeline (intake requirements → requirement matrix → ratings → internal + external docs).
@@ -105,11 +131,27 @@ item is the install/sequencing home.
 - Parallelizable stages dispatch through Ringer manifests with judge checks.
 - Permanent human gate on anything prospect-facing, regardless of judge score.
 - Build the harness *with* the agent so the agent can maintain it (Pattern 3).
+- **Requirement (added 2026-07-24) — integration gate:** a final stage merges all passing tasks
+  and executes the *system-level* check (full suite / end-to-end run) before the build counts as
+  done. Task-level exit 0 is not build-level proof; worktree merge conflicts surface here, not at
+  delivery.
+- **Requirement (added 2026-07-24) — security lint:** the default check template for any worker
+  code that gets committed includes a mechanical secrets/dependency scan.
+- **Context stage (added 2026-07-24, per Phase 2.5):** stage 0 of every harness is a Tier-2
+  Open Brain manifest; workers never read the Brain — the orchestrator injects context.
 
 ## Phase 4 — Loops upgrade + router (later)
 
 - Rewrite scheduled tasks as loop specs (trigger, sources, memory, safe actions, stop points, record, handoffs) with an attention-layer summary: ran clean / changed / repaired / needs judgment / stopped on failed check.
 - Chief-of-Agents router built only once `./ringer.py models` has real per-task-type history.
+- **(added 2026-07-24) Attention layer upgraded to a proposal queue:** the system maintains the
+  backlog (capstone open-items, repo TODOs, standing flags) and proposes next swarm manifests
+  with cost estimates; Ed approves a queue instead of initiating every build. Inverts intake —
+  arguably the router's real MVP.
+- **(added 2026-07-24) Routing economics:** extend the scoreboard to **cost per verified pass**
+  (pass rate per dollar, queryable from existing eval rows), and track interactive-session vs
+  headless-run spend — moving workloads to headless + digest + exception escalation is the
+  single biggest token lever available.
 
 ### Phase 4a — Self-healing scheduled jobs (sentinel/repair loop) — can pilot after Phase 1
 
@@ -138,5 +180,8 @@ Goal: a scheduled job that errors gets diagnosed and fixed by an agent, unattend
 
 - Phase 1: ≥1 real swarm/week; first-try pass rate visible; frontier tokens on mechanical work trending down.
 - Phase 2: judge/owner agreement measured; ≥80% before gating internal work.
+- Phase 2.5: bootstrap firing rate ≥95% from `activation_audit` (~2 weeks of data).
+- Phase 2.6: Ed-interrupts per build measured and trending down; sampled-audit failure rate low and stable.
 - Phase 3: gap-analysis cycle time vs. baseline; zero re-explaining of job setup per run.
 - Standing: plan-cap hits on mechanical work down; review time per accepted artifact down.
+- Standing (added 2026-07-24): cost per verified pass per model × task type visible; share of work run headless vs. interactive trending up.
