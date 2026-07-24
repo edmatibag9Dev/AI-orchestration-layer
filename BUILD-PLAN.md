@@ -84,10 +84,19 @@ item is the install/sequencing home.
   fixed stage 0 of every recurring task and Phase-3 harness.
 - Cross-agent rule: Ringer workers never read Open Brain; the orchestrator assembles context
   into worker specs. Direct non-Claude readers remain a memory-system Phase 4 feature.
-- Mechanism for (A): global CLAUDE.md instruction vs SessionStart hook — decision pending
-  (hook-curl variant raises an auth-key-on-disk governance question).
-- Exit criteria: new ad-hoc session calls `cold_boot_index` unprompted; firing rate measurable
-  from `activation_audit` after ~2 weeks; 5s timeout fail-open honored.
+- Mechanism for (A) — DECIDED 2026-07-24: **B1** — SessionStart hook injects the cold-boot
+  *instruction*; the model makes the gated MCP call itself. No credentials in the hook, one
+  server-side enforcement point (scope gate + activation_audit) preserved, firing measurable.
+  One-line global CLAUDE.md backstop for surfaces where hooks don't run. B2 (hook curls the
+  Edge Function directly, key in macOS Keychain) is the escalation path only if measured
+  firing rate < 95% — taken with a mini-eval, not pre-emptively.
+- **Status (2026-07-24): INSTALLED.** Canonical script `AI-Memory-System/hooks/coldboot-bootstrap.sh`
+  (v1.0) → installed at `~/.claude/hooks/`, wired as a second SessionStart hook in
+  `~/.claude/settings.json` (10s timeout; echo-only, fail-open by construction). Backstop line
+  added to global CLAUDE.md. `cold_boot_index` verified live from this session (default scope,
+  sub-second, 722 activatable rows indexed).
+- Exit criteria: new ad-hoc session calls `cold_boot_index` unprompted; firing rate ≥95%
+  measured from `activation_audit` after ~2 weeks; 5s timeout fail-open honored.
 
 ## Phase 3 — Presales harness (weeks 6+)
 
