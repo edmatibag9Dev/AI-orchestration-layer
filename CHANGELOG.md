@@ -4,6 +4,27 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-07-24b] — Phase 2.6 built: ESCALATION-POLICY.md v1.1, adversarially hardened same-day
+
+### Added
+- `ESCALATION-POLICY.md` v1.0 → v1.1: four decision lanes with definitions block, severity
+  gate on the digest, objective-aggregate spend gate, sampling plan with anti-gaming rules,
+  required fault attribution, two-counter interrupt metric, and a Mechanics section naming
+  every record, schema, owner, and trigger. Parameters set by Ed: $5/objective spend gate,
+  evening Slack digest, 20% sampling start (5% floor), all-outbound = Lane 3.
+- Mini-eval: 3-lens adversarial Ringer swarm (`escalation-policy-review`) — Codex
+  (abuse/loopholes, 16 findings first-try), GLM 5.2 (spec-coherence vs SPEC-activation /
+  SPEC-self-healing / SPEC-judge-check, 4 findings, retry-rescued), Kimi K2.7 on its first
+  audition (enforceability, 11 findings, first-try). 31 findings; v1.1 adopts the confirmed
+  ones. Top catches: Lane 3 scope-widening line contradicted SPEC-activation's silent
+  standing-scope rule; Class-2 repairs were mapped to Lane 3 when the SPEC makes them digest
+  items; spend gate was splittable into sub-$5 runs; sampling decay counted zero-sample weeks
+  as clean.
+- Deliberate rejections recorded: default-branch pushes stay Lane 1 for Ed-owned doc/tool
+  repos (interrupt economics; force/tags/deploy-triggering pushes excluded); full single-use
+  approval bookkeeping deferred (binding-to-instance rule adopted instead); Kimi's P0 grades
+  re-leveled to P1 (measurability, not safety).
+
 ## [2026-07-24] — Phase 2.5 installed (read-side bootstrap) · Phase 2.6 slotted (escalation policy)
 
 ### Added

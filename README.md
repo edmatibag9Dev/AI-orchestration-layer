@@ -10,6 +10,7 @@ This repo is the planning and build home for the next layer of a personal AI har
 
 - **Phased build plan** (`BUILD-PLAN.md`): Ringer on code work → LLM-judge check pattern → presales harness → loops upgrade + router, with exit criteria and kill signals per phase.
 - **Judge-check specification** (`SPEC-judge-check.md`): the interface for extending Ringer's exit-code verification contract to judgment work (documents, research, briefings) via rubric-scoring judge models — including mandatory shadow-mode calibration.
+- **Escalation policy** (`ESCALATION-POLICY.md`): the decision-rights contract (Phase 2.6) — four lanes (auto-proceed+log / digest / block-and-ask / never-automate), post-graduation sampling plan, fault attribution, and the owner-interrupt metric. v1.1 hardened by a 3-model adversarial review swarm the day it was written.
 - **Self-healing loop specification** (`SPEC-self-healing-loop.md`): the sentinel/repair pattern that lets scheduled jobs diagnose and fix their own transient failures unattended — two-error-class rule, immutable gates, append-only repair log, recurrence tripwire. Piloted live on a daily dashboard job 2026-07-15.
 - **Sample manifest** (`samples/sample.swarm.json`): a reference Ringer manifest showing spec / check / expect_files / verified fields, including one judge-checked task.
 - **Verification-first design**: exit code 0 or a calibrated judge verdict are the only accepted proofs; worker self-reports are never trusted.
@@ -22,6 +23,7 @@ This repo is the planning and build home for the next layer of a personal AI har
 | `README.md` | This human quickstart. |
 | `llms.txt` | Machine-readable index. |
 | `BUILD-PLAN.md` | Architecture, phased plan, decisions, risks, success metrics. |
+| `ESCALATION-POLICY.md` | Decision-rights contract: four lanes, sampling plan, fault attribution, interrupt metric (Phase 2.6). |
 | `SPEC-judge-check.md` | Interface contract for the LLM-judge check pattern (Phase 2). |
 | `SPEC-self-healing-loop.md` | Sentinel/repair pattern for scheduled jobs (Phase 4a — pilot live). |
 | `samples/sample.swarm.json` | Reference manifest (committed sample; real manifests are gitignored). |

@@ -123,6 +123,15 @@ review is all-or-nothing (review-everything now, review-nothing after judge grad
 - **Exit criteria:** policy file committed; the four lanes referenced from ≥1 live manifest and
   ≥1 scheduled task; sampling active on the first post-graduation judge workload; `fault` field
   appearing in new eval rows.
+- **Status (2026-07-24): POLICY BUILT — `ESCALATION-POLICY.md` v1.1 committed.** Parameters set
+  by Ed ($5/objective gate, evening Slack digest, 20%→5% sampling, all-outbound Lane 3).
+  Hardened same-day by a 3-lens adversarial Ringer swarm (Codex abuse / GLM coherence / Kimi
+  K2.7 enforceability — Kimi's first audition, first-try pass): 31 findings, confirmed ones
+  folded into v1.1, incl. two P1 spec-contradictions (Lane-3 scope-widening line vs
+  SPEC-activation's silent standing scopes; Class-2 repairs → Lane 2, not 3). **Remaining for
+  exit:** wire the policy reference into ≥1 scheduled task (standing-config change — needs
+  Ed's yes) and into the next live manifest; digest-job mechanics land with that wiring;
+  sampling activates at first judge graduation.
 
 ## Phase 3 — Presales harness (weeks 6+)
 
