@@ -4,6 +4,29 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-07-24] — Phase 2.5 installed (read-side bootstrap) · Phase 2.6 slotted (escalation policy)
+
+### Added
+- `BUILD-PLAN.md` Phase 2.5 — globalize read-side bootstrap: three-layer recall stack
+  (session-start cold-boot / Tier-1 skill / Tier-2 manifest as harness stage 0), mechanism B1
+  decided and INSTALLED same day (SessionStart hook injects the cold-boot instruction; no
+  credentials; canonical script lives in the AI-Memory-System repo). Workers never read Open
+  Brain — the orchestrator injects context.
+- `BUILD-PLAN.md` Phase 2.6 — escalation policy + sampling plan, slotted from the 7/24
+  adversarial review: four decision lanes (auto-proceed / digest / block-and-ask /
+  never-automate), sampled audit of passing work post-judge-graduation, eval-log fault
+  attribution (`spec|worker|check`, effective immediately), Ed-interrupts-per-build metric.
+- Phase 3 requirements: integration gate (system-level check after merge), security lint in
+  the default check template, Tier-2 manifest as stage 0.
+- Phase 4: attention layer upgraded to a proposal queue; routing economics extended to cost
+  per verified pass and headless-vs-interactive spend.
+
+### Notes
+- Adversarial-review thesis recorded: the stack is excellent at verifying work, still
+  artisanal at deciding what work happens and what deserves the owner's eyes.
+- Architecture flow chart published as a status-coded artifact (live / calibrating / planned /
+  gap) for visual review.
+
 ## [2026-07-22b] — Phase 2 started: LLM-judge shadow mode live on the morning briefing
 
 ### Added
