@@ -128,10 +128,14 @@ review is all-or-nothing (review-everything now, review-nothing after judge grad
   Hardened same-day by a 3-lens adversarial Ringer swarm (Codex abuse / GLM coherence / Kimi
   K2.7 enforceability — Kimi's first audition, first-try pass): 31 findings, confirmed ones
   folded into v1.1, incl. two P1 spec-contradictions (Lane-3 scope-widening line vs
-  SPEC-activation's silent standing scopes; Class-2 repairs → Lane 2, not 3). **Remaining for
-  exit:** wire the policy reference into ≥1 scheduled task (standing-config change — needs
-  Ed's yes) and into the next live manifest; digest-job mechanics land with that wiring;
-  sampling activates at first judge graduation.
+  SPEC-activation's silent standing scopes; Class-2 repairs → Lane 2, not 3). **Wiring
+  (2026-07-24, Ed's Lane-3 yes):** new `evening-digest` scheduled task (daily 7:05 PM) owns the
+  Lane-2 mechanics — reads `runs/digest.jsonl`, severity-gates, delivers the single Slack
+  message to Ed, marks expiring/stale, Sunday interrupt+sampling rollup; references the policy
+  by path (scheduled-task exit criterion MET). Digest seeded with 3 standing items.
+  **Remaining for exit:** policy reference in the next live manifest; sampling activates at
+  first judge graduation; Ed to click "Run now" once on `evening-digest` to prestage tool
+  permissions (the Phase-4a lesson).
 
 ## Phase 3 — Presales harness (weeks 6+)
 
