@@ -165,6 +165,15 @@ review is all-or-nothing (review-everything now, review-nothing after judge grad
   (pass rate per dollar, queryable from existing eval rows), and track interactive-session vs
   headless-run spend — moving workloads to headless + digest + exception escalation is the
   single biggest token lever available.
+- **Status (2026-07-27): ATTENTION-LAYER PILOT LIVE (pulled forward, Ed's Lane-3 yes).**
+  Trigger: Ed had no unified view of routine health — per-run Slack notifications only, and a
+  silently-missed run was invisible. Shipped: `ops-watcher` scheduled task (daily 8:04 AM) +
+  deterministic health engine `ops/watch.py` + generated `mission-control.html` dashboard.
+  The engine computes per-routine health (OK / in-window / MISSED / disabled) from cron
+  schedule vs `lastRunAt` — no notification parsing as primary signal — plus digest-queue
+  aging; the watcher routes per ESCALATION-POLICY.md severity gate (urgent → one Slack DM;
+  noteworthy → Lane-2 digest rows delivered by evening-digest; healthy days → dashboard
+  update only, no ping). Loop-spec rewrite, proposal queue, and router remain open.
 
 ### Phase 4a — Self-healing scheduled jobs (sentinel/repair loop) — can pilot after Phase 1
 

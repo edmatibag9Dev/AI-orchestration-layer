@@ -19,9 +19,14 @@ Design in one line: **frontier model writes specs and reviews; cheap verified wo
 | `BUILD-PLAN.md` | yes | Architecture, phased plan, decisions, risks, metrics. |
 | `SPEC-judge-check.md` | yes | Interface contract for LLM-judge checks (Phase 2). |
 | `SPEC-self-healing-loop.md` | yes | Sentinel/repair pattern for scheduled jobs (Phase 4a). |
+| `ESCALATION-POLICY.md` | yes | Decision-rights contract: four escalation lanes, sampling plan, fault attribution (Phase 2.6). |
+| `checks/judge.py` | yes | LLM-judge check runner implementing SPEC-judge-check (Phase 2, shadow mode). |
+| `rubrics/` | yes | Judge rubrics, one per deliverable type. |
+| `ops/watch.py` | yes | Ops Watcher health engine: cron-vs-lastRun health calc + Mission Control dashboard render (Phase 4 attention layer). |
 | `samples/sample.swarm.json` | yes | Scrubbed reference manifest. |
 | `CONTRIBUTING.md` | yes | Commit format + README standards (canonical copy). |
 | `CHANGELOG.md` | yes | Dated change log. |
+| `mission-control.html` | **no (gitignored)** | Generated ops dashboard — rebuilt by each ops-watcher run; never hand-edit. |
 | `manifests/` | **no (gitignored)** | Real swarm manifests — reference live work and client context. |
 | `runs/`, `*.jsonl`, `*.log` | **no (gitignored)** | Eval logs and run artifacts — machine-local history. |
 | `CONFIG.local.md` | **no (gitignored)** | Real values for scrubbed placeholders. |

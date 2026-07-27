@@ -12,6 +12,7 @@ This repo is the planning and build home for the next layer of a personal AI har
 - **Judge-check specification** (`SPEC-judge-check.md`): the interface for extending Ringer's exit-code verification contract to judgment work (documents, research, briefings) via rubric-scoring judge models — including mandatory shadow-mode calibration.
 - **Escalation policy** (`ESCALATION-POLICY.md`): the decision-rights contract (Phase 2.6) — four lanes (auto-proceed+log / digest / block-and-ask / never-automate), post-graduation sampling plan, fault attribution, and the owner-interrupt metric. v1.1 hardened by a 3-model adversarial review swarm the day it was written.
 - **Self-healing loop specification** (`SPEC-self-healing-loop.md`): the sentinel/repair pattern that lets scheduled jobs diagnose and fix their own transient failures unattended — two-error-class rule, immutable gates, append-only repair log, recurrence tripwire. Piloted live on a daily dashboard job 2026-07-15.
+- **Ops Watcher + Mission Control** (`ops/watch.py`, Phase 4 attention layer, live 2026-07-27): a daily 8 AM scheduled task that deterministically checks every scheduled routine's run health (cron schedule vs last run — a silently-missed run is caught without relying on noticing an absent notification), tracks the Lane-2 digest queue's aging, regenerates the `mission-control.html` dashboard, and escalates per the escalation policy: urgent issues → one Slack DM, noteworthy items → evening digest, healthy days → dashboard only.
 - **Sample manifest** (`samples/sample.swarm.json`): a reference Ringer manifest showing spec / check / expect_files / verified fields, including one judge-checked task.
 - **Verification-first design**: exit code 0 or a calibrated judge verdict are the only accepted proofs; worker self-reports are never trusted.
 
@@ -26,6 +27,8 @@ This repo is the planning and build home for the next layer of a personal AI har
 | `ESCALATION-POLICY.md` | Decision-rights contract: four lanes, sampling plan, fault attribution, interrupt metric (Phase 2.6). |
 | `SPEC-judge-check.md` | Interface contract for the LLM-judge check pattern (Phase 2). |
 | `SPEC-self-healing-loop.md` | Sentinel/repair pattern for scheduled jobs (Phase 4a — pilot live). |
+| `ops/watch.py` | Ops Watcher health engine — run-health calc + Mission Control dashboard render (Phase 4). |
+| `mission-control.html` | Generated ops dashboard (gitignored — rebuilt each ops-watcher run). |
 | `samples/sample.swarm.json` | Reference manifest (committed sample; real manifests are gitignored). |
 | `CONTRIBUTING.md` | Commit format + README standards (canonical copy). |
 | `CHANGELOG.md` | Dated log of notable changes. |
@@ -45,6 +48,8 @@ cd ringer && ./ringer.py demo
 ```
 
 Start with `BUILD-PLAN.md` for the current phase and its exit criteria. Manifest craft: every check must print WHY it fails (the failure output feeds the retry prompt).
+
+**Mission Control dashboard:** open `mission-control.html` in a browser for the live view of all scheduled routines (status, last/next run) and the open digest queue. It regenerates every morning via the `ops-watcher` scheduled task; to refresh on demand, write a fresh `list_scheduled_tasks` snapshot to `runs/scheduled-tasks-snapshot.json` and run `python3 ops/watch.py`.
 
 ## Data Sources
 
@@ -66,4 +71,4 @@ Phase 1 plumbing is live as of 2026-07-15: Ringer demo verified, and two worker 
 Update `BUILD-PLAN.md` when a phase completes or a decision changes, add a dated `CHANGELOG.md` entry, and refresh this README on every `feat`/`fix`/`data` commit. Real manifests and eval logs stay out of git; commit a scrubbed sample instead when a new pattern is worth preserving.
 
 ---
-*Last updated: 2026-07-15*
+*Last updated: 2026-07-27*

@@ -4,6 +4,28 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-07-27] — Phase 4 attention-layer pilot: ops-watcher + Mission Control dashboard
+
+### Added
+- `ops/watch.py` — deterministic run-health engine (no dependencies): computes per-routine
+  health (OK / in-window / MISSED / disabled) from each scheduled task's cron expression vs
+  `lastRunAt` in local time, reads the Lane-2 `runs/digest.jsonl` queue with day-12/14 aging,
+  writes `runs/ops-status.json`, renders the brand-styled `mission-control.html` dashboard,
+  and prints an escalation-candidate summary for the watcher agent.
+- `ops-watcher` scheduled task (daily 8:04 AM, lives in `~/.claude/scheduled-tasks/`):
+  snapshots `list_scheduled_tasks` → runs the engine → investigates misses via session
+  transcripts + Slack notifications → routes per ESCALATION-POLICY.md (urgent → one Slack DM
+  to Ed; noteworthy → Lane-2 digest rows; healthy → dashboard only). Surface-not-fix: task
+  changes stay Lane 3.
+- AGENTS.md file map trued up: added missing `ESCALATION-POLICY.md`, `checks/judge.py`,
+  `rubrics/`, plus the new `ops/watch.py` and gitignored `mission-control.html` rows
+  (drift originally flagged 2026-07-12).
+
+### Rationale
+- Ed's routine fleet (7 active tasks) had per-run Slack notifications but no aggregate view;
+  a missed run was only detectable by noticing an absent notification. This pulls
+  BUILD-PLAN Phase 4's "attention layer" forward as a pilot.
+
 ## [2026-07-24b] — Phase 2.6 built: ESCALATION-POLICY.md v1.1, adversarially hardened same-day
 
 ### Added
