@@ -23,6 +23,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SNAPSHOT = ROOT / "runs" / "scheduled-tasks-snapshot.json"
 DIGEST = ROOT / "runs" / "digest.jsonl"
+HEARTBEAT = ROOT / "runs" / "heartbeat.jsonl"
 STATUS_OUT = ROOT / "runs" / "ops-status.json"
 HTML_OUT = ROOT / "mission-control.html"
 
@@ -90,7 +91,26 @@ def fmt(dt, now):
 
 # ---------------------------------------------------------------- health
 
-def assess(task: dict, now: datetime) -> dict:
+def read_heartbeats():
+    """Latest heartbeat row per task, from runs/heartbeat.jsonl (self-reported by each routine's
+    attention-layer footer). Absence is neutral — not every routine has reported yet."""
+    latest = {}
+    if HEARTBEAT.exists():
+        for line in HEARTBEAT.read_text().splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                row = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            ts = parse_iso(row.get("ts"))
+            if row.get("task") and ts and (row["task"] not in latest or ts > latest[row["task"]][0]):
+                latest[row["task"]] = (ts, row.get("status", ""), row.get("note", ""))
+    return latest
+
+
+def assess(task: dict, now: datetime, heartbeats=None) -> dict:
     out = {
         "taskId": task["taskId"],
         "description": task.get("description", ""),
@@ -130,6 +150,10 @@ def assess(task: dict, now: datetime) -> dict:
         out["status"], out["detail"] = "ok", "no fire due in lookback window"
     elif last is not None and last >= expected - LATE_SLACK:
         out["status"], out["detail"] = "ok", f"ran {fmt(last, now)}"
+        hb = (heartbeats or {}).get(task["taskId"])
+        if hb and hb[0] >= expected - LATE_SLACK and hb[1] in ("failed", "partial"):
+            out["status"] = hb[1]
+            out["detail"] = f"run started {fmt(last, now)} but self-reported {hb[1]}: {hb[2]}"
     elif now <= expected + jitter + RUN_GRACE:
         out["status"] = "pending"
         out["detail"] = f"fire window open (due {expected.strftime('%-I:%M %p')}, jitter+grace not elapsed)"
@@ -168,6 +192,8 @@ BADGE = {
     "ok":        ("#15803D", "#2E9E5B", "OK"),
     "pending":   ("#2B6CB0", "#2B6CB0", "In window"),
     "missed":    ("#B91C1C", "#D64545", "Missed"),
+    "failed":    ("#B91C1C", "#D64545", "Failed"),
+    "partial":   ("#B45309", "#E0A33E", "Partial"),
     "off":       ("#B45309", "#E0A33E", "Disabled"),
     "note":      ("#B45309", "#E0A33E", "Note"),
     "done":      ("#4D5757", "#97A3A3", "Done"),
@@ -189,13 +215,13 @@ def render_html(assessed, digest_items, digest_counts, now):
     active = [t for t in assessed if not t["oneTime"] and t["enabled"]]
     retired = [t for t in assessed if t not in active]
     n_ok = sum(1 for t in active if t["status"] == "ok")
-    n_bad = sum(1 for t in active if t["status"] == "missed")
+    n_bad = sum(1 for t in active if t["status"] in ("missed", "failed"))
     n_pend = sum(1 for t in active if t["status"] == "pending")
     n_queue = digest_counts.get("new", 0) + digest_counts.get("expiring", 0)
 
     def task_rows(tasks):
         rows = []
-        for t in sorted(tasks, key=lambda x: ({"missed": 0, "pending": 1, "off": 2, "note": 2}.get(x["status"], 3), x["taskId"])):
+        for t in sorted(tasks, key=lambda x: ({"missed": 0, "failed": 0, "partial": 1, "pending": 2, "off": 3, "note": 3}.get(x["status"], 4), x["taskId"])):
             last = fmt(parse_iso(t.get("lastRunAt")), now)
             nxt = fmt(parse_iso(t.get("nextRunAt")), now)
             rows.append(
@@ -208,7 +234,7 @@ def render_html(assessed, digest_items, digest_counts, now):
             )
         return "\n".join(rows)
 
-    attention = [t for t in active if t["status"] in ("missed", "off", "note")]
+    attention = [t for t in active if t["status"] in ("missed", "failed", "partial", "off", "note")]
     attention_html = ""
     if attention or any(i["status"] == "expiring" or (i["age_days"] or 0) >= 12 for i in digest_items):
         lines = [f'<li><strong>{esc(t["taskId"])}</strong> — {esc(t["detail"])}</li>' for t in attention]
@@ -314,12 +340,13 @@ def main():
         print(f"ERROR: snapshot not found at {SNAPSHOT} — write list_scheduled_tasks output there first.")
         return
     tasks = json.loads(SNAPSHOT.read_text())
-    assessed = [assess(t, now) for t in tasks]
+    heartbeats = read_heartbeats()
+    assessed = [assess(t, now, heartbeats) for t in tasks]
     digest_items, digest_counts = read_digest(now)
 
     active = [t for t in assessed if not t["oneTime"] and t["enabled"]]
-    missed = [t for t in active if t["status"] == "missed"]
-    flags = [t for t in assessed if t["status"] in ("off", "note") and not t["oneTime"]]
+    missed = [t for t in active if t["status"] in ("missed", "failed")]
+    flags = [t for t in assessed if t["status"] in ("off", "note", "partial") and not t["oneTime"]]
     aging = [i for i in digest_items if i["status"] == "expiring" or (i["age_days"] or 0) >= 12]
 
     STATUS_OUT.write_text(json.dumps({
@@ -335,9 +362,9 @@ def main():
     print(f"OPS-WATCH {now.strftime('%Y-%m-%d %H:%M %Z')}")
     print(f"ROUTINES: {len(active)} active — "
           f"{sum(1 for t in active if t['status']=='ok')} OK, "
-          f"{sum(1 for t in active if t['status']=='pending')} in-window, {len(missed)} MISSED")
+          f"{sum(1 for t in active if t['status']=='pending')} in-window, {len(missed)} MISSED/FAILED")
     for t in missed:
-        print(f"  [MISSED] {t['taskId']} — {t['detail']}")
+        print(f"  [{t['status'].upper()}] {t['taskId']} — {t['detail']}")
     for t in flags:
         print(f"  [FLAG] {t['taskId']} — {t['detail']}")
     print(f"DIGEST: {digest_counts.get('new',0)} new, {digest_counts.get('expiring',0)} expiring, "
@@ -346,7 +373,7 @@ def main():
         print(f"  [AGING] day {i['age_days']}: {i['text'][:110]}")
     print(f"WROTE: {STATUS_OUT.relative_to(ROOT)} + {HTML_OUT.name}")
     print(f"ESCALATE-CANDIDATE: {'YES' if missed else 'no'}"
-          + (f" — {len(missed)} missed run(s); investigate cause, then Slack DM Ed per severity gate" if missed else ""))
+          + (f" — {len(missed)} missed/failed run(s); investigate cause, then Slack DM Ed per severity gate" if missed else ""))
 
 
 if __name__ == "__main__":

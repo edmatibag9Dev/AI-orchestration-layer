@@ -4,6 +4,26 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-07-27b] — Attention-layer footers + heartbeat channel (Ed's Lane-3 yes)
+
+### Added
+- Attention-layer footer appended to all 6 worker routine prompts (morning briefing,
+  longboard, mastermind, 3 earnings-put tasks): (1) noteworthy non-blocking findings →
+  Lane-2 rows in `runs/digest.jsonl`; (2) incompletable jobs must declare failure loudly AND
+  file a Lane-2 row; (3) every run ends by appending `{task, ts, status: ok|partial|failed,
+  note}` to `runs/heartbeat.jsonl`.
+- `ops/watch.py` now reads `runs/heartbeat.jsonl`: a run whose `lastRunAt` stamped but whose
+  latest heartbeat self-reports failed/partial overrides OK → FAILED/PARTIAL on the dashboard
+  and in the escalate summary. Heartbeat absence is neutral (rollout-safe). Verified with a
+  synthetic failed heartbeat: status flipped and ESCALATE-CANDIDATE fired; clean state restored.
+- ops-watcher prompt updated to investigate FAILED/PARTIAL alongside MISSED.
+
+### Rationale
+- Closed two gaps found when Ed asked whether job-discovered issues get flagged: worker
+  routines had no knowledge of the digest queue (findings scrolled by in per-run Slack
+  notifications), and a run that started then died still read as healthy because `lastRunAt`
+  stamps at run start.
+
 ## [2026-07-27] — Phase 4 attention-layer pilot: ops-watcher + Mission Control dashboard
 
 ### Added
