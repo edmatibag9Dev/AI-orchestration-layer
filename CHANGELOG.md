@@ -4,6 +4,21 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-07-28] — Registry consolidation: 8 session-scoped Cowork tasks migrated
+
+### Changed
+- Migrated all session-scoped Cowork scheduled tasks into the shared `~/.claude/scheduled-tasks`
+  registry (Ed's Lane-3 yes): action-item-triage, claude-token-dashboard-update,
+  token-dashboard-sentinel, substack-inbox-watcher, weekly-saltwater-fishing-report,
+  weekly-brain-review, open-brain-wiki-update, freshwater-trip-log (ad-hoc). Original prompts
+  spliced verbatim from `~/Claude/Scheduled/`; attention-layer footers added; Ed deletes the
+  old session-scoped copies in the Cowork UI to prevent double runs.
+- `ops/watch.py`: new statuses — "Not yet run" (enabled cron task with no lastRunAt; prevents
+  false MISSED on freshly created tasks) and "On-demand" (manual-only tasks, grouped out of
+  the active fleet). Dashboard fleet now 15 active routines.
+- Not migrated (flagged for Ed): booker-mastermind-daily-journal (superseded by
+  mastermind-daily-capture) and token-dashboard-phase1-review (one-time, past).
+
 ## [2026-07-27b] — Attention-layer footers + heartbeat channel (Ed's Lane-3 yes)
 
 ### Added

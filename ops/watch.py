@@ -141,7 +141,11 @@ def assess(task: dict, now: datetime, heartbeats=None) -> dict:
         out["detail"] = "recurring task is DISABLED — verify this is intentional"
         return out
     if not expr:
-        out["status"], out["detail"] = "note", "enabled but no cronExpression"
+        if "manual" in (task.get("schedule") or "").lower():
+            out["status"], out["detail"] = "manual", "on-demand — runs only when started manually"
+            out["oneTime"] = True  # group with retired/on-demand, not the active fleet
+        else:
+            out["status"], out["detail"] = "note", "enabled but no cronExpression"
         return out
 
     expected = prev_fire(expr, now)
@@ -157,6 +161,9 @@ def assess(task: dict, now: datetime, heartbeats=None) -> dict:
     elif now <= expected + jitter + RUN_GRACE:
         out["status"] = "pending"
         out["detail"] = f"fire window open (due {expected.strftime('%-I:%M %p')}, jitter+grace not elapsed)"
+    elif last is None:
+        out["status"] = "new"
+        out["detail"] = "never run yet (newly created/migrated) — first fire pending"
     else:
         out["status"] = "missed"
         out["detail"] = f"expected {fmt(expected, now)}, last ran {fmt(last, now)}"
@@ -196,6 +203,8 @@ BADGE = {
     "partial":   ("#B45309", "#E0A33E", "Partial"),
     "off":       ("#B45309", "#E0A33E", "Disabled"),
     "note":      ("#B45309", "#E0A33E", "Note"),
+    "new":       ("#2B6CB0", "#2B6CB0", "Not yet run"),
+    "manual":    ("#4D5757", "#97A3A3", "On-demand"),
     "done":      ("#4D5757", "#97A3A3", "Done"),
     "scheduled": ("#2B6CB0", "#2B6CB0", "Scheduled"),
 }
