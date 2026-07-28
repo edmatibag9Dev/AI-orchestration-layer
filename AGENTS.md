@@ -25,11 +25,11 @@ Design in one line: **frontier model writes specs and reviews; cheap verified wo
 | `samples/sample.swarm.json` | yes | Scrubbed reference manifest. |
 | `CONTRIBUTING.md` | yes | Commit format + README standards (canonical copy). |
 | `CHANGELOG.md` | yes | Dated change log. |
-
-The Phase-4 attention layer (Ops Watcher engine + Mission Control dashboard) was **extracted 2026-07-28** to its own repo: `edmatibag9Dev/Mission-Control-Dashboard` (`~/Documents/Claude/Projects/Mission-Control-Dashboard`). `runs/digest.jsonl` stays here — the Lane-2 queue is owned by ESCALATION-POLICY.md; Mission Control reads it cross-repo.
 | `manifests/` | **no (gitignored)** | Real swarm manifests — reference live work and client context. |
 | `runs/`, `*.jsonl`, `*.log` | **no (gitignored)** | Eval logs and run artifacts — machine-local history. |
 | `CONFIG.local.md` | **no (gitignored)** | Real values for scrubbed placeholders. |
+
+The Phase-4 attention layer (Ops Watcher engine + Mission Control dashboard) was **extracted 2026-07-28** to its own repo: `edmatibag9Dev/Mission-Control-Dashboard` (`~/Documents/Claude/Projects/Mission-Control-Dashboard`). `runs/digest.jsonl` stays here — the Lane-2 queue is owned by ESCALATION-POLICY.md; Mission Control reads it cross-repo.
 
 ## The data contract (swarm manifest + judge check)
 
