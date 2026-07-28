@@ -4,6 +4,29 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-07-28b] — Mission Control V2 built (Ed's locked spec)
+
+### Added
+- Grouped layout: 8 purpose-group cards (AI Morning Briefing / Earnings Puts / Longboard /
+  Mastermind / Open Brain / Token Dashboards / Ops & System / Personal), each with a mono
+  health rollup; ungrouped tasks fall into an "Other" card.
+- Script jobs (launchd) section: tokenburn pair keyed to the `last-success` stamp (the
+  watchdog is silent-by-design — log mtime was a false-positive signal, corrected after
+  investigation showed 287 clean hourly runs), openbrain.digest and the Sunday Python
+  screener via evidence-file freshness.
+- Servers section: local port probes (8765, 8787) + remote HTTP HEAD probe of
+  eds-mac-studio.local:8080/latest.html with Last-Modified freshness (verified live:
+  200 in 0.11s, content stamped Sun 6:12 PM). Remote unreachable = amber, not escalation.
+- Staleness self-check: inline JS shows a red banner if the page is >26h old (watcher-down tell).
+- Dated archives to runs/history/ops-status-<date>.json — data for the future run-history strip.
+
+### Validated
+- First live run: 15 routines (8 OK / 1 in-window / 6 awaiting first post-migration fire),
+  4/4 script jobs OK, 3/3 servers up. Attention loop proven end-to-end same morning: the
+  7:46 AM briefing run filed 4 real Lane-2 findings via its footer (stale Runtime RSS feed,
+  Reddit metrics blocked, judge 0.80 borderline, HN roster gap) — delivery tonight via
+  evening-digest.
+
 ## [2026-07-28] — Registry consolidation: 8 session-scoped Cowork tasks migrated
 
 ### Changed
