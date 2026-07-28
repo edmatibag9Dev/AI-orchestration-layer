@@ -10,8 +10,6 @@ runs/
 # Local-only config holding personal identifiers (scrubbed from committed docs)
 CONFIG.local.md
 
-# Generated dashboard — rebuilt by ops/watch.py on every ops-watcher run
-/mission-control.html
 
 # Language / OS noise
 __pycache__/

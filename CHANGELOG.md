@@ -4,6 +4,19 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-07-28c] — Mission Control extracted to its own repo
+
+### Removed
+- `ops/watch.py` and the generated `mission-control.html` — moved (not copied; no drift) to the new
+  `edmatibag9Dev/Mission-Control-Dashboard` repo along with watcher-owned runtime data (snapshot,
+  heartbeat.jsonl, ops-status + history archives).
+
+### Changed
+- Boundary: `runs/digest.jsonl` stays HERE — the Lane-2 queue belongs to ESCALATION-POLICY.md and
+  evening-digest; Mission Control reads it cross-repo. All 13 routine footers repointed their
+  heartbeat path to the new repo; ops-watcher SKILL.md repointed (ROOT = Mission-Control-Dashboard,
+  ORCH = this repo) the same hour.
+
 ## [2026-07-28b] — Mission Control V2 built (Ed's locked spec)
 
 ### Added

@@ -12,7 +12,7 @@ This repo is the planning and build home for the next layer of a personal AI har
 - **Judge-check specification** (`SPEC-judge-check.md`): the interface for extending Ringer's exit-code verification contract to judgment work (documents, research, briefings) via rubric-scoring judge models — including mandatory shadow-mode calibration.
 - **Escalation policy** (`ESCALATION-POLICY.md`): the decision-rights contract (Phase 2.6) — four lanes (auto-proceed+log / digest / block-and-ask / never-automate), post-graduation sampling plan, fault attribution, and the owner-interrupt metric. v1.1 hardened by a 3-model adversarial review swarm the day it was written.
 - **Self-healing loop specification** (`SPEC-self-healing-loop.md`): the sentinel/repair pattern that lets scheduled jobs diagnose and fix their own transient failures unattended — two-error-class rule, immutable gates, append-only repair log, recurrence tripwire. Piloted live on a daily dashboard job 2026-07-15.
-- **Ops Watcher + Mission Control** (`ops/watch.py`, Phase 4 attention layer, live 2026-07-27): a daily 8 AM scheduled task that deterministically checks every scheduled routine's run health (cron schedule vs last run — a silently-missed run is caught without relying on noticing an absent notification), cross-checks self-reported heartbeats (`runs/heartbeat.jsonl`) so a run that started but died still surfaces as FAILED/PARTIAL, handles newly-migrated tasks ("Not yet run") and on-demand tasks without false alarms, tracks the Lane-2 digest queue's aging, regenerates the `mission-control.html` dashboard (V2 grouped layout: 8 purpose-group cards, launchd script-job checks keyed to each job's own success evidence, local port probes plus a remote HTTP probe of the Mac Studio screener with Last-Modified freshness, a >26h staleness self-check banner, and dated history archives), and escalates per the escalation policy: urgent issues → one Slack DM, noteworthy items → evening digest, healthy days → dashboard only. Every worker routine's prompt carries an attention-layer footer: file noteworthy findings as Lane-2 digest rows, declare failures loudly, and append a heartbeat line at end of run.
+- **Ops Watcher + Mission Control** — built here as the Phase 4 attention layer (live 2026-07-27), **extracted 2026-07-28 to its own repo `Mission-Control-Dashboard`**. The escalation wiring stays: worker routines file Lane-2 findings into this repo's `runs/digest.jsonl` and the `evening-digest` task delivers them; Mission Control reads the queue cross-repo.
 - **Sample manifest** (`samples/sample.swarm.json`): a reference Ringer manifest showing spec / check / expect_files / verified fields, including one judge-checked task.
 - **Verification-first design**: exit code 0 or a calibrated judge verdict are the only accepted proofs; worker self-reports are never trusted.
 
@@ -27,8 +27,6 @@ This repo is the planning and build home for the next layer of a personal AI har
 | `ESCALATION-POLICY.md` | Decision-rights contract: four lanes, sampling plan, fault attribution, interrupt metric (Phase 2.6). |
 | `SPEC-judge-check.md` | Interface contract for the LLM-judge check pattern (Phase 2). |
 | `SPEC-self-healing-loop.md` | Sentinel/repair pattern for scheduled jobs (Phase 4a — pilot live). |
-| `ops/watch.py` | Ops Watcher health engine — run-health calc + Mission Control dashboard render (Phase 4). |
-| `mission-control.html` | Generated ops dashboard (gitignored — rebuilt each ops-watcher run). |
 | `samples/sample.swarm.json` | Reference manifest (committed sample; real manifests are gitignored). |
 | `CONTRIBUTING.md` | Commit format + README standards (canonical copy). |
 | `CHANGELOG.md` | Dated log of notable changes. |
@@ -49,7 +47,7 @@ cd ringer && ./ringer.py demo
 
 Start with `BUILD-PLAN.md` for the current phase and its exit criteria. Manifest craft: every check must print WHY it fails (the failure output feeds the retry prompt).
 
-**Mission Control dashboard:** open `mission-control.html` in a browser for the live view of all scheduled routines (status, last/next run) and the open digest queue. It regenerates every morning via the `ops-watcher` scheduled task; to refresh on demand, write a fresh `list_scheduled_tasks` snapshot to `runs/scheduled-tasks-snapshot.json` and run `python3 ops/watch.py`.
+**Mission Control dashboard:** now lives in the `Mission-Control-Dashboard` repo — open `~/Documents/Claude/Projects/Mission-Control-Dashboard/mission-control.html`.
 
 ## Data Sources
 
