@@ -17,6 +17,7 @@ Design rules this file enforces (not suggests):
   * Deliverables are validated before they enter the artifact store.
 """
 import argparse
+import datetime
 import json
 import os
 import shutil
@@ -28,6 +29,31 @@ RATE_CHECK = os.path.join(REPO, "checks", "rate_check.py")
 MATRIX_CHECK = os.path.join(REPO, "checks", "matrix_check.py")
 GATE_REQUIREMENTS = "gate-requirements.approved.json"
 DEFAULT_BATCH = 10
+
+# Ringer owns the schema of runs.jsonl and treats a row with no `model` as
+# "unattributed", so appending foreign rows would pollute the very scoreboard
+# this is meant to make trustworthy. Fault attribution therefore lands in an
+# append-only SIDECAR, joined to the scoreboard on (run_id, task_key).
+RINGER_STATE = os.path.expanduser(os.environ.get("RINGER_STATE_DIR", "~/.ringer"))
+SCOREBOARD = os.path.join(RINGER_STATE, "runs.jsonl")
+FAULT_LOG = os.path.join(RINGER_STATE, "fault-attribution.jsonl")
+
+POLICY_BLOCK = """## Decision rights (ESCALATION-POLICY.md v1.1, Lane summary)
+
+You are a Lane-1 worker: your work is reversible, in-spec, and covered by an executed
+check, so proceed without asking. Three things are NOT yours to decide:
+
+- If the library is ambiguous about a capability, do NOT resolve it yourself. Rate it
+  Amber "needs confirmation" or Red, set `confirm_with_product` true, and say what is
+  ambiguous. Guessing here is the failure this whole pipeline exists to prevent.
+- Never take an outward-facing action of any kind. You produce one file in your own task
+  directory; nothing you write is ever sent, published, or shared.
+- Never widen your own scope. Rate exactly the requirements listed, nothing more.
+"""
+
+
+def _now():
+    return datetime.datetime.now(datetime.timezone.utc).isoformat()
 
 
 def die(msg, code=2):
@@ -111,6 +137,7 @@ Read only inside: {library_root}
 Start with the settled-rulings file, then the capability reference; consult the help
 documentation only to resolve something those two leave ambiguous.
 
+{policy}
 ## Requirements to rate ({count})
 
 {requirements}
@@ -150,7 +177,8 @@ def cmd_prepare(a):
         listing = "\n".join(
             f"- {r['req_id']} [{r.get('category','?')}] {r['text']}" for r in batch)
         open(os.path.join(bdir, "spec.md"), "w").write(SPEC_TEMPLATE.format(
-            library_root=lib, count=len(batch), requirements=listing))
+            library_root=lib, count=len(batch), requirements=listing,
+            policy=POLICY_BLOCK))
         tasks.append({
             "key": key,
             "engine": a.engine,
@@ -183,6 +211,29 @@ def cmd_prepare(a):
     print(f"\nthen: {sys.argv[0]} merge --run-dir {run_dir}")
 
 
+def scoreboard_rows(run_name):
+    """Rows Ringer logged for this run, keyed by task_key.
+
+    run_id looks like '<run_name>-<UTC stamp>-p<pid>', so the manifest's run_name
+    is the prefix. Read-only: this never writes to Ringer's log.
+    """
+    by_task = {}
+    if not os.path.exists(SCOREBOARD):
+        return by_task
+    for line in open(SCOREBOARD):
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            row = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if str(row.get("run_id", "")).startswith(run_name) and row.get("task_key"):
+            # later attempts (retries) supersede earlier ones for the same task
+            by_task[row["task_key"]] = row
+    return by_task
+
+
 def cmd_merge(a):
     run_dir = os.path.abspath(a.run_dir)
     payload = load_input(os.path.join(run_dir, "input.requirements.json"))
@@ -191,15 +242,31 @@ def cmd_merge(a):
     if not os.path.isdir(bdir):
         die(f"no batches/ in {run_dir} — run prepare first")
 
+    run_name = f"gap-rating-{payload['prospect_codename']}"
+    board = scoreboard_rows(run_name)
+    if not board:
+        print(f"note: no Ringer scoreboard rows found for run_name {run_name!r} — "
+              f"eval rows will carry no run_id and fault attribution cannot join "
+              f"to the scoreboard. Has the swarm actually run?")
+
     merged, missing, rows = [], [], []
     for key in sorted(os.listdir(bdir)):
         out = os.path.join(bdir, key, "ratings.json")
+        sb = board.get(key, {})
+        row = {"batch": key,
+               "run_id": sb.get("run_id"),
+               "model": sb.get("model"),
+               "task_type": sb.get("task_type"),
+               "ringer_verdict": sb.get("verdict"),
+               "worker_tokens": sb.get("worker_tokens"),
+               "fault": None}
         if not os.path.exists(out):
             missing.append(key)
-            rows.append({"batch": key, "status": "no-output", "fault": None})
-            continue
-        merged += json.load(open(out))
-        rows.append({"batch": key, "status": "verified", "fault": None})
+            row["status"] = "no-output"
+        else:
+            merged += json.load(open(out))
+            row["status"] = "verified"
+        rows.append(row)
 
     matrix = os.path.join(run_dir, "matrix.json")
     json.dump(merged, open(matrix, "w"), indent=2)
@@ -227,14 +294,43 @@ def cmd_merge(a):
 
 
 def cmd_fault(a):
+    """Attribute a failed batch — Phase 2.6 eval amendment.
+
+    Writes in two places: the run's own eval rows, and the append-only sidecar
+    beside Ringer's scoreboard so the attribution is joinable to the model and
+    task_type that produced the failure. Without the sidecar the attribution is
+    run-local and teaches routing nothing.
+    """
     path = os.path.join(os.path.abspath(a.run_dir), "eval.jsonl")
     rows = json.load(open(path))
     hit = [r for r in rows if r["batch"] == a.batch]
     if not hit:
         die(f"no eval row for batch {a.batch}")
-    hit[0]["fault"] = a.klass
+    row = hit[0]
+    row["fault"] = a.klass
+    row["fault_note"] = a.note or ""
     json.dump(rows, open(path, "w"), indent=2)
-    print(f"{a.batch}: fault={a.klass}")
+
+    if not row.get("run_id"):
+        print(f"WARNING: batch {a.batch} has no run_id — the attribution stays run-local "
+              f"and will NOT reach the scoreboard sidecar. Re-run merge after the swarm "
+              f"has logged, or attribute by hand.")
+        print(f"{a.batch}: fault={a.klass} (run-local only)")
+        return
+
+    os.makedirs(RINGER_STATE, exist_ok=True)
+    with open(FAULT_LOG, "a") as f:
+        f.write(json.dumps({
+            "ts": _now(),
+            "run_id": row["run_id"],
+            "task_key": a.batch,
+            "task_type": row.get("task_type"),
+            "model": row.get("model"),
+            "fault": a.klass,
+            "note": a.note or "",
+            "attributed_by": a.by,
+        }) + "\n")
+    print(f"{a.batch}: fault={a.klass} → {FAULT_LOG}")
 
 
 def main():
@@ -261,6 +357,8 @@ def main():
     f.add_argument("--batch", required=True)
     f.add_argument("--class", dest="klass", required=True,
                    choices=["spec", "worker", "check"])
+    f.add_argument("--note", default="", help="one line on why, for the next orchestrator")
+    f.add_argument("--by", default=os.environ.get("USER", "unknown"))
     f.set_defaults(func=cmd_fault)
 
     a = ap.parse_args()

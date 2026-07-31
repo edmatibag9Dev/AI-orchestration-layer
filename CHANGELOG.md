@@ -4,6 +4,31 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-07-31e] — Fault attribution reaches the scoreboard; workers carry decision rights
+
+### Added
+- `checks/fault_report.py` — the **reader** for fault attribution: counts by class, the
+  model × task_type breakdown that is the actual routing signal, and the unattributed backlog.
+  Built because a log with no reader is write-only data — the same mistake the owner verdicts made.
+  First run against the real scoreboard: **26 failures across 58 rows, none attributed.**
+- Fault attribution now lands in an append-only **sidecar** `~/.ringer/fault-attribution.jsonl`,
+  joined to Ringer's scoreboard on `(run_id, task_key)`. `harness/run.py merge` discovers the
+  `run_id` by prefix-matching the manifest's `run_name`, and carries model / task_type / verdict /
+  tokens into the run's eval rows.
+- `harness/run.py fault` gains `--note` and `--by`, and warns loudly when a batch has no `run_id`
+  (the attribution then stays run-local and teaches routing nothing).
+- Worker specs now carry a **decision-rights block** derived from `ESCALATION-POLICY.md` v1.1:
+  ambiguity is flagged, never resolved by the worker; no outward-facing actions; no scope widening.
+
+### Notes
+- **Deliberately NOT appending to `runs.jsonl`.** Ringer owns that schema and its accessors treat a
+  row without `model` as "unattributed" — foreign rows would skew the very routing data this is
+  meant to sharpen. Recorded in AGENTS.md as an invariant.
+- This closes Phase 2.6's last open exit criterion the moment the first real manifest dispatches:
+  the policy is now referenced from a live manifest, and the `fault` field has somewhere to land.
+- Correction to the previous entry: the earlier claim that stage 3 "finally makes the eval amendment
+  live" overstated it — attribution was run-local only until this change.
+
 ## [2026-07-31d] — Phase 3 slice built: stage-3 driver, rating check, integration gate
 
 ### Added

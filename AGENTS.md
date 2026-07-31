@@ -28,6 +28,7 @@ Design in one line: **frontier model writes specs and reviews; cheap verified wo
 | `harness/run.py` | yes | Phase 3 stage-3 driver: gate → batch → Ringer manifest → merge → integration gate. |
 | `checks/rate_check.py` | yes | Stage-3 rating check — resolves every Green/Amber citation verbatim against the library. |
 | `checks/matrix_check.py` | yes | Integration gate — system-level check on the merged matrix (Phase 3 requirement). |
+| `checks/fault_report.py` | yes | Reads the fault-attribution sidecar: class counts, model×task_type signal, unattributed backlog. |
 | `rubrics/` | yes | Judge rubrics, one per deliverable type. Line IDs are stable across versions. |
 | `samples/sample.swarm.json` | yes | Scrubbed reference manifest. |
 | `CONTRIBUTING.md` | yes | Commit format + README standards (canonical copy). |
@@ -62,7 +63,9 @@ Rules an agent must preserve:
 - Failure output must print WHY (the rubric line that failed) — it feeds the retry prompt.
 - Judge checks gate nothing until shadow-mode agreement ≥80%; externally facing deliverables always require a human gate.
 - Agreement is measured over artifacts carrying **both** a judge row and an owner verdict. Judge scores alone measure nothing — a run of clean scores is not calibration evidence.
-- Eval logs are append-only; never rewrite history. Synthetic/test judge runs use `--log <scratch>`; they never touch `runs/judge-shadow.jsonl`.
+- Eval logs are append-only; never rewrite history. **Ringer owns `runs.jsonl`'s schema** — fault
+  attribution goes to the `fault-attribution.jsonl` sidecar and joins on `(run_id, task_key)`;
+  appending foreign rows to the scoreboard would count as "unattributed" and skew routing. Synthetic/test judge runs use `--log <scratch>`; they never touch `runs/judge-shadow.jsonl`.
 - Rubric revisions that remove false positives must be shown to still fail a real violation (`checks/rubric-regression.sh`) — never soften a line to clear a failure the producer actually earned.
 
 ## How it works

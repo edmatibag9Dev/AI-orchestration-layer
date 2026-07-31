@@ -35,6 +35,7 @@ This repo is the planning and build home for the next layer of a personal AI har
 | `harness/run.py` | Phase 3 stage-3 driver (`prepare` / `merge` / `fault`). |
 | `checks/rate_check.py` | Stage-3 rating check: verbatim citation resolution, six rules, per-req failure reasons. |
 | `checks/matrix_check.py` | Integration gate over the merged matrix. |
+| `checks/fault_report.py` | Fault-attribution report — the Phase 2.6 reader (class counts, routing signal, backlog). |
 | `samples/sample.requirements.json` | Scrubbed stage-3 input adapter. |
 | `rubrics/morning-briefing.md` | Briefing rubric (v2, 2026-07-31). Line IDs stable across versions. |
 | `samples/sample.swarm.json` | Reference manifest (committed sample; real manifests are gitignored). |
