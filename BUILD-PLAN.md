@@ -187,6 +187,23 @@ review is all-or-nothing (review-everything now, review-nothing after judge grad
   code that gets committed includes a mechanical secrets/dependency scan.
 - **Context stage (added 2026-07-24, per Phase 2.5):** stage 0 of every harness is a Tier-2
   Open Brain manifest; workers never read the Brain — the orchestrator injects context.
+- **Status (2026-07-31): DESIGNED — `SPEC-presales-harness.md`.** Two scope decisions taken with
+  Ed: (a) build a **vertical slice — stage 3 (RAG rating) only**, the one genuinely
+  parallelizable stage, rather than all five at once; (b) the harness **calls** the existing
+  `<vendor>-rfp-gap-analysis` skill, which stays canonical for rating rules and prospect-facing
+  rules — one place to edit when a rule changes. Runtime decision **re-validated, not inherited**:
+  Managed Agents was evaluated as the alternative (it would supply harness *and* deployment, plus
+  rubric-graded Outcomes and server-enforced tool gates) and rejected because prospect RFPs are
+  confidential client material and the whole pipeline is local; the Agent SDK runs in-process on
+  Ed's Mac. Key design result: the skill's central doctrine — *overstatement is failure* — becomes
+  an **executed check** (`rate_check.py` resolves every Green/Amber citation verbatim against the
+  library and rejects prospect documents as capability evidence), which is the actual argument for
+  putting this stage under Ringer. Judge stays advisory (ungraduated); both human gates are file
+  tokens that are never model-inferred. Stage 3 is also the first workload to write the Phase-2.6
+  `fault:` field.
+  **Remaining for exit:** build the slice, run one real prospect analysis through it, and answer
+  the honest question in the spec's exit criteria — is the matrix *better*, or only more
+  instrumented? If only instrumented, stop rather than expand.
 
 ## Phase 4 — Loops upgrade + router (later)
 

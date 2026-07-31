@@ -4,6 +4,32 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-07-31c] — Phase 3 designed: presales harness spec
+
+### Added
+- `SPEC-presales-harness.md` — the Phase 3 design. Stage map (context → intake → extract →
+  **rate** → render → verify), exact input/output adapters for stage 3, the `can_use_tool` tool
+  policy table, file-token human gates, the Ringer dispatch shape, the integration gate, the
+  security lint, and the artifact store with its cross-run memory file.
+
+### Decided
+- **Vertical slice first:** build stage 3 (RAG rating) only — the one genuinely parallelizable
+  stage — rather than all five. The rest stay in the skill until the slice is proven on a live deal.
+- **The skill stays canonical:** the harness calls `<vendor>-rfp-gap-analysis`; rating rules and
+  prospect-facing rules keep one home. The harness adds sequencing, gates, dispatch, and proof.
+- **Agent SDK over Managed Agents, for a stated reason:** CMA would supply harness + deployment
+  plus rubric-graded Outcomes, but prospect RFPs are confidential client material and the whole
+  pipeline is local. The 7/15 runtime choice is now validated rather than inherited.
+
+### Notes
+- The design's load-bearing idea: the skill's doctrine *"overstatement is failure"* becomes an
+  executed check. `rate_check.py` resolves every Green/Amber citation **verbatim** against the
+  capability library and rejects any evidence sourced from the prospect's own documents. That —
+  not parallelism — is the real argument for putting this stage under Ringer.
+- Stage 3 is the first workload to write the Phase-2.6 `fault: spec|worker|check` field.
+- Exit criteria include an honest kill question: is the matrix *better*, or only more
+  instrumented? And a kill signal if real RFPs turn out not to be fan-out shaped.
+
 ## [2026-07-31b] — Graduation gate amended: agreement rate alone is not a gate
 
 ### Changed

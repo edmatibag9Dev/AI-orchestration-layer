@@ -19,6 +19,7 @@ Design in one line: **frontier model writes specs and reviews; cheap verified wo
 | `BUILD-PLAN.md` | yes | Architecture, phased plan, decisions, risks, metrics. |
 | `SPEC-judge-check.md` | yes | Interface contract for LLM-judge checks (Phase 2). |
 | `SPEC-self-healing-loop.md` | yes | Sentinel/repair pattern for scheduled jobs (Phase 4a). |
+| `SPEC-presales-harness.md` | yes | Phase 3 harness design: stage map, adapters, tool policy, gates, checks. |
 | `ESCALATION-POLICY.md` | yes | Decision-rights contract: four escalation lanes, sampling plan, fault attribution (Phase 2.6). |
 | `checks/judge.py` | yes | LLM-judge check runner implementing SPEC-judge-check (Phase 2, shadow mode). Also logs owner verdicts (`--owner-verdict`). |
 | `checks/verdict.sh` | yes | Owner-verdict shortcut — the human half of shadow mode (`verdict.sh today pass`). |
