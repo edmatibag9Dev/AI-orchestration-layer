@@ -4,6 +4,46 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-07-31d] — Phase 3 slice built: stage-3 driver, rating check, integration gate
+
+### Added
+- `harness/run.py` — the stage-3 driver. `prepare` verifies the human gate, batches the approved
+  requirements, writes a self-contained worker spec per batch, and emits a lint-clean Ringer
+  manifest whose per-task check is `rate_check.py`. `merge` assembles the matrix and runs the
+  integration gate. `fault` attributes a failed batch (`spec|worker|check`).
+- `checks/rate_check.py` — six rules with per-requirement failure reasons: completeness (no drops,
+  no inventions), vocabulary, **verbatim citation resolution**, path-to-fit on every Amber/Red,
+  source-of-truth (evidence resolving outside the library fails), and no Green-at-Low-confidence.
+  Reads `.md`/`.txt` and `.docx` (stdlib zip+regex extraction, no dependency); a citation target
+  that cannot be read as text FAILS rather than passing unverified.
+- `checks/matrix_check.py` — the integration gate: re-runs the per-task rules over the *assembled*
+  matrix (so a merge that drops or duplicates records fails), checks RAG-count consistency, and
+  scans a prospect-facing artifact for internal-only content.
+- `samples/sample.requirements.json` — scrubbed stage-3 input adapter.
+
+### Verified (against the real capability library, not a mock)
+- Good fixture with real verbatim citations: **exit 0**. Bad fixture: **exit 1 with all six rules
+  firing distinctly**, including a fabricated "bills the customer directly" claim — the exact
+  overstatement the rulings file warns against — caught by the citation rule.
+- Human gate blocks `prepare` with exit 2 until a person writes the token; it is never inferred.
+- Missing batch output → INCOMPLETE, integration gate FAILS on post-merge coverage, and the driver
+  refuses to call the build done. `fault` attribution round-trips into the eval row.
+- Generated manifest passes `./ringer.py lint` clean (2 tasks).
+
+### Fixed during the build
+- `.docx` extractor matched `<w:tbl>`/`<w:tcPr>` as text runs, leaking raw XML into the body used
+  for citation matching — would have made matching unreliable on the most-cited files. Tightened to
+  `<w:t>` only.
+- Added a whitespace-insensitive retry for `.docx` quotes: run boundaries can drop spaces during
+  extraction, which would fail a correctly-copied quote for a reason that is not hallucination. The
+  character sequence must still be present, so the anti-hallucination property is unchanged.
+
+### Notes
+- **The slice does not use the Claude Agent SDK.** Stage 3's model calls happen inside Ringer
+  workers, which already supply the sandbox and executed checks; adding the SDK here would be
+  ceremony. It becomes load-bearing when stages 1/2/4/5 arrive and need model turns with
+  `can_use_tool` policies. Recorded so the next agent doesn't "fix" the omission.
+
 ## [2026-07-31c] — Phase 3 designed: presales harness spec
 
 ### Added

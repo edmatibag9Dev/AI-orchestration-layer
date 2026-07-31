@@ -201,9 +201,24 @@ review is all-or-nothing (review-everything now, review-nothing after judge grad
   putting this stage under Ringer. Judge stays advisory (ungraduated); both human gates are file
   tokens that are never model-inferred. Stage 3 is also the first workload to write the Phase-2.6
   `fault:` field.
-  **Remaining for exit:** build the slice, run one real prospect analysis through it, and answer
-  the honest question in the spec's exit criteria — is the matrix *better*, or only more
-  instrumented? If only instrumented, stop rather than expand.
+- **Status (2026-07-31): SLICE BUILT.** `harness/run.py` (prepare → merge → fault),
+  `checks/rate_check.py` (six rules, verbatim citation resolution over .md/.txt/.docx), and
+  `checks/matrix_check.py` (integration gate). Verified against the **real** capability library:
+  clean fixture exits 0; the violation fixture fires all six rules distinctly, including a
+  fabricated billing claim — the exact overstatement the rulings file warns against. The human gate
+  blocks with exit 2 until a person writes the token. A missing batch fails the post-merge coverage
+  gate, and the driver refuses to call the build done. Generated manifest lints clean.
+  Two real bugs were found and fixed by testing rather than by reading: the .docx extractor matched
+  `<w:tbl>`/`<w:tcPr>` as text (raw XML leaked into citation matching), and docx run boundaries can
+  drop spaces (a correctly-copied quote could fail for a reason that isn't hallucination — now a
+  whitespace-insensitive retry).
+  **Note for future agents:** the slice deliberately does **not** use the Claude Agent SDK. Stage
+  3's model calls happen inside Ringer workers, which already provide sandbox and executed checks.
+  The SDK earns its place at stages 1/2/4/5, which need model turns with `can_use_tool` policies.
+  **Remaining for exit:** run one real prospect analysis through it end-to-end (needs a live deal
+  and an engine pick at first dispatch), exercise a gate rejection, and answer the honest question
+  in the spec's exit criteria — is the matrix *better*, or only more instrumented? If only
+  instrumented, stop rather than expand.
 
 ## Phase 4 — Loops upgrade + router (later)
 

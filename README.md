@@ -32,6 +32,10 @@ This repo is the planning and build home for the next layer of a personal AI har
 | `checks/verdict.sh` | One-line owner verdict: `checks/verdict.sh today pass`. |
 | `checks/agreement.py` | Judge/owner agreement report — the ≥80% graduation instrument. |
 | `checks/rubric-regression.sh` | Regression test proving a revised rubric line still fails a real violation. |
+| `harness/run.py` | Phase 3 stage-3 driver (`prepare` / `merge` / `fault`). |
+| `checks/rate_check.py` | Stage-3 rating check: verbatim citation resolution, six rules, per-req failure reasons. |
+| `checks/matrix_check.py` | Integration gate over the merged matrix. |
+| `samples/sample.requirements.json` | Scrubbed stage-3 input adapter. |
 | `rubrics/morning-briefing.md` | Briefing rubric (v2, 2026-07-31). Line IDs stable across versions. |
 | `samples/sample.swarm.json` | Reference manifest (committed sample; real manifests are gitignored). |
 | `CONTRIBUTING.md` | Commit format + README standards (canonical copy). |

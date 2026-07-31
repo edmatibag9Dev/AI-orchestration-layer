@@ -1,0 +1,32 @@
+{
+  "_comment": "Scrubbed reference for the stage-3 input adapter (SPEC-presales-harness.md §3). Real runs use a prospect codename and a real library_root from CONFIG.local.md; neither is ever committed.",
+  "run_id": "2026-07-31T09-14-02Z",
+  "prospect_codename": "SAMPLECO",
+  "vertical": "water",
+  "library_root": "<LIBRARY_ROOT>",
+  "approved_by": "<owner>",
+  "approved_at": "2026-07-31T09:12:00-07:00",
+  "requirements": [
+    {
+      "req_id": "R-001",
+      "text": "The system shall generate customer invoices for completed work orders.",
+      "source": "RFP section 3.1",
+      "category": "FSM+",
+      "weight": null
+    },
+    {
+      "req_id": "R-002",
+      "text": "The system shall track material consumption against each work order.",
+      "source": "RFP section 3.2",
+      "category": "EAM",
+      "weight": 3
+    },
+    {
+      "req_id": "R-003",
+      "text": "The system shall support single sign-on against the agency identity provider.",
+      "source": "Discovery call 2026-07-20",
+      "category": "Platform",
+      "weight": null
+    }
+  ]
+}

@@ -7,6 +7,10 @@ runs/
 *.jsonl
 *.log
 
+# Harness run artifacts if ever written inside the repo (prospect content)
+harness/runs/
+harness-runs/
+
 # Local-only config holding personal identifiers (scrubbed from committed docs)
 CONFIG.local.md
 

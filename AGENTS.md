@@ -25,6 +25,9 @@ Design in one line: **frontier model writes specs and reviews; cheap verified wo
 | `checks/verdict.sh` | yes | Owner-verdict shortcut — the human half of shadow mode (`verdict.sh today pass`). |
 | `checks/agreement.py` | yes | Judge/owner agreement report — the Phase 2 graduation instrument (≥80% gate). |
 | `checks/rubric-regression.sh` | yes | Proves a revised rubric line still FAILS a real violation (anti-over-correction test). |
+| `harness/run.py` | yes | Phase 3 stage-3 driver: gate → batch → Ringer manifest → merge → integration gate. |
+| `checks/rate_check.py` | yes | Stage-3 rating check — resolves every Green/Amber citation verbatim against the library. |
+| `checks/matrix_check.py` | yes | Integration gate — system-level check on the merged matrix (Phase 3 requirement). |
 | `rubrics/` | yes | Judge rubrics, one per deliverable type. Line IDs are stable across versions. |
 | `samples/sample.swarm.json` | yes | Scrubbed reference manifest. |
 | `CONTRIBUTING.md` | yes | Commit format + README standards (canonical copy). |
