@@ -1,6 +1,6 @@
 # BUILD-PLAN.md — AI Orchestration Layer
 
-**Date:** 2026-07-15 · **Status:** Phase 1 COMPLETE (2026-07-22) · Phase 2 STARTED (2026-07-22) — shadow mode live on the morning briefing · Phase 2.5 INSTALLED (2026-07-24) · Phase 2.6 slotted (2026-07-24)
+**Date:** 2026-07-15 · **Status:** Phase 1 COMPLETE (2026-07-22) · Phase 2 CALIBRATING (rubric v2 + owner-verdict wiring 2026-07-31; agreement still unmeasured until verdicts accumulate) · Phase 2.5 INSTALLED (2026-07-24) · Phase 2.6 policy built (2026-07-24), exit criteria open · Phase 4 attention-layer pilot live (2026-07-27), Mission Control extracted to its own repo (2026-07-28)
 **Sources:** Ringer guide (Nate B. Jones), harness anatomy (Claire Vo / Claude Agent SDK), loop-of-loops, 4 Patterns, steer-vs-dispatch Run Spec.
 
 ---
@@ -70,6 +70,26 @@ Goal: extend the check contract to judgment work without trusting an unverified 
 - **Shadow mode (2–3 weeks):** judge scores everything, owner still reviews everything, agreement logged per artifact. Judge gates internal work only at ≥80% agreement; overrides keep being logged after graduation.
 - Budget note: judging is frontier-quality work and eats plan budget — correct per the thesis, but realized savings < the pitch. Track in the token dashboard.
 - **Status (2026-07-22): STARTED — judge live in shadow mode.** `checks/judge.py` implements SPEC-judge-check exactly (exit 0/1/2, mandatory FAILED LINES, `--shadow` always-0 + append-only `runs/judge-shadow.jsonl`, `--owner-verdict` for agreement rows). First rubric: `rubrics/morning-briefing.md` v1 (10 lines from briefing editorial spec v2.5). Judge = GLM 5.2 via OpenCode (judge ≠ producer: briefing is Claude-produced; key stays in OpenCode's auth store). Calibration on the 4 archived editions (07-19..07-22): scores 1.00 / 0.90 / 0.90 / 0.90, all shadow-PASS. Signal quality on day one: one real catch (07-22 has bare unlinked tickers in take bodies — verified true, violates the briefing spec), one rubric-wording gap (R4 conflates content phrases like "GA unconfirmed" with publication-date hedges — revision candidate per invariant 6), one judge inconsistency (R10 marked fail with evidence that says pass — logged, this is what shadow mode measures). Probe lesson recorded: judge.py must run check-side (orchestrator), never inside a sandboxed worker — worker sandboxes cannot append the shadow log, and the script now exits 2 loudly in that case.
+- **Status (2026-07-31): RUBRIC v2 + OWNER-VERDICT WIRING.** Nine days of shadow data reviewed (12 rows,
+  07-19..07-30, 8 consecutive live days). **The finding that mattered was not in the scores: zero owner
+  verdicts had ever been logged.** `--owner-verdict` existed from day one but was never surfaced where Ed
+  reads the artifact, so the agreement rate — the only output shadow mode exists to produce — was
+  *unmeasurable*, not merely below gate. Judge scores alone are not calibration evidence, and 8 clean days
+  read as progress while measuring nothing. Fixed: `checks/verdict.sh` (two-word verdict),
+  `checks/agreement.py` (agreement rate, disagreements labelled false-pass/false-fail, per-line override
+  counts, unpaired backlog), and a mandatory verdict prompt in the briefing pipeline's step 10.
+  Rubric v2 shipped alongside: R4 rewritten (4 false positives — it contradicted the briefing spec's own
+  honest-hedging requirement), R10 given an evidence contract, R1 **tightened** — its 07-28 failure was a
+  genuine catch (7- and 6-sentence summaries vs a 2-sentence spec), so softening it would have Goodharted
+  the rubric. Re-score confirms: all R4 false positives cleared, R1 now also catches the 07-30 drift v1
+  missed. A synthetic-violation regression (`checks/rubric-regression.sh`) produced the judge's **first FAIL
+  verdict in 17 runs** (0.70), proving the revision removed noise without removing teeth.
+  **Producer-side finding (filed Lane 2, not fixed here):** exec summaries have drifted past the spec's
+  2-sentence rule on most editions — a briefing-pipeline issue, and exactly the kind of thing an
+  uncalibrated judge lets through silently.
+  **Remaining for exit:** owner verdicts logged daily (backfill of the 12 archived editions is Ed's call —
+  never inferred from publication); ≥80% agreement over 2–3 weeks measured by `agreement.py`; only then does
+  the judge gate internal work.
 
 ## Phase 2.5 — Globalize read-side bootstrap (before Phase 3; ~1 session)
 

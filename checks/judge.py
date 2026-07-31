@@ -40,23 +40,38 @@ def log_row(row):
         die(2, f"JUDGE ERROR: cannot append shadow log at {LOG_PATH}: {e}")
 
 ap = argparse.ArgumentParser()
-ap.add_argument("--rubric", required=True)
+ap.add_argument("--rubric", help="required when judging; optional with --owner-verdict")
 ap.add_argument("--artifact", required=True)
-ap.add_argument("--judge-model", required=True)
+ap.add_argument("--judge-model", help="required when judging; unused with --owner-verdict")
 ap.add_argument("--threshold", type=float, default=0.8)
 ap.add_argument("--shadow", action="store_true")
 ap.add_argument("--owner-verdict", choices=["pass", "fail"],
                 help="log the human owner's verdict for this artifact and exit (no judge call)")
+ap.add_argument("--owner-note", default="",
+                help="with --owner-verdict: why, in the owner's words (feeds rubric revision)")
+ap.add_argument("--log", default=LOG_PATH,
+                help="override the shadow log path — for rubric regression tests on synthetic "
+                     "artifacts, which must never land in the calibration log")
 a = ap.parse_args()
+
+LOG_PATH = a.log
 
 now = datetime.datetime.now(datetime.timezone.utc).isoformat()
 
 if a.owner_verdict:
+    # The artifact must exist: a verdict logged against a typo'd path can never
+    # pair with a judge row, and would silently inflate the "unpaired" count.
+    if not os.path.exists(a.artifact):
+        die(2, f"JUDGE ERROR: artifact not found: {a.artifact}")
     log_row({"ts": now, "kind": "owner", "artifact": os.path.abspath(a.artifact),
-             "verdict": a.owner_verdict.upper()})
+             "verdict": a.owner_verdict.upper(), "note": a.owner_note})
     print(f"OWNER verdict logged for {a.artifact}: {a.owner_verdict.upper()}")
     sys.exit(0)
 
+if not a.rubric:
+    die(2, "JUDGE ERROR: --rubric is required when judging")
+if not a.judge_model:
+    die(2, "JUDGE ERROR: --judge-model is required when judging")
 if not os.path.exists(a.rubric):
     die(2, f"JUDGE ERROR: rubric not found: {a.rubric}")
 if not os.path.exists(a.artifact):

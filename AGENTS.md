@@ -20,8 +20,11 @@ Design in one line: **frontier model writes specs and reviews; cheap verified wo
 | `SPEC-judge-check.md` | yes | Interface contract for LLM-judge checks (Phase 2). |
 | `SPEC-self-healing-loop.md` | yes | Sentinel/repair pattern for scheduled jobs (Phase 4a). |
 | `ESCALATION-POLICY.md` | yes | Decision-rights contract: four escalation lanes, sampling plan, fault attribution (Phase 2.6). |
-| `checks/judge.py` | yes | LLM-judge check runner implementing SPEC-judge-check (Phase 2, shadow mode). |
-| `rubrics/` | yes | Judge rubrics, one per deliverable type. |
+| `checks/judge.py` | yes | LLM-judge check runner implementing SPEC-judge-check (Phase 2, shadow mode). Also logs owner verdicts (`--owner-verdict`). |
+| `checks/verdict.sh` | yes | Owner-verdict shortcut — the human half of shadow mode (`verdict.sh today pass`). |
+| `checks/agreement.py` | yes | Judge/owner agreement report — the Phase 2 graduation instrument (≥80% gate). |
+| `checks/rubric-regression.sh` | yes | Proves a revised rubric line still FAILS a real violation (anti-over-correction test). |
+| `rubrics/` | yes | Judge rubrics, one per deliverable type. Line IDs are stable across versions. |
 | `samples/sample.swarm.json` | yes | Scrubbed reference manifest. |
 | `CONTRIBUTING.md` | yes | Commit format + README standards (canonical copy). |
 | `CHANGELOG.md` | yes | Dated change log. |
@@ -54,7 +57,9 @@ Rules an agent must preserve:
 - The judge model is **never** the model that produced the artifact.
 - Failure output must print WHY (the rubric line that failed) — it feeds the retry prompt.
 - Judge checks gate nothing until shadow-mode agreement ≥80%; externally facing deliverables always require a human gate.
-- Eval logs are append-only; never rewrite history.
+- Agreement is measured over artifacts carrying **both** a judge row and an owner verdict. Judge scores alone measure nothing — a run of clean scores is not calibration evidence.
+- Eval logs are append-only; never rewrite history. Synthetic/test judge runs use `--log <scratch>`; they never touch `runs/judge-shadow.jsonl`.
+- Rubric revisions that remove false positives must be shown to still fail a real violation (`checks/rubric-regression.sh`) — never soften a line to clear a failure the producer actually earned.
 
 ## How it works
 

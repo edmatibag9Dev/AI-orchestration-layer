@@ -4,6 +4,46 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-07-31] — Rubric v2 + owner-verdict wiring: shadow mode can finally be measured
+
+### Added
+- `checks/verdict.sh` — one-line owner verdict (`verdict.sh today pass`, `verdict.sh yesterday fail "why"`),
+  resolving the archive path so logging Ed's half of shadow mode costs two words instead of a 4-flag
+  invocation. The friction was the reason 12 shadow rows carried zero owner verdicts.
+- `checks/agreement.py` — the Phase 2 graduation instrument: joins judge and owner rows per artifact and
+  reports agreement rate vs the ≥80% gate, every disagreement (labelled FALSE PASS / FALSE FAIL with the
+  judge's failed lines and the owner's note), per-rubric-line flag counts split by whether the owner still
+  accepted the artifact, and the unpaired backlog. Reports only; never gates.
+- `checks/rubric-regression.sh` — injects a known violation into a real archived edition and asserts the
+  revised line still FAILS. Guards against the failure mode a false-positive fix invites: a line that got
+  quiet rather than accurate. Synthetic runs write to a scratch log.
+- `checks/judge.py --log` — scratch-log override so regression runs never pollute `runs/judge-shadow.jsonl`.
+
+### Changed
+- `rubrics/morning-briefing.md` → **v2**, revised from 12 shadow rows (2026-07-19..07-30). Line IDs declared
+  stable across versions so rows stay comparable.
+  - **R4 rewritten** — v1 failed any date hedge anywhere on the page, contradicting the briefing spec's own
+    requirement to hedge honestly about a source's publication date. It fired on compliant text 4× (07-21,
+    07-26, 07-28, 07-30) and never on a real defect. Now scoped to source links and unsupported
+    release/GA/availability claims, with honest publication-date hedging explicitly compliant.
+  - **R1 tightened, not loosened** — its 07-28 failure was a genuine catch (7- and 6-sentence summaries against
+    a 2-sentence spec), so the line was sharpened to a mechanical count that excludes "Why it matters" takes
+    and "Verification note" blocks. Under v2 it also catches the 07-30 drift v1 missed.
+  - **R10 evidence contract** — v1's only failure (07-20) cited self-refuting evidence; a fail now requires
+    naming both the stated and the computed weekday.
+- `checks/judge.py` — `--rubric`/`--judge-model` no longer required for the owner-verdict path (they were
+  dead-weight friction), owner rows carry a free-text `note`, and an owner verdict against a nonexistent
+  artifact now exits 2 instead of logging a row that could never pair.
+- `ai-briefing` `pipeline/briefing-prompt.md` step 10 — every run must now end its summary with the exact
+  copy-paste verdict command and the day's score. Explicit rule that Ed's verdict is never logged on his
+  behalf and never inferred from the fact that the edition published.
+
+### Verified
+- v2 re-scored against the 5 affected editions: all four R4 false positives cleared, 07-20 R10 cleared
+  (1.00), R1 now fails 07-28 and 07-30 with countable per-item evidence.
+- Regression test on a synthetic violation: R4 fired on both injected cases and the run returned **the
+  judge's first FAIL verdict in 17 scored runs** (0.70) — discriminating power confirmed, not assumed.
+
 ## [2026-07-28c] — Mission Control extracted to its own repo
 
 ### Removed
