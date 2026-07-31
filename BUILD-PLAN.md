@@ -67,7 +67,19 @@ Goal: extend the check contract to judgment work without trusting an unverified 
 
 - Judge check = script sending artifact + rubric to a judge model; exit 0/1; prints the failing rubric line.
 - Judge ≠ producer, ever. One rubric per deliverable type. Failure output feeds the retry.
-- **Shadow mode (2–3 weeks):** judge scores everything, owner still reviews everything, agreement logged per artifact. Judge gates internal work only at ≥80% agreement; overrides keep being logged after graduation.
+- **Shadow mode (2–3 weeks):** judge scores everything, owner still reviews everything, agreement logged per artifact. Judge gates internal work only after graduation; overrides keep being logged after graduation.
+- **Graduation conditions (AMENDED 2026-07-31 — the rate alone is not a gate).** All four must hold,
+  measured by `checks/agreement.py`:
+  1. Judge/owner agreement **≥80%**.
+  2. Sample of **≥10 paired artifacts** (both a judge row and an owner verdict).
+  3. **≥2 pairs carrying a FAIL on either side** — the divergence-opportunity condition.
+  4. `checks/rubric-regression.sh` passes on the current rubric version.
+  Why 3 exists: the 2026-07-31 backfill scored **100% over 12 pairs in which every value on both sides
+  was PASS**. A judge hardcoded to print PASS scores identically on that set, so the rate carried no
+  information about the failure mode that actually matters. All-PASS agreement shows only that the judge
+  produces no false FAILs on accepted work; the false-PASS rate stays unmeasured until the owner rejects
+  something the judge passed, or the judge fails something the owner accepts. A gate that a constant
+  function can pass is not a gate — `agreement.py` reports that state as DEGENERATE, never as MEETS.
 - Budget note: judging is frontier-quality work and eats plan budget — correct per the thesis, but realized savings < the pitch. Track in the token dashboard.
 - **Status (2026-07-22): STARTED — judge live in shadow mode.** `checks/judge.py` implements SPEC-judge-check exactly (exit 0/1/2, mandatory FAILED LINES, `--shadow` always-0 + append-only `runs/judge-shadow.jsonl`, `--owner-verdict` for agreement rows). First rubric: `rubrics/morning-briefing.md` v1 (10 lines from briefing editorial spec v2.5). Judge = GLM 5.2 via OpenCode (judge ≠ producer: briefing is Claude-produced; key stays in OpenCode's auth store). Calibration on the 4 archived editions (07-19..07-22): scores 1.00 / 0.90 / 0.90 / 0.90, all shadow-PASS. Signal quality on day one: one real catch (07-22 has bare unlinked tickers in take bodies — verified true, violates the briefing spec), one rubric-wording gap (R4 conflates content phrases like "GA unconfirmed" with publication-date hedges — revision candidate per invariant 6), one judge inconsistency (R10 marked fail with evidence that says pass — logged, this is what shadow mode measures). Probe lesson recorded: judge.py must run check-side (orchestrator), never inside a sandboxed worker — worker sandboxes cannot append the shadow log, and the script now exits 2 loudly in that case.
 - **Status (2026-07-31): RUBRIC v2 + OWNER-VERDICT WIRING.** Nine days of shadow data reviewed (12 rows,
@@ -87,9 +99,12 @@ Goal: extend the check contract to judgment work without trusting an unverified 
   **Producer-side finding (filed Lane 2, not fixed here):** exec summaries have drifted past the spec's
   2-sentence rule on most editions — a briefing-pipeline issue, and exactly the kind of thing an
   uncalibrated judge lets through silently.
-  **Remaining for exit:** owner verdicts logged daily (backfill of the 12 archived editions is Ed's call —
-  never inferred from publication); ≥80% agreement over 2–3 weeks measured by `agreement.py`; only then does
-  the judge gate internal work.
+  **Backfill logged by Ed the same day:** 12 owner verdicts, all PASS, in a single batch — pairing 12/12 at
+  **100% agreement**, which surfaced the flaw in the original gate and produced the amended graduation
+  conditions above. Recorded as a baseline, not as evidence of calibration.
+  **Remaining for exit:** live daily verdicts that could diverge (≥2 pairs with a FAIL on either side), the
+  ≥80% rate holding over 2–3 weeks of those, and a passing `rubric-regression.sh` — only then does the judge
+  gate internal work, and only internal work.
 
 ## Phase 2.5 — Globalize read-side bootstrap (before Phase 3; ~1 session)
 
@@ -221,7 +236,7 @@ Goal: a scheduled job that errors gets diagnosed and fixed by an agent, unattend
 ## Success metrics
 
 - Phase 1: ≥1 real swarm/week; first-try pass rate visible; frontier tokens on mechanical work trending down.
-- Phase 2: judge/owner agreement measured; ≥80% before gating internal work.
+- Phase 2: judge/owner agreement measured over a sample that could have disagreed — ≥80% across ≥10 pairs with ≥2 divergence opportunities, plus a passing rubric regression, before gating internal work.
 - Phase 2.5: bootstrap firing rate ≥95% from `activation_audit` (~2 weeks of data).
 - Phase 2.6: Ed-interrupts per build measured and trending down; sampled-audit failure rate low and stable.
 - Phase 3: gap-analysis cycle time vs. baseline; zero re-explaining of job setup per run.

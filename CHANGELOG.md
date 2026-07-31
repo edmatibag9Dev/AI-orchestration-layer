@@ -4,6 +4,21 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-07-31b] — Graduation gate amended: agreement rate alone is not a gate
+
+### Changed
+- `BUILD-PLAN.md` Phase 2 — graduation now requires four conditions, not one: ≥80% agreement, ≥10 paired
+  artifacts, **≥2 pairs carrying a FAIL on either side**, and a passing `rubric-regression.sh`.
+- `checks/agreement.py` — reports each condition as a checklist and returns **DEGENERATE** (never MEETS)
+  when every pair is PASS/PASS, with an explicit statement of what such a set does and does not prove.
+
+### Notes
+- Trigger: Ed's 12-edition backfill paired 12/12 at **100% agreement** — every value on both sides PASS.
+  A judge hardcoded to print PASS scores identically on that set, so the original ≥80% gate was passable
+  by a constant function. All-PASS agreement evidences only the absence of false FAILs on accepted work;
+  the false-PASS rate — the risk BUILD-PLAN lists first — stays unmeasured until a real divergence exists.
+- The backfill stands as a recorded baseline, not as calibration evidence.
+
 ## [2026-07-31] — Rubric v2 + owner-verdict wiring: shadow mode can finally be measured
 
 ### Added

@@ -7,8 +7,11 @@ kinds in runs/judge-shadow.jsonl and prints what the graduation decision needs:
 
     python3 checks/agreement.py [--rubric-version morning-briefing v2]
 
-  * agreement rate over paired artifacts (BUILD-PLAN gate: >=80% before the
-    judge gates internal work)
+  * agreement rate over paired artifacts, checked against all three graduation
+    conditions — not the rate alone. An 80% rate is satisfiable by a judge
+    hardcoded to return PASS if every pair in the set is PASS/PASS, so
+    graduation also requires a minimum sample and a minimum number of pairs
+    where the two sides COULD have diverged (a FAIL on either side).
   * every disagreement, with the judge's failed lines and the owner's note
   * per-rubric-line flag counts, split by whether the owner still accepted the
     artifact — this is the "which rubric lines get overridden" signal that
@@ -25,7 +28,12 @@ import sys
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LOG_PATH = os.path.join(REPO_ROOT, "runs", "judge-shadow.jsonl")
+# Graduation conditions (BUILD-PLAN Phase 2, amended 2026-07-31). The rate alone
+# is degenerate: the 2026-07-31 backfill scored 100% over 12 pairs in which every
+# single value on both sides was PASS — a constant-PASS judge scores identically.
 GRADUATION_THRESHOLD = 0.80
+MIN_PAIRS = 10
+MIN_DIVERGENCE_OPPORTUNITIES = 2  # pairs carrying a FAIL on either side
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--log", default=LOG_PATH)
@@ -75,9 +83,39 @@ if not pairs:
 else:
     agree = [p for p in pairs if p[1]["verdict"] == p[2]["verdict"]]
     rate = len(agree) / len(pairs)
-    status = "MEETS" if rate >= GRADUATION_THRESHOLD else "BELOW"
-    print(f"\n  AGREEMENT RATE: {rate:.0%}  ({len(agree)}/{len(pairs)})   "
-          f"{status} the {GRADUATION_THRESHOLD:.0%} graduation gate")
+    # A pair only tests agreement if at least one side said FAIL. All-PASS pairs
+    # are consistent with a judge that cannot fail anything.
+    divergent = [p for p in pairs if "FAIL" in (p[1]["verdict"], p[2]["verdict"])]
+
+    conditions = [
+        (rate >= GRADUATION_THRESHOLD,
+         f"agreement {rate:.0%} >= {GRADUATION_THRESHOLD:.0%}   ({len(agree)}/{len(pairs)} pairs)"),
+        (len(pairs) >= MIN_PAIRS,
+         f"sample {len(pairs)} >= {MIN_PAIRS} paired artifacts"),
+        (len(divergent) >= MIN_DIVERGENCE_OPPORTUNITIES,
+         f"divergence opportunities {len(divergent)} >= {MIN_DIVERGENCE_OPPORTUNITIES} "
+         f"(pairs with a FAIL on either side)"),
+    ]
+    print(f"\n  AGREEMENT RATE: {rate:.0%}  ({len(agree)}/{len(pairs)})")
+    print("  GRADUATION CONDITIONS:")
+    for ok, desc in conditions:
+        print(f"    [{'x' if ok else ' '}] {desc}")
+
+    print("    [ ] checks/rubric-regression.sh passes on the current rubric version "
+          "(costs a judge call — run it, this tool cannot)")
+
+    if all(ok for ok, _ in conditions):
+        print("\n  VERDICT: READY on the log-measurable conditions — confirm the regression")
+        print("           check, then the judge may gate INTERNAL work only; prospect-facing")
+        print("           deliverables keep a permanent human gate.")
+    elif not divergent:
+        print("\n  VERDICT: DEGENERATE — every pair is PASS/PASS. This rate is not evidence:")
+        print("           a judge hardcoded to return PASS scores identically on this set.")
+        print("           What it does show: no false FAILs on accepted work. The false-PASS")
+        print("           rate remains unmeasured until the owner rejects something the judge")
+        print("           passed, or the judge fails something the owner accepts.")
+    else:
+        print("\n  VERDICT: NOT READY — conditions unchecked above are unmet.")
     disagreements = [p for p in pairs if p[1]["verdict"] != p[2]["verdict"]]
     if disagreements:
         print(f"\n  DISAGREEMENTS ({len(disagreements)}):")
