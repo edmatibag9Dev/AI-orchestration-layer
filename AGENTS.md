@@ -32,6 +32,10 @@ Design in one line: **frontier model writes specs and reviews; cheap verified wo
 | `rubrics/` | yes | Judge rubrics, one per deliverable type. Line IDs are stable across versions. |
 | `samples/sample.swarm.json` | yes | Scrubbed reference manifest. |
 | `scheduled-tasks/skills-inventory-review/SKILL.md` | yes | Scrubbed backup of the monthly skills-inventory-review scheduled task. Reference copy only — the runtime master lives at `~/.claude/scheduled-tasks/skills-inventory-review/SKILL.md` and is what actually executes. |
+| `scheduled-tasks/ops-watcher/SKILL.md` | yes | Scrubbed backup of the daily 8:00 AM run-health sweep (heartbeat monitoring, dashboard regen, escalation per ESCALATION-POLICY.md). Reference copy only — runtime master under `~/.claude/scheduled-tasks/`. |
+| `scheduled-tasks/evening-digest/SKILL.md` | yes | Scrubbed backup of the daily 7:05 PM Lane-2 digest assembly/delivery routine. Reference copy only — runtime master under `~/.claude/scheduled-tasks/`. |
+| `scheduled-tasks/action-item-triage/SKILL.md` | yes | Scrubbed backup of the daily action-item triage (auto-close via Open Brain evidence, before wiki regen). Reference copy only — runtime master under `~/.claude/scheduled-tasks/`. |
+| `scheduled-tasks/daily-ai-morning-briefing/SKILL.md` | yes | Scrubbed backup of the daily morning AI briefing routine (judged by this repo's `checks/judge.py` + `rubrics/morning-briefing.md`). Reference copy only — runtime master under `~/.claude/scheduled-tasks/`. |
 | `CONTRIBUTING.md` | yes | Commit format + README standards (canonical copy). |
 | `CHANGELOG.md` | yes | Dated change log. |
 | `manifests/` | **no (gitignored)** | Real swarm manifests — reference live work and client context. |

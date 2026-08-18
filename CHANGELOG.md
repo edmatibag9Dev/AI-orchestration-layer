@@ -4,6 +4,23 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-08-17] — Back up the four orchestration-substance routines
+
+### Added
+- Scrubbed backups of `ops-watcher`, `evening-digest`, `action-item-triage`, and
+  `daily-ai-morning-briefing` under `scheduled-tasks/`. Selection criterion: of the 21 remaining
+  scheduled tasks, 16 carry the attention-layer footer, but only these four have orchestration-layer
+  substance — ops-watcher and evening-digest are the two halves of ESCALATION-POLICY.md's delivery
+  contract, action-item-triage feeds the dashboard lifecycle, and the morning briefing is judged by
+  this repo's own `checks/judge.py` and rubric. Trading, personal-capture, and key-rotation tasks
+  were deliberately excluded (wrong repo or unscrubbable substance).
+
+### Changed
+- `scheduled-tasks/skills-inventory-review/SKILL.md` re-scrubbed from its runtime master: the
+  master's duplicate-scan check now whitelists this repo's scrubbed mirrors (expected-different by
+  design; flagged only when the master is newer than the last re-scrub), so the monthly report
+  does not raise false drift findings on its own backups.
+
 ## [2026-08-17] — Back up the skills-inventory-review routine into the repo
 
 ### Added
