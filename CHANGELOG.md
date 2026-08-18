@@ -4,6 +4,34 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-08-17] — Back up the skills-inventory-review routine into the repo
+
+### Added
+- `scheduled-tasks/skills-inventory-review/SKILL.md` — a scrubbed backup of the monthly
+  skill-library audit. The routine was previously single-copy: it existed only at
+  `~/.claude/scheduled-tasks/skills-inventory-review/SKILL.md`, unversioned and unbacked, so a
+  machine loss or an accidental overwrite would have taken the instructions with it.
+- The routine lands here rather than in a repo of its own because it already depends on this one:
+  its attention-layer footer files Lane-2 rows to `runs/digest.jsonl` under the contract in
+  `ESCALATION-POLICY.md`, and its heartbeat goes to `Mission-Control-Dashboard`. The instructions
+  now sit beside the policy they implement.
+- `reports/` added to `.gitignore`. The task writes its output there, and that output quotes local
+  absolute paths and (via diff excerpts) the owner's email address — on a public repo that is a
+  leak, and the folder was untracked-but-not-ignored, so any `git add .` would have swept it in.
+
+### Notes
+- **Backup, not master.** The committed copy is scrubbed (absolute home paths normalized to `~/`,
+  owner name replaced with "the owner", employer name generalized to "presales") and therefore differs from the executing file by design.
+  The runtime master under `~/.claude/scheduled-tasks/` is authoritative; edit it first, then
+  re-scrub into this repo. AGENTS.md and README record this direction so the copy does not quietly
+  become the kind of stale mirror the routine itself exists to detect.
+- Scrub verified against the AGENTS.md privacy gate: no owner email address, no `/Users/<name>` paths, no keys
+  in the committed file. The only differences from the master are six scrubbed lines: two absolute home paths, three owner-name
+  references, and one employer name — the last caught by the gate itself, not by the initial scrub pass.
+- First run of the routine (2026-08-17) is recorded in the gitignored `reports/`: 13/13 skill
+  symlinks intact, CLAUDE.md clean of `@` inline references, zero harness-redundancy true
+  positives, and three findings queued to the Lane-2 digest.
+
 ## [2026-07-31e] — Fault attribution reaches the scoreboard; workers carry decision rights
 
 ### Added

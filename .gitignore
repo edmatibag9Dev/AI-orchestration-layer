@@ -7,6 +7,9 @@ runs/
 *.jsonl
 *.log
 
+# Review output — contains local paths and personal identifiers
+reports/
+
 # Harness run artifacts if ever written inside the repo (prospect content)
 harness/runs/
 harness-runs/

@@ -31,10 +31,12 @@ Design in one line: **frontier model writes specs and reviews; cheap verified wo
 | `checks/fault_report.py` | yes | Reads the fault-attribution sidecar: class counts, model×task_type signal, unattributed backlog. |
 | `rubrics/` | yes | Judge rubrics, one per deliverable type. Line IDs are stable across versions. |
 | `samples/sample.swarm.json` | yes | Scrubbed reference manifest. |
+| `scheduled-tasks/skills-inventory-review/SKILL.md` | yes | Scrubbed backup of the monthly skills-inventory-review scheduled task. Reference copy only — the runtime master lives at `~/.claude/scheduled-tasks/skills-inventory-review/SKILL.md` and is what actually executes. |
 | `CONTRIBUTING.md` | yes | Commit format + README standards (canonical copy). |
 | `CHANGELOG.md` | yes | Dated change log. |
 | `manifests/` | **no (gitignored)** | Real swarm manifests — reference live work and client context. |
 | `runs/`, `*.jsonl`, `*.log` | **no (gitignored)** | Eval logs and run artifacts — machine-local history. |
+| `reports/` | **no (gitignored)** | Skills-review output — carries local paths and personal identifiers. |
 | `CONFIG.local.md` | **no (gitignored)** | Real values for scrubbed placeholders. |
 
 The Phase-4 attention layer (Ops Watcher engine + Mission Control dashboard) was **extracted 2026-07-28** to its own repo: `edmatibag9Dev/Mission-Control-Dashboard` (`~/Documents/Claude/Projects/Mission-Control-Dashboard`). `runs/digest.jsonl` stays here — the Lane-2 queue is owned by ESCALATION-POLICY.md; Mission Control reads it cross-repo.

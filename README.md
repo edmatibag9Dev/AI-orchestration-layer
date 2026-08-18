@@ -13,6 +13,7 @@ This repo is the planning and build home for the next layer of a personal AI har
 - **Escalation policy** (`ESCALATION-POLICY.md`): the decision-rights contract (Phase 2.6) — four lanes (auto-proceed+log / digest / block-and-ask / never-automate), post-graduation sampling plan, fault attribution, and the owner-interrupt metric. v1.1 hardened by a 3-model adversarial review swarm the day it was written.
 - **Self-healing loop specification** (`SPEC-self-healing-loop.md`): the sentinel/repair pattern that lets scheduled jobs diagnose and fix their own transient failures unattended — two-error-class rule, immutable gates, append-only repair log, recurrence tripwire. Piloted live on a daily dashboard job 2026-07-15.
 - **Ops Watcher + Mission Control** — built here as the Phase 4 attention layer (live 2026-07-27), **extracted 2026-07-28 to its own repo `Mission-Control-Dashboard`**. The escalation wiring stays: worker routines file Lane-2 findings into this repo's `runs/digest.jsonl` and the `evening-digest` task delivers them; Mission Control reads the queue cross-repo.
+- **Scheduled-task backups** (`scheduled-tasks/`): scrubbed reference copies of the routines this repo's escalation policy governs, starting with `skills-inventory-review` — the monthly, report-only audit of the local skill library for symlink breakage, duplicate/drifted `SKILL.md` copies, stale claude.ai uploads shadowing live skills, description-token bloat, harness-redundant instructions, and always-on CLAUDE.md overhead. It files Lane-2 findings to `runs/digest.jsonl` and a heartbeat to Mission Control, so its instructions belong beside the policy they implement. The committed copy is a backup for reading and diffing; the runtime master under `~/.claude/scheduled-tasks/` is what executes.
 - **Sample manifest** (`samples/sample.swarm.json`): a reference Ringer manifest showing spec / check / expect_files / verified fields, including one judge-checked task.
 - **Verification-first design**: exit code 0 or a calibrated judge verdict are the only accepted proofs; worker self-reports are never trusted.
 
@@ -39,10 +40,12 @@ This repo is the planning and build home for the next layer of a personal AI har
 | `samples/sample.requirements.json` | Scrubbed stage-3 input adapter. |
 | `rubrics/morning-briefing.md` | Briefing rubric (v2, 2026-07-31). Line IDs stable across versions. |
 | `samples/sample.swarm.json` | Reference manifest (committed sample; real manifests are gitignored). |
+| `scheduled-tasks/skills-inventory-review/SKILL.md` | Scrubbed backup of the monthly skills-inventory-review routine (report-only skill-library audit). Reference copy — the runtime master lives under `~/.claude/scheduled-tasks/`. |
 | `CONTRIBUTING.md` | Commit format + README standards (canonical copy). |
 | `CHANGELOG.md` | Dated log of notable changes. |
 | `manifests/` | Real swarm manifests (gitignored — reference live work). |
 | `runs/`, `*.jsonl` | Eval logs and run artifacts (gitignored). |
+| `reports/` | Skills-review output (gitignored — carries local paths and personal identifiers). |
 
 ## How to Use
 
@@ -79,7 +82,7 @@ Phase 1 plumbing is live as of 2026-07-15: Ringer demo verified, and two worker 
 
 ## Update / Refresh Instructions
 
-Update `BUILD-PLAN.md` when a phase completes or a decision changes, add a dated `CHANGELOG.md` entry, and refresh this README on every `feat`/`fix`/`data` commit. Real manifests and eval logs stay out of git; commit a scrubbed sample instead when a new pattern is worth preserving.
+Update `BUILD-PLAN.md` when a phase completes or a decision changes, add a dated `CHANGELOG.md` entry, and refresh this README on every `feat`/`fix`/`data` commit. Real manifests and eval logs stay out of git; commit a scrubbed sample instead when a new pattern is worth preserving. When a routine under `scheduled-tasks/` changes, edit the runtime master under `~/.claude/scheduled-tasks/` first — that is the copy that runs — then re-scrub it into this repo (absolute home paths to `~/`, owner name to "the owner") so the backup does not become a stale mirror. The review reports the task produces are gitignored and stay local.
 
 ---
-*Last updated: 2026-07-31 (rubric v2 + owner-verdict wiring)*
+*Last updated: 2026-08-17 (skills-inventory-review task backup)*
