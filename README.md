@@ -27,7 +27,7 @@ This repo is the planning and build home for the next layer of a personal AI har
 | `BUILD-PLAN.md` | Architecture, phased plan, decisions, risks, success metrics. |
 | `ESCALATION-POLICY.md` | Decision-rights contract: four lanes, sampling plan, fault attribution, interrupt metric (Phase 2.6). |
 | `SPEC-judge-check.md` | Interface contract for the LLM-judge check pattern (Phase 2). |
-| `SPEC-self-healing-loop.md` | Sentinel/repair pattern for scheduled jobs (Phase 4a pilot live; Phase 4b fleet sentinel + Slack command channel, approved 2026-08-31). |
+| `SPEC-self-healing-loop.md` | Sentinel/repair pattern for scheduled jobs (Phase 4a pilot live; Phase 4b fleet sentinel + Slack command channel, approved 2026-08-31). Operator view: `Mission-Control-Dashboard/OPS-RUNBOOK.md`. |
 | `SPEC-presales-harness.md` | Phase 3 harness design — stage map, adapters, tool policies, human gates, executed checks. |
 | `checks/judge.py` | LLM-judge runner (shadow scoring + owner-verdict logging). |
 | `checks/verdict.sh` | One-line owner verdict: `checks/verdict.sh today pass`. |
