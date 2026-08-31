@@ -4,6 +4,27 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-08-31] — Phase 4b: fleet sentinel + Slack command channel
+
+Ed's decisions recorded same day, after the 8/19–8/30 `session_stale_relogin` outage left him
+out of office with no way to trigger repairs.
+
+### Added
+- **`SPEC-self-healing-loop.md` Phase 4b** — fleet-wide sentinel restarts (2/day cap per
+  routine, no-duplicate guard, Class-1 only, briefing noon cutoff, 3-in-7 tripwire) and the
+  #ops-control command contract (Ed-only sender, closed grammar, queue file
+  `runs/ops-commands.jsonl`, ledger `runs/repair.jsonl`).
+- **`scheduled-tasks/fleet-sentinel/SKILL.md`** — backup of the new hourly executor task
+  (cron `12 6-21 * * *`): drains the command queue every hour, sweeps + restarts at 9 AM/8 PM.
+
+### Changed
+- **`ESCALATION-POLICY.md` → v1.2** — records: fleet sentinel restarts are Lane-1 Class-1
+  repairs; #ops-control approved as a standing surface in both directions; `fix` beyond
+  re-running a routine's own prompt stays Lane 3 (held for discussion).
+- **`scheduled-tasks/ops-watcher/SKILL.md`** backup refreshed: urgent alerts now go to
+  #ops-control via the webhook identity (DM fallback until the webhook exists), and the
+  watcher checks `repair.jsonl` before flagging something the sentinel already fixed.
+
 ## [2026-08-17] — Back up the four orchestration-substance routines
 
 ### Added

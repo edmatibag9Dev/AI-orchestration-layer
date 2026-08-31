@@ -27,7 +27,7 @@ This repo is the planning and build home for the next layer of a personal AI har
 | `BUILD-PLAN.md` | Architecture, phased plan, decisions, risks, success metrics. |
 | `ESCALATION-POLICY.md` | Decision-rights contract: four lanes, sampling plan, fault attribution, interrupt metric (Phase 2.6). |
 | `SPEC-judge-check.md` | Interface contract for the LLM-judge check pattern (Phase 2). |
-| `SPEC-self-healing-loop.md` | Sentinel/repair pattern for scheduled jobs (Phase 4a — pilot live). |
+| `SPEC-self-healing-loop.md` | Sentinel/repair pattern for scheduled jobs (Phase 4a pilot live; Phase 4b fleet sentinel + Slack command channel, approved 2026-08-31). |
 | `SPEC-presales-harness.md` | Phase 3 harness design — stage map, adapters, tool policies, human gates, executed checks. |
 | `checks/judge.py` | LLM-judge runner (shadow scoring + owner-verdict logging). |
 | `checks/verdict.sh` | One-line owner verdict: `checks/verdict.sh today pass`. |
@@ -45,6 +45,7 @@ This repo is the planning and build home for the next layer of a personal AI har
 | `scheduled-tasks/evening-digest/SKILL.md` | Scrubbed backup of the Lane-2 digest delivery routine — owns digest row status transitions. Runtime master under `~/.claude/scheduled-tasks/`. |
 | `scheduled-tasks/action-item-triage/SKILL.md` | Scrubbed backup of the daily action-item triage the wiki dashboard depends on. Runtime master under `~/.claude/scheduled-tasks/`. |
 | `scheduled-tasks/daily-ai-morning-briefing/SKILL.md` | Scrubbed backup of the morning briefing routine, judged by `checks/judge.py` against `rubrics/morning-briefing.md`. Runtime master under `~/.claude/scheduled-tasks/`. |
+| `scheduled-tasks/fleet-sentinel/SKILL.md` | Backup of the hourly fleet sentinel — the only component authorized to restart routines (Phase 4b: queue drain every hour, Class-1 sweep at 9AM/8PM, 2/day cap). Runtime master under `~/.claude/scheduled-tasks/`. |
 | `CONTRIBUTING.md` | Commit format + README standards (canonical copy). |
 | `CHANGELOG.md` | Dated log of notable changes. |
 | `manifests/` | Real swarm manifests (gitignored — reference live work). |

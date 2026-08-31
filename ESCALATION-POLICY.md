@@ -1,9 +1,18 @@
 # ESCALATION-POLICY.md — Decision-rights contract
 
-**Version:** 1.1 · **Date:** 2026-07-24 · **Owner:** Ed Matibag
+**Version:** 1.2 · **Date:** 2026-08-31 · **Owner:** Ed Matibag
 **Status:** Phase 2.6 deliverable (BUILD-PLAN.md). Parameters set by Ed 2026-07-24. v1.1 folds
 in the 3-lens adversarial mini-eval (Ringer run `escalation-policy-review`, 31 findings:
 loophole/abuse via Codex, spec-coherence via GLM 5.2, enforceability via Kimi K2.7).
+v1.2 (Ed, 2026-08-31, after the 8/19–8/30 outage): records three decisions. (1) Fleet-wide
+sentinel restarts are Lane-1 Class-1 repairs under `SPEC-self-healing-loop.md` Phase 4b —
+executed only by the `fleet-sentinel` task, capped at 2 restarts/routine/day, dedupe-guarded.
+(2) **#ops-control** is an approved standing surface, both directions: outbound ops alerts
+(ops-watcher urgent, fleet-watchdog, sentinel results — webhook identity) and inbound commands
+from Ed's Slack user ID only, restricted to the enumerated grammar in the SPEC (`status`,
+`help`, `rerun`, `ack`, `kick`). An Ed-issued `rerun` carries the lane of the underlying
+action (Lane-1 restart). The ai-briefing routine's domain alerts stay in #ai-briefing.
+(3) `fix` actions beyond re-running a routine's own prompt remain Lane 3, held for discussion.
 
 The owner's attention is the scarcest resource in the system. This contract classifies every
 decision an agent can hit into four lanes, so no agent re-derives when to interrupt Ed and no
