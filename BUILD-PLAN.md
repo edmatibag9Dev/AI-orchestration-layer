@@ -84,7 +84,7 @@ Goal: extend the check contract to judgment work without trusting an unverified 
 - **Status (2026-07-22): STARTED — judge live in shadow mode.** `checks/judge.py` implements SPEC-judge-check exactly (exit 0/1/2, mandatory FAILED LINES, `--shadow` always-0 + append-only `runs/judge-shadow.jsonl`, `--owner-verdict` for agreement rows). First rubric: `rubrics/morning-briefing.md` v1 (10 lines from briefing editorial spec v2.5). Judge = GLM 5.2 via OpenCode (judge ≠ producer: briefing is Claude-produced; key stays in OpenCode's auth store). Calibration on the 4 archived editions (07-19..07-22): scores 1.00 / 0.90 / 0.90 / 0.90, all shadow-PASS. Signal quality on day one: one real catch (07-22 has bare unlinked tickers in take bodies — verified true, violates the briefing spec), one rubric-wording gap (R4 conflates content phrases like "GA unconfirmed" with publication-date hedges — revision candidate per invariant 6), one judge inconsistency (R10 marked fail with evidence that says pass — logged, this is what shadow mode measures). Probe lesson recorded: judge.py must run check-side (orchestrator), never inside a sandboxed worker — worker sandboxes cannot append the shadow log, and the script now exits 2 loudly in that case.
 - **Status (2026-07-31): RUBRIC v2 + OWNER-VERDICT WIRING.** Nine days of shadow data reviewed (12 rows,
   07-19..07-30, 8 consecutive live days). **The finding that mattered was not in the scores: zero owner
-  verdicts had ever been logged.** `--owner-verdict` existed from day one but was never surfaced where Ed
+  verdicts had ever been logged.** `--owner-verdict` existed from day one but was never surfaced where the owner
   reads the artifact, so the agreement rate — the only output shadow mode exists to produce — was
   *unmeasurable*, not merely below gate. Judge scores alone are not calibration evidence, and 8 clean days
   read as progress while measuring nothing. Fixed: `checks/verdict.sh` (two-word verdict),
@@ -99,7 +99,7 @@ Goal: extend the check contract to judgment work without trusting an unverified 
   **Producer-side finding (filed Lane 2, not fixed here):** exec summaries have drifted past the spec's
   2-sentence rule on most editions — a briefing-pipeline issue, and exactly the kind of thing an
   uncalibrated judge lets through silently.
-  **Backfill logged by Ed the same day:** 12 owner verdicts, all PASS, in a single batch — pairing 12/12 at
+  **Backfill logged by the owner the same day:** 12 owner verdicts, all PASS, in a single batch — pairing 12/12 at
   **100% agreement**, which surfaced the flaw in the original gate and produced the amended graduation
   conditions above. Recorded as a baseline, not as evidence of calibration.
   **Remaining for exit:** live daily verdicts that could diverge (≥2 pairs with a FAIL on either side), the
@@ -108,7 +108,7 @@ Goal: extend the check contract to judgment work without trusting an unverified 
 
 ## Phase 2.5 — Globalize read-side bootstrap (before Phase 3; ~1 session)
 
-Slotted 2026-07-24. Gap: agents only consult Open Brain when Ed directs them — the read-side
+Slotted 2026-07-24. Gap: agents only consult Open Brain when the owner directs them — the read-side
 adapter SPEC-activation §4 (C11) designed is installed solely in the AI-Memory-System project
 CLAUDE.md; global sessions start memory-blind. Design lives in the AI-Memory-System repo; this
 item is the install/sequencing home.
@@ -136,7 +136,7 @@ item is the install/sequencing home.
 ## Phase 2.6 — Escalation policy + sampling plan (before Phase 3; ~1 session)
 
 Slotted 2026-07-24 (adversarial review). Gap: owner attention is the scarcest resource in the
-system and the only one not instrumented — every agent re-derives when to interrupt Ed, and
+system and the only one not instrumented — every agent re-derives when to interrupt the owner, and
 review is all-or-nothing (review-everything now, review-nothing after judge graduation).
 
 - **One decision-rights contract**, versioned here as `ESCALATION-POLICY.md`, classifying every
@@ -151,7 +151,7 @@ review is all-or-nothing (review-everything now, review-nothing after judge grad
 - **Eval-log amendment (effective immediately):** every reviewed failure gets tagged
   `fault: spec | worker | check`, so the flywheel can separate ambiguous specs from weak models
   from broken checks. Without attribution the scoreboard can't compound.
-- **Metric:** Ed-interrupts per build, tracked alongside tokens — trending down without
+- **Metric:** owner-interrupts per build, tracked alongside tokens — trending down without
   under-asking incidents.
 - The policy is an input to every Phase-3 harness spec and every scheduled-task prompt:
   enforced by manifest/harness design (agents read it at dispatch), not by model memory.
@@ -159,17 +159,17 @@ review is all-or-nothing (review-everything now, review-nothing after judge grad
   ≥1 scheduled task; sampling active on the first post-graduation judge workload; `fault` field
   appearing in new eval rows.
 - **Status (2026-07-24): POLICY BUILT — `ESCALATION-POLICY.md` v1.1 committed.** Parameters set
-  by Ed ($5/objective gate, evening Slack digest, 20%→5% sampling, all-outbound Lane 3).
+  by the owner ($5/objective gate, evening Slack digest, 20%→5% sampling, all-outbound Lane 3).
   Hardened same-day by a 3-lens adversarial Ringer swarm (Codex abuse / GLM coherence / Kimi
   K2.7 enforceability — Kimi's first audition, first-try pass): 31 findings, confirmed ones
   folded into v1.1, incl. two P1 spec-contradictions (Lane-3 scope-widening line vs
   SPEC-activation's silent standing scopes; Class-2 repairs → Lane 2, not 3). **Wiring
-  (2026-07-24, Ed's Lane-3 yes):** new `evening-digest` scheduled task (daily 7:05 PM) owns the
+  (2026-07-24, the owner's Lane-3 yes):** new `evening-digest` scheduled task (daily 7:05 PM) owns the
   Lane-2 mechanics — reads `runs/digest.jsonl`, severity-gates, delivers the single Slack
-  message to Ed, marks expiring/stale, Sunday interrupt+sampling rollup; references the policy
+  message to the owner, marks expiring/stale, Sunday interrupt+sampling rollup; references the policy
   by path (scheduled-task exit criterion MET). Digest seeded with 3 standing items.
   **Remaining for exit:** policy reference in the next live manifest; sampling activates at
-  first judge graduation; Ed to click "Run now" once on `evening-digest` to prestage tool
+  first judge graduation; the owner to click "Run now" once on `evening-digest` to prestage tool
   permissions (the Phase-4a lesson).
 
 ## Phase 3 — Presales harness (weeks 6+)
@@ -188,14 +188,14 @@ review is all-or-nothing (review-everything now, review-nothing after judge grad
 - **Context stage (added 2026-07-24, per Phase 2.5):** stage 0 of every harness is a Tier-2
   Open Brain manifest; workers never read the Brain — the orchestrator injects context.
 - **Status (2026-07-31): DESIGNED — `SPEC-presales-harness.md`.** Two scope decisions taken with
-  Ed: (a) build a **vertical slice — stage 3 (RAG rating) only**, the one genuinely
+  the owner: (a) build a **vertical slice — stage 3 (RAG rating) only**, the one genuinely
   parallelizable stage, rather than all five at once; (b) the harness **calls** the existing
   `<vendor>-rfp-gap-analysis` skill, which stays canonical for rating rules and prospect-facing
   rules — one place to edit when a rule changes. Runtime decision **re-validated, not inherited**:
   Managed Agents was evaluated as the alternative (it would supply harness *and* deployment, plus
   rubric-graded Outcomes and server-enforced tool gates) and rejected because prospect RFPs are
   confidential client material and the whole pipeline is local; the Agent SDK runs in-process on
-  Ed's Mac. Key design result: the skill's central doctrine — *overstatement is failure* — becomes
+  the owner's Mac. Key design result: the skill's central doctrine — *overstatement is failure* — becomes
   an **executed check** (`rate_check.py` resolves every Green/Amber citation verbatim against the
   library and rejects prospect documents as capability evidence), which is the actual argument for
   putting this stage under Ringer. Judge stays advisory (ungraduated); both human gates are file
@@ -226,14 +226,14 @@ review is all-or-nothing (review-everything now, review-nothing after judge grad
 - Chief-of-Agents router built only once `./ringer.py models` has real per-task-type history.
 - **(added 2026-07-24) Attention layer upgraded to a proposal queue:** the system maintains the
   backlog (capstone open-items, repo TODOs, standing flags) and proposes next swarm manifests
-  with cost estimates; Ed approves a queue instead of initiating every build. Inverts intake —
+  with cost estimates; the owner approves a queue instead of initiating every build. Inverts intake —
   arguably the router's real MVP.
 - **(added 2026-07-24) Routing economics:** extend the scoreboard to **cost per verified pass**
   (pass rate per dollar, queryable from existing eval rows), and track interactive-session vs
   headless-run spend — moving workloads to headless + digest + exception escalation is the
   single biggest token lever available.
-- **Status (2026-07-27): ATTENTION-LAYER PILOT LIVE (pulled forward, Ed's Lane-3 yes).**
-  Trigger: Ed had no unified view of routine health — per-run Slack notifications only, and a
+- **Status (2026-07-27): ATTENTION-LAYER PILOT LIVE (pulled forward, the owner's Lane-3 yes).**
+  Trigger: The owner had no unified view of routine health — per-run Slack notifications only, and a
   silently-missed run was invisible. Shipped: `ops-watcher` scheduled task (daily 8:04 AM) +
   deterministic health engine `ops/watch.py` + generated `mission-control.html` dashboard.
   The engine computes per-routine health (OK / in-window / MISSED / disabled) from cron
@@ -270,7 +270,7 @@ Goal: a scheduled job that errors gets diagnosed and fixed by an agent, unattend
 - Phase 1: ≥1 real swarm/week; first-try pass rate visible; frontier tokens on mechanical work trending down.
 - Phase 2: judge/owner agreement measured over a sample that could have disagreed — ≥80% across ≥10 pairs with ≥2 divergence opportunities, plus a passing rubric regression, before gating internal work.
 - Phase 2.5: bootstrap firing rate ≥95% from `activation_audit` (~2 weeks of data).
-- Phase 2.6: Ed-interrupts per build measured and trending down; sampled-audit failure rate low and stable.
+- Phase 2.6: owner-interrupts per build measured and trending down; sampled-audit failure rate low and stable.
 - Phase 3: gap-analysis cycle time vs. baseline; zero re-explaining of job setup per run.
 - Standing: plan-cap hits on mechanical work down; review time per accepted artifact down.
 - Standing (added 2026-07-24): cost per verified pass per model × task type visible; share of work run headless vs. interactive trending up.

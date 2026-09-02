@@ -7,7 +7,7 @@
 #
 # Shadow mode only produces a graduation signal if BOTH verdicts exist for the
 # same artifact. The judge logs itself automatically from the briefing pipeline;
-# this is the two-word command that logs Ed's side while he reads the edition.
+# this is the two-word command that logs the owner's side while he reads the edition.
 # Read the pair back with: python3 checks/agreement.py
 set -euo pipefail
 

@@ -1,5 +1,5 @@
 # Contributing Standards
-# Ed Matibag — Global GitHub Commit & README Rules
+# <OWNER> — Global GitHub Commit & README Rules
 # Location: ~/Documents/Claude/CONTRIBUTING.md
 # Last updated: 2026-06-02
 
@@ -43,11 +43,11 @@ Every commit must follow this structure — no exceptions.
 ```
 feat(trip-planner): add month filter to Trip Finder and Processing Planner
 
-- Added month selector buttons (Jun–Jan) to Trip Finder tab so Ed can browse
+- Added month selector buttons (Jun–Jan) to Trip Finder tab so the owner can browse
   trips for any month without scrolling through the full schedule
 - Added month selector (Jun–Dec) to Processing Planner with return dates
   derived algorithmically from departure date + trip duration
-- Processing planner now auto-expands heavy days (3+ boats) and Ed's
+- Processing planner now auto-expands heavy days (3+ boats) and the owner's
   personal trip (flagged with 📍) on load
 - Updated README with new feature documentation
 ```

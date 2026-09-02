@@ -4,6 +4,40 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-09-02b] — Repo-wide owner-name scrub
+
+Scoping the `SPEC-self-healing-loop.md` scrub showed the two SKILL.md backups were a small
+part of the exposure: the owner's first name appeared 60 times across six more committed
+files, and his full name in two of them. This entry clears the rest, so no tracked file in
+this public repo carries the owner's name, the macOS account name, or a `/Users/` path.
+
+### Fixed
+- **`ESCALATION-POLICY.md` (18), `CHANGELOG.md` (16), `BUILD-PLAN.md` (15),
+  `SPEC-presales-harness.md` (6), `CONTRIBUTING.md` (4), `checks/verdict.sh` (1)** — the
+  owner's first name to "the owner" (possessives and hyphenated compounds included), and the full
+  name in the `CONTRIBUTING.md` header and the `ESCALATION-POLICY.md` `**Owner:**` line to
+  `<OWNER>`. Substitutions only; no policy, phase, decision, or date was altered.
+- **`checks/verdict.sh` is the one executable touched.** The single occurrence was on a
+  comment line above `set -euo pipefail`, so behavior is unchanged; verified with `bash -n`.
+- **`README.md`** — the pre-push check added in `521d371` hardcoded the owner's name in its
+  own grep pattern, which reintroduced the exposure it was meant to catch. Replaced with a
+  `$SCRUB_PATTERN` variable exported locally, so the pattern is never committed.
+
+### Verification
+`git ls-files -z | xargs -0 grep -nE '<name>|<account>|/Users/[a-z]'` returns zero hits across
+all tracked files. Sentence-initial capitalization was re-checked by hand: four continuation
+lines that the substitution wrongly capitalized mid-sentence were corrected.
+
+### Known limitations
+- **Git history is unchanged and still holds every original value** — the scrubbed commits
+  are additive. A history rewrite or a fresh repo is the owner's call; not taken here.
+- `CONTRIBUTING.md` is a copy of the canonical global file at `~/.claude/CONTRIBUTING.md`,
+  which still carries the full name in its header. The repo copy now deliberately drifts from
+  that master. The same canonical file is committed to the owner's other public repos, which
+  are outside this repo's scope and were not examined.
+- The GitHub account name still appears in `AGENTS.md` and `CHANGELOG.md`; it is already
+  public in the repo URL, so it is not treated as an exposure.
+
 ## [2026-09-02] — Scrub the two unscrubbed scheduled-task backups
 
 The monthly skills-inventory-review of 2026-09-01 (finding F1) found that
@@ -33,22 +67,20 @@ never reached them. This repo is public.
 - **This does not remove the data from git history.** The values remain reachable in commits
   `46ff440` (ops-watcher, 2026-08-31) and `546350a` (fleet-sentinel, 2026-08-31). Clearing
   history needs a rewrite or a fresh repo — the owner's call, not taken here.
-- **The owner's first name remains in 5 other committed files** — `BUILD-PLAN.md` (15),
-  `ESCALATION-POLICY.md` (17), `CHANGELOG.md` (16), `SPEC-presales-harness.md` (6),
-  `checks/verdict.sh` (1) — and his FULL name is in the `**Owner:**` line of
-  `ESCALATION-POLICY.md` and the header of `CONTRIBUTING.md`. Surfaced, not changed.
+- The owner's first name remained in 6 other committed files, and his full name in two of
+  them. Superseded — cleared in `[2026-09-02b]` below.
 - The GitHub account name appears in `AGENTS.md` and `CHANGELOG.md`; it is already public in
   the repo URL, so it is not treated as an exposure.
 
 ## [2026-08-31] — Phase 4b: fleet sentinel + Slack command channel
 
-Ed's decisions recorded same day, after the 8/19–8/30 `session_stale_relogin` outage left him
+The owner's decisions recorded same day, after the 8/19–8/30 `session_stale_relogin` outage left him
 out of office with no way to trigger repairs.
 
 ### Added
 - **`SPEC-self-healing-loop.md` Phase 4b** — fleet-wide sentinel restarts (2/day cap per
   routine, no-duplicate guard, Class-1 only, briefing noon cutoff, 3-in-7 tripwire) and the
-  #ops-control command contract (Ed-only sender, closed grammar, queue file
+  #ops-control command contract (owner-only sender, closed grammar, queue file
   `runs/ops-commands.jsonl`, ledger `runs/repair.jsonl`).
 - **`scheduled-tasks/fleet-sentinel/SKILL.md`** — backup of the new hourly executor task
   (cron `12 6-21 * * *`): drains the command queue every hour, sweeps + restarts at 9 AM/8 PM.
@@ -206,7 +238,7 @@ out of office with no way to trigger repairs.
   when every pair is PASS/PASS, with an explicit statement of what such a set does and does not prove.
 
 ### Notes
-- Trigger: Ed's 12-edition backfill paired 12/12 at **100% agreement** — every value on both sides PASS.
+- Trigger: The owner's 12-edition backfill paired 12/12 at **100% agreement** — every value on both sides PASS.
   A judge hardcoded to print PASS scores identically on that set, so the original ≥80% gate was passable
   by a constant function. All-PASS agreement evidences only the absence of false FAILs on accepted work;
   the false-PASS rate — the risk BUILD-PLAN lists first — stays unmeasured until a real divergence exists.
@@ -216,7 +248,7 @@ out of office with no way to trigger repairs.
 
 ### Added
 - `checks/verdict.sh` — one-line owner verdict (`verdict.sh today pass`, `verdict.sh yesterday fail "why"`),
-  resolving the archive path so logging Ed's half of shadow mode costs two words instead of a 4-flag
+  resolving the archive path so logging the owner's half of shadow mode costs two words instead of a 4-flag
   invocation. The friction was the reason 12 shadow rows carried zero owner verdicts.
 - `checks/agreement.py` — the Phase 2 graduation instrument: joins judge and owner rows per artifact and
   reports agreement rate vs the ≥80% gate, every disagreement (labelled FALSE PASS / FALSE FAIL with the
@@ -243,7 +275,7 @@ out of office with no way to trigger repairs.
   dead-weight friction), owner rows carry a free-text `note`, and an owner verdict against a nonexistent
   artifact now exits 2 instead of logging a row that could never pair.
 - `ai-briefing` `pipeline/briefing-prompt.md` step 10 — every run must now end its summary with the exact
-  copy-paste verdict command and the day's score. Explicit rule that Ed's verdict is never logged on his
+  copy-paste verdict command and the day's score. Explicit rule that the owner's verdict is never logged on his
   behalf and never inferred from the fact that the edition published.
 
 ### Verified
@@ -265,7 +297,7 @@ out of office with no way to trigger repairs.
   heartbeat path to the new repo; ops-watcher SKILL.md repointed (ROOT = Mission-Control-Dashboard,
   ORCH = this repo) the same hour.
 
-## [2026-07-28b] — Mission Control V2 built (Ed's locked spec)
+## [2026-07-28b] — Mission Control V2 built (the owner's locked spec)
 
 ### Added
 - Grouped layout: 8 purpose-group cards (AI Morning Briefing / Earnings Puts / Longboard /
@@ -292,18 +324,18 @@ out of office with no way to trigger repairs.
 
 ### Changed
 - Migrated all session-scoped Cowork scheduled tasks into the shared `~/.claude/scheduled-tasks`
-  registry (Ed's Lane-3 yes): action-item-triage, claude-token-dashboard-update,
+  registry (the owner's Lane-3 yes): action-item-triage, claude-token-dashboard-update,
   token-dashboard-sentinel, substack-inbox-watcher, weekly-saltwater-fishing-report,
   weekly-brain-review, open-brain-wiki-update, freshwater-trip-log (ad-hoc). Original prompts
-  spliced verbatim from `~/Claude/Scheduled/`; attention-layer footers added; Ed deletes the
+  spliced verbatim from `~/Claude/Scheduled/`; attention-layer footers added; the owner deletes the
   old session-scoped copies in the Cowork UI to prevent double runs.
 - `ops/watch.py`: new statuses — "Not yet run" (enabled cron task with no lastRunAt; prevents
   false MISSED on freshly created tasks) and "On-demand" (manual-only tasks, grouped out of
   the active fleet). Dashboard fleet now 15 active routines.
-- Not migrated (flagged for Ed): booker-mastermind-daily-journal (superseded by
+- Not migrated (flagged for the owner): booker-mastermind-daily-journal (superseded by
   mastermind-daily-capture) and token-dashboard-phase1-review (one-time, past).
 
-## [2026-07-27b] — Attention-layer footers + heartbeat channel (Ed's Lane-3 yes)
+## [2026-07-27b] — Attention-layer footers + heartbeat channel (the owner's Lane-3 yes)
 
 ### Added
 - Attention-layer footer appended to all 6 worker routine prompts (morning briefing,
@@ -318,7 +350,7 @@ out of office with no way to trigger repairs.
 - ops-watcher prompt updated to investigate FAILED/PARTIAL alongside MISSED.
 
 ### Rationale
-- Closed two gaps found when Ed asked whether job-discovered issues get flagged: worker
+- Closed two gaps found when the owner asked whether job-discovered issues get flagged: worker
   routines had no knowledge of the digest queue (findings scrolled by in per-run Slack
   notifications), and a run that started then died still read as healthy because `lastRunAt`
   stamps at run start.
@@ -334,14 +366,14 @@ out of office with no way to trigger repairs.
 - `ops-watcher` scheduled task (daily 8:04 AM, lives in `~/.claude/scheduled-tasks/`):
   snapshots `list_scheduled_tasks` → runs the engine → investigates misses via session
   transcripts + Slack notifications → routes per ESCALATION-POLICY.md (urgent → one Slack DM
-  to Ed; noteworthy → Lane-2 digest rows; healthy → dashboard only). Surface-not-fix: task
+  to the owner; noteworthy → Lane-2 digest rows; healthy → dashboard only). Surface-not-fix: task
   changes stay Lane 3.
 - AGENTS.md file map trued up: added missing `ESCALATION-POLICY.md`, `checks/judge.py`,
   `rubrics/`, plus the new `ops/watch.py` and gitignored `mission-control.html` rows
   (drift originally flagged 2026-07-12).
 
 ### Rationale
-- Ed's routine fleet (7 active tasks) had per-run Slack notifications but no aggregate view;
+- The owner's routine fleet (7 active tasks) had per-run Slack notifications but no aggregate view;
   a missed run was only detectable by noticing an absent notification. This pulls
   BUILD-PLAN Phase 4's "attention layer" forward as a pilot.
 
@@ -351,7 +383,7 @@ out of office with no way to trigger repairs.
 - `ESCALATION-POLICY.md` v1.0 → v1.1: four decision lanes with definitions block, severity
   gate on the digest, objective-aggregate spend gate, sampling plan with anti-gaming rules,
   required fault attribution, two-counter interrupt metric, and a Mechanics section naming
-  every record, schema, owner, and trigger. Parameters set by Ed: $5/objective spend gate,
+  every record, schema, owner, and trigger. Parameters set by the owner: $5/objective spend gate,
   evening Slack digest, 20% sampling start (5% floor), all-outbound = Lane 3.
 - Mini-eval: 3-lens adversarial Ringer swarm (`escalation-policy-review`) — Codex
   (abuse/loopholes, 16 findings first-try), GLM 5.2 (spec-coherence vs SPEC-activation /
@@ -361,7 +393,7 @@ out of office with no way to trigger repairs.
   standing-scope rule; Class-2 repairs were mapped to Lane 3 when the SPEC makes them digest
   items; spend gate was splittable into sub-$5 runs; sampling decay counted zero-sample weeks
   as clean.
-- Deliberate rejections recorded: default-branch pushes stay Lane 1 for Ed-owned doc/tool
+- Deliberate rejections recorded: default-branch pushes stay Lane 1 for owner-owned doc/tool
   repos (interrupt economics; force/tags/deploy-triggering pushes excluded); full single-use
   approval bookkeeping deferred (binding-to-instance rule adopted instead); Kimi's P0 grades
   re-leveled to P1 (measurability, not safety).
@@ -377,7 +409,7 @@ out of office with no way to trigger repairs.
 - `BUILD-PLAN.md` Phase 2.6 — escalation policy + sampling plan, slotted from the 7/24
   adversarial review: four decision lanes (auto-proceed / digest / block-and-ask /
   never-automate), sampled audit of passing work post-judge-graduation, eval-log fault
-  attribution (`spec|worker|check`, effective immediately), Ed-interrupts-per-build metric.
+  attribution (`spec|worker|check`, effective immediately), owner-interrupts-per-build metric.
 - Phase 3 requirements: integration gate (system-level check after merge), security lint in
   the default check template, Tier-2 manifest as stage 0.
 - Phase 4: attention layer upgraded to a proposal queue; routing economics extended to cost

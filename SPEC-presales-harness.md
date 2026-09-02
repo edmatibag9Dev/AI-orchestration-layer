@@ -115,7 +115,7 @@ rating rules verbatim, the output contract, and the hard rules ("never cite a pr
 document as capability evidence"; "no library support → not Green"). Workers write to their
 own task dir; the check copies validated output into the run's artifact store.
 
-**Engine:** ask Ed at first run with the scoreboard in hand (`./ringer.py models --task-type
+**Engine:** ask the owner at first run with the scoreboard in hand (`./ringer.py models --task-type
 gap-rating` will be empty on run one — recommend from the nearest neighbour, `docs`, where
 GLM is 0.76 first-try at ~1–2¢ and Codex 0.83 at ~4× the tokens). One exploration lane if
 the batch has ≥3 tasks.
@@ -132,7 +132,7 @@ A `can_use_tool` callback denies before the model acts. Not prompt guidance; a f
 | No prospect-facing artifact before the gate | Deny any path matching `*EXTERNAL*` unless `gate-delivery.approved.json` exists |
 | No outbound actions, ever | Deny every send/post/share tool (mail, Slack, Drive share) — Lane 4, permanent, no gate clears it |
 | No destructive shell | Deny `rm`, `git push`, `git commit` inside stage turns |
-| Library is read-only | Deny writes anywhere under `library_root` — the knowledge repo is edited by Ed, never by a stage |
+| Library is read-only | Deny writes anywhere under `library_root` — the knowledge repo is edited by the owner, never by a stage |
 
 Workers under Ringer inherit the sandbox plus the Phase-2.5 rule: **workers never read Open
 Brain.** The orchestrator assembles context into worker specs at stage 0.
@@ -141,7 +141,7 @@ Brain.** The orchestrator assembles context into worker specs at stage 0.
 
 ## 5. Human gates — file tokens, never inferred
 
-Two gates, both hard stops, both cleared only by Ed:
+Two gates, both hard stops, both cleared only by the owner:
 
 - `gate-requirements.approved.json` — stage 2 → 3. The accuracy gate from the skill.
 - `gate-delivery.approved.json` — stage 5 → hand-off. Prospect-facing, Lane 4: permanent,
@@ -199,7 +199,7 @@ gitignored artifact store and `CONFIG.local.md`.
 ```
 
 **The compounding asset** is `confirm-with-product.jsonl` — every requirement where the
-library was ambiguous, accumulated across runs. When Ed gets an answer from vendor product,
+library was ambiguous, accumulated across runs. When the owner gets an answer from vendor product,
 it is promoted into `SOLUTION_PATTERNS.md` and never re-derived. That is Pattern 4
 for this workload: in six months the library should answer questions it couldn't in month one,
 and the rate of `confirm_with_product: true` should fall.
@@ -215,9 +215,9 @@ is the first workload that writes it.
 1. One real prospect analysis run through stage 3 under the harness, end to end.
 2. All rating tasks verified by `rate_check.py`; every citation resolved verbatim.
 3. Integration gate passes on the merged matrix.
-4. Both human gates exercised — including at least one where Ed rejects and the run stops.
+4. Both human gates exercised — including at least one where the owner rejects and the run stops.
 5. `fault:` present on any failed row; eval rows land in the scoreboard under `gap-rating`.
-6. Ed's verdict on the output vs. what the skill alone produces: **is the matrix better, or
+6. The owner's verdict on the output vs. what the skill alone produces: **is the matrix better, or
    just more instrumented?** If it is only more instrumented, the harness is overhead — say so
    and stop rather than expanding to five stages.
 
