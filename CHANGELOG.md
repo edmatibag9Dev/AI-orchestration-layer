@@ -23,14 +23,22 @@ never reached them. This repo is public.
   the Slack channel names `#ops-control` and `#ai-briefing` and the helper path
   `~/.claude/lib/slack_alert.py`. These are non-identifying and load-bearing for the
   instructions; no webhook URL or secret value has ever been in these files.
+- **`SPEC-self-healing-loop.md`** — same scrub applied to its Phase 4b section: 11 occurrences
+  of the owner's first name to "the owner", and the two launchd labels
+  `com.<account>.slack-ops-poller` and the `kick` prefix allowlist to `com.<OWNER>.` /
+  `com.<OWNER-SHORT>.`. The allowlist's security intent is preserved in prose — the literal
+  prefixes now live only in the runtime config.
 
 ### Known limitations
 - **This does not remove the data from git history.** The values remain reachable in commits
   `46ff440` (ops-watcher, 2026-08-31) and `546350a` (fleet-sentinel, 2026-08-31). Clearing
   history needs a rewrite or a fresh repo — the owner's call, not taken here.
-- `com.<account>.slack-ops-poller` still appears twice in `SPEC-self-healing-loop.md`, and
-  the GitHub account name appears in `AGENTS.md` and `CHANGELOG.md`. Out of scope for this
-  commit; surfaced rather than changed.
+- **The owner's first name remains in 5 other committed files** — `BUILD-PLAN.md` (15),
+  `ESCALATION-POLICY.md` (17), `CHANGELOG.md` (16), `SPEC-presales-harness.md` (6),
+  `checks/verdict.sh` (1) — and his FULL name is in the `**Owner:**` line of
+  `ESCALATION-POLICY.md` and the header of `CONTRIBUTING.md`. Surfaced, not changed.
+- The GitHub account name appears in `AGENTS.md` and `CHANGELOG.md`; it is already public in
+  the repo URL, so it is not treated as an exposure.
 
 ## [2026-08-31] — Phase 4b: fleet sentinel + Slack command channel
 

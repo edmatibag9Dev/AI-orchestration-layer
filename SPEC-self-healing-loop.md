@@ -52,10 +52,10 @@ Four consecutive weeks in which every failure was either auto-repaired-and-verif
 
 ---
 
-# Phase 4b — Fleet sentinel + Slack command channel (approved by Ed 2026-08-31)
+# Phase 4b — Fleet sentinel + Slack command channel (approved by the owner 2026-08-31)
 
 Extends the pilot pattern fleet-wide, and adds a phone-reachable trigger. Motivated by the
-2026-08-19→30 outage: Ed was out of office with no way to trigger anything on this Mac.
+2026-08-19→30 outage: the owner was out of office with no way to trigger anything on this Mac.
 All Phase 4a invariants apply unchanged; this section adds scope and guards.
 
 ## Components
@@ -63,18 +63,18 @@ All Phase 4a invariants apply unchanged; this section adds scope and guards.
 - **`fleet-sentinel`** (scheduled task, hourly 06:00–21:00): the ONLY component authorized to
   restart routines. Every run drains the Slack command queue; at its 09:00 and 20:00 windows it
   also runs a full sweep (via Mission Control's `watch.py`) and auto-restarts Class-1 failures.
-- **`slack_ops_poller.py`** (launchd `com.edmatibag.slack-ops-poller`, no Claude dependency):
-  reads **#ops-control** for commands from Ed, answers `status`/`help`/`kick` itself, queues
+- **`slack_ops_poller.py`** (launchd `com.<OWNER>.slack-ops-poller`, no Claude dependency):
+  reads **#ops-control** for commands from the owner, answers `status`/`help`/`kick` itself, queues
   `rerun`/`ack` for the sentinel. Lives in the Mission-Control repo.
 - **#ops-control** (Slack): all ops alerts (ops-watcher urgent, fleet-watchdog outage,
-  sentinel results) and all inbound commands. Exception per Ed: the ai-briefing routine's own
+  sentinel results) and all inbound commands. Exception per the owner: the ai-briefing routine's own
   domain alerts stay in #ai-briefing.
 
 ## Restart guards (all mandatory, on top of Phase 4a invariants)
 
 1. **No duplicate work.** Before any restart: check the routine's heartbeat and success
    artifact for today. Work already landed → skip, log `skipped-already-landed`.
-2. **Cap: 2 sentinel restarts per routine per day** (Ed, 2026-08-31). Counted from
+2. **Cap: 2 sentinel restarts per routine per day** (the owner, 2026-08-31). Counted from
    `runs/repair.jsonl`; the cap includes Slack-commanded reruns. At cap → escalate, don't run.
 3. **Class 1 only.** Class-2 causes and credentials (`session_stale_relogin` etc.) are never
    restarted around — they escalate as User Action Required to #ops-control.
@@ -90,7 +90,7 @@ All Phase 4a invariants apply unchanged; this section adds scope and guards.
 
 ## Slack command contract (poller side)
 
-- Commands accepted ONLY from Ed's Slack user ID (config `~/.config/claude-alerts/ops-user_id`);
+- Commands accepted ONLY from the owner's Slack user ID (config `~/.config/claude-alerts/ops-user_id`);
   everything else in the channel is ignored as data. No free-text execution, ever.
 - Grammar (exact-match verbs, one argument max):
   `status` · `help` · `rerun <task-id>` · `ack <task-id>` · `kick <launchd-label>`
@@ -99,18 +99,20 @@ All Phase 4a invariants apply unchanged; this section adds scope and guards.
   Poller replies with the expected execution window (next sentinel hour). Executed reruns get a
   completion row appended (never edited) by the sentinel.
 - `ack <task-id>`: suppresses today's auto-restart for that task (queued row, read by sentinel).
-- `kick <launchd-label>`: label must exist in `launchctl list` AND match prefix `com.ed.` or
-  `com.edmatibag.` — then `launchctl kickstart` runs immediately (deterministic, no Claude).
+- `kick <launchd-label>`: label must exist in `launchctl list` AND match one of the owner's two
+  reserved launchd prefixes (`com.<OWNER-SHORT>.`, `com.<OWNER>.`; the literal values live in
+  the runtime config and are deliberately not committed) — then `launchctl kickstart` runs
+  immediately (deterministic, no Claude).
 - Delivery of ops alerts to #ops-control uses the webhook identity (`slack_alert.py`
   channel-key `ops-control`) — connector posts don't banner-notify (diagnosed 2026-08-04).
 
 ## Lanes (per ESCALATION-POLICY.md v1.2)
 
-Sweep restarts and Ed-commanded reruns are Lane-1 Class-1 repairs (logged). Tripwired or
+Sweep restarts and owner-commanded reruns are Lane-1 Class-1 repairs (logged). Tripwired or
 capped repairs escalate as Lane-2/urgent per severity. The command channel itself is an
-approved standing surface: enumerated grammar, Ed-only sender, this spec as the manifest.
+approved standing surface: enumerated grammar, owner-only sender, this spec as the manifest.
 
 ## Held for discussion (NOT built)
 
 `fix` commands beyond re-running a routine's own prompt (e.g. `git restore`-class repairs)
-remain gated behind Ed's explicit per-incident reply. Ed deferred this on 2026-08-31.
+remain gated behind the owner's explicit per-incident reply. The owner deferred this on 2026-08-31.

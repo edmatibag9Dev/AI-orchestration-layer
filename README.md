@@ -87,7 +87,7 @@ Phase 1 plumbing is live as of 2026-07-15: Ringer demo verified, and two worker 
 
 ## Update / Refresh Instructions
 
-Update `BUILD-PLAN.md` when a phase completes or a decision changes, add a dated `CHANGELOG.md` entry, and refresh this README on every `feat`/`fix`/`data` commit. Real manifests and eval logs stay out of git; commit a scrubbed sample instead when a new pattern is worth preserving. When a routine under `scheduled-tasks/` changes, edit the runtime master under `~/.claude/scheduled-tasks/` first — that is the copy that runs — then re-scrub it into this repo (absolute home paths to `~/`, owner name to "the owner") so the backup does not become a stale mirror. The review reports the task produces are gitignored and stay local.
+Update `BUILD-PLAN.md` when a phase completes or a decision changes, add a dated `CHANGELOG.md` entry, and refresh this README on every `feat`/`fix`/`data` commit. Real manifests and eval logs stay out of git; commit a scrubbed sample instead when a new pattern is worth preserving. When a routine under `scheduled-tasks/` changes, edit the runtime master under `~/.claude/scheduled-tasks/` first — that is the copy that runs — then re-scrub it into this repo so the backup does not become a stale mirror. **The scrub convention applies to every committed file, not just `scheduled-tasks/`:** absolute home paths to `~/`, owner name to "the owner", owner email to `<OWNER_EMAIL>`, launchd label prefixes to `com.<OWNER>.` / `com.<OWNER-SHORT>.`. Check with `git ls-files -z | xargs -0 grep -lE 'Matibag|(^|[^A-Za-z])Ed([^A-Za-z]|$)|/Users/[a-z]'` before pushing. The review reports the task produces are gitignored and stay local.
 
 ---
 *Last updated: 2026-08-17 (backed up the four orchestration-substance routines)*
