@@ -4,6 +4,34 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-09-02] — Scrub the two unscrubbed scheduled-task backups
+
+The monthly skills-inventory-review of 2026-09-01 (finding F1) found that
+`scheduled-tasks/ops-watcher/SKILL.md` and `scheduled-tasks/fleet-sentinel/SKILL.md` were
+committed byte-identical to their runtime masters. Both were added during Phase 4b work on
+2026-08-31, after the 2026-08-18 batch scrub that covered the other four files, so the scrub
+never reached them. This repo is public.
+
+### Fixed
+- **`scheduled-tasks/ops-watcher/SKILL.md`, `scheduled-tasks/fleet-sentinel/SKILL.md`** —
+  scrubbed to the convention already documented in README "Maintenance": 9 absolute
+  `/Users/<account>/` paths to `~/`, the owner's first name to "the owner", the owner's email
+  to `<OWNER_EMAIL>`, and the launchd label `com.<account>.fleet-watchdog` to
+  `com.<OWNER>.fleet-watchdog`. Instruction content is unchanged — the diff is substitutions
+  only, so both files remain accurate reference copies.
+- Retained deliberately, matching the already-scrubbed `daily-ai-morning-briefing` backup:
+  the Slack channel names `#ops-control` and `#ai-briefing` and the helper path
+  `~/.claude/lib/slack_alert.py`. These are non-identifying and load-bearing for the
+  instructions; no webhook URL or secret value has ever been in these files.
+
+### Known limitations
+- **This does not remove the data from git history.** The values remain reachable in commits
+  `46ff440` (ops-watcher, 2026-08-31) and `546350a` (fleet-sentinel, 2026-08-31). Clearing
+  history needs a rewrite or a fresh repo — the owner's call, not taken here.
+- `com.<account>.slack-ops-poller` still appears twice in `SPEC-self-healing-loop.md`, and
+  the GitHub account name appears in `AGENTS.md` and `CHANGELOG.md`. Out of scope for this
+  commit; surfaced rather than changed.
+
 ## [2026-08-31] — Phase 4b: fleet sentinel + Slack command channel
 
 Ed's decisions recorded same day, after the 8/19–8/30 `session_stale_relogin` outage left him
