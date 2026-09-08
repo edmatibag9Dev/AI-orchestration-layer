@@ -80,6 +80,7 @@ Architecture synthesized from: the Ringer guide (unlock-ai.natebjones.com/guides
 - Worker CLIs must be kept current: an out-of-date Codex CLI (0.139.0) was rejected wholesale by its own default model (`gpt-5.6-sol` requires a newer CLI) — every demo task failed until the CLI self-updated to 0.144.4.
 - Ringer worktree footgun: passing tasks get their worktrees deleted — checks must copy deliverables out before exiting 0.
 - A Cowork sandbox cannot run git on mounted folders; commits and pushes are run by the owner in Terminal.
+- **A routine that heartbeats only sometimes defeats `watch.py`'s `stalled` verdict.** The verdict is guarded on heartbeat history, so a routine that never reports cannot false-alarm, but one that reports at the model's discretion reads as "parked on an approval prompt" on every day it skips the footer. `ops-watcher` was that routine until 2026-09-08 (fleet-sentinel paged the owner on 9/3 and 9/7 for a 9/7 run that had completed); its SKILL.md now carries an unconditional step-8 footer. Any new routine must get its footer in the spec, never left to habit.
 
 ## Build Notes
 

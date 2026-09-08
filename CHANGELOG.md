@@ -4,6 +4,34 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-09-08] — ops-watcher heartbeat footer (closes the 9/3 + 9/7 false STALLED pages)
+
+fleet-sentinel paged the owner "USER ACTION REQUIRED — ops-watcher stalled (no restart performed)"
+on 2026-09-03 and again on 2026-09-07. The 9/7 run had in fact completed: its session exited
+success after 13 turns, filed a Lane-2 row at 08:07:51, emitted the step-7 run report, and
+regenerated the dashboard and Morning Page. What it never did was append a heartbeat row —
+because `scheduled-tasks/ops-watcher/SKILL.md` never asked for one. The footer was written at the
+model's discretion (8 of roughly 14 run days since 8/12), and `watch.py`'s `stalled` verdict
+(2026-09-03) treats any silent fire by a routine *with* heartbeat history as a hung prompt.
+
+### Fixed
+- **`scheduled-tasks/ops-watcher/SKILL.md`** — new step 8: an unconditional attention-layer
+  footer appending `{task, ts, status, note}` to `runs/heartbeat.jsonl` as the last action of
+  every run, with the colon-offset timestamp one-liner and the ordering rule copied from the
+  evening-digest footer. Step 7 now hands off to step 8; the TOOL SURFACE line admits the
+  timestamp one-liner.
+- **Backup copy resynced** from the runtime master (it had also drifted behind the 2026-09-06
+  `morning_page.py` addition), scrubbed per the repo convention.
+- Runtime master backed up as `~/.claude/scheduled-tasks/ops-watcher/SKILL.md.bak-20260908-0700`.
+
+### Not changed
+- No restart and no re-run of the 9/7 ops-watcher: its work landed. The 9/3 fire has no session
+  transcript at all (scheduler `lastRunAt` set, nothing in `ccd_session_mgmt`), so that one is a
+  different shape — an unstarted or cleared dispatch on the fleet-wide approval-stall morning —
+  and is covered by the 9/4 07:56 manual run. Not root-caused here.
+- `watch.py` untouched: the `hb is not None` guard is correct for routines that never report;
+  the defect was a routine that reports *sometimes*.
+
 ## [2026-09-02b] — Repo-wide owner-name scrub
 
 Scoping the `SPEC-self-healing-loop.md` scrub showed the two SKILL.md backups were a small
