@@ -1,4 +1,5 @@
-rubric: morning-briefing v2
+rubric: morning-briefing v3
+hard_fail: R4
 <!-- Judge-checkable from the rendered briefing HTML alone (no pipeline files).
      Source of truth: ai-briefing pipeline/briefing-prompt.md v2.5 (2026-07-22).
      Each line independently scoreable; failures must name evidence.
@@ -25,6 +26,15 @@ rubric: morning-briefing v2
            that refuted itself ("verified correct. Wait: calendar check
            confirms..."). A fail now requires naming both the stated and the
            computed weekday.
+     v3 (2026-09-25) — R4 made a HARD-FAIL line (owner directive). No rubric
+           text changed. The rubric-regression run on 2026-09-25 planted an
+           unresolved placeholder and an unsourced GA date into the 2026-09-24
+           edition: R4 caught it, yet the page scored 0.80 and PASSED at the
+           0.80 threshold, so a gating judge would have shipped it. A briefing
+           with an invented date, a placeholder or a missing source breaks the
+           never-invent rule outright; it is not a 10% deduction. The
+           `hard_fail:` header lists lines whose failure forces VERDICT: FAIL
+           regardless of score; checks/judge.py enforces it.
      R9 unchanged: its 07-22 catch (bare unlinked tickers in take bodies) was
      verified true and is the judge's best evidence of value to date.
 -->

@@ -4,6 +4,38 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-09-25] — morning-briefing rubric v3: R4 becomes a hard-fail line
+
+The owner-requested rubric regression run on 2026-09-25 planted an unresolved placeholder and an
+unsourced GA date into the 2026-09-24 edition. The judge caught it on R4, but the page scored 0.80
+and PASSED at the 0.80 threshold, so a gating judge would have shipped it. The owner directed that
+R4 violations fail the edition automatically.
+
+### Changed
+- **`rubrics/morning-briefing.md`** — version bumped to `morning-briefing v3`; new header
+  `hard_fail: R4`. R4's requirement text is unchanged, and line IDs stay stable. The v3 rationale is
+  recorded in the rubric's revision comment.
+- **`checks/judge.py`** — parses an optional `hard_fail:` rubric header. Any failed line listed
+  there forces `VERDICT: FAIL` regardless of score, prints `HARD FAIL: <ids>`, and logs a
+  `hard_failed` field on the judge row. A `hard_fail` id missing from the rubric exits 2.
+- **`checks/rubric-regression.sh`** — now asserts both that R4 fires AND that the page verdict is
+  FAIL, so a regression in the hard-fail rule is caught, not just a regression in R4.
+- **`SPEC-judge-check.md`** — documents hard-fail lines and the amended PASS exit condition.
+
+### Verified
+- Regression re-run on 2026-09-24 + injected violations: `SCORE: 0.90  VERDICT: FAIL`,
+  `HARD FAIL: R4`, script exit 0.
+
+### Known gaps
+- The companion check (clean 2026-09-24 edition under v3, logged to a scratch file) could not run:
+  OpenRouter returned "would exceed your available credits". Until credits are topped up, the
+  daily briefing's shadow judge will log `judge=error` (non-blocking by design).
+- Shadow rows from v2 and v3 mix in `checks/agreement.py` unless filtered with
+  `--rubric-version`. The rubric regression run also showed R10 listed as failed while its own
+  evidence said "Match confirmed, passes" — a judge self-contradiction not addressed here.
+- The ai-briefing spec's owner-verdict prompt template still names "rubric morning-briefing v2";
+  that file lives in the ai-briefing repo and was not changed.
+
 ## [2026-09-08] — ops-watcher heartbeat footer (closes the 9/3 + 9/7 false STALLED pages)
 
 fleet-sentinel paged the owner "USER ACTION REQUIRED — ops-watcher stalled (no restart performed)"

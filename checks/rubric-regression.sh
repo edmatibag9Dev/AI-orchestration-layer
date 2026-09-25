@@ -37,8 +37,12 @@ OUT="$(python3 "$REPO_ROOT/checks/judge.py" --rubric "$REPO_ROOT/rubrics/morning
 echo "$OUT"
 
 if echo "$OUT" | grep -q '^- R4 '; then
-  echo "PASS: R4 still fails a real violation"
-  exit 0
+  if echo "$OUT" | grep -q 'VERDICT: FAIL'; then
+    echo "PASS: R4 still fails a real violation, and the hard_fail rule fails the page"
+    exit 0
+  fi
+  echo "FAIL: R4 fired but the page still PASSED — the rubric's hard_fail: R4 rule is not being enforced."
+  exit 1
 fi
 echo "FAIL: R4 did not fire on an artifact carrying a placeholder and an unsourced GA date."
 echo "      The v2 rewrite has over-corrected — the line can no longer catch what it exists to catch."

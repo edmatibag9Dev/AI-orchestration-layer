@@ -13,7 +13,7 @@ python3 checks/judge.py \
   [--shadow]
 ```
 
-**Exit codes:** `0` = PASS (score ≥ threshold), `1` = FAIL, `2` = judge error (malformed artifact, judge unreachable) — never silently pass on error.
+**Exit codes:** `0` = PASS (score ≥ threshold and no hard-fail line failed), `1` = FAIL, `2` = judge error (malformed artifact, judge unreachable) — never silently pass on error.
 
 **Output (stdout, always printed):**
 
@@ -29,6 +29,8 @@ The failed-lines block is mandatory — it is what makes Ringer's single retry i
 ## Rubric format (`rubrics/<type>.md`)
 
 Markdown, one numbered requirement per line (`R1`, `R2`, …), each independently scoreable, each phrased so a failure can name evidence. Version header at top (`rubric: briefing v3`). One rubric per deliverable type — never a generic "quality" rubric.
+
+**Hard-fail lines (optional).** A second header line `hard_fail: R4[, R7 ...]` names requirements whose failure forces `VERDICT: FAIL` regardless of score — for defects that make an artifact unshippable rather than merely weaker (e.g. an invented date or a missing source). The judge prints `HARD FAIL: <ids>` and logs `hard_failed` in the row. A `hard_fail` id not present in the rubric is a judge error (exit 2). `morning-briefing` v3 declares `hard_fail: R4`.
 
 ## Invariants
 

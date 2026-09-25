@@ -8,6 +8,9 @@ stays in OpenCode's auth store) and scores per rubric line.
     python3 checks/judge.py --rubric rubrics/<type>.md --artifact <path> \
         --judge-model openrouter/z-ai/glm-5.2 [--threshold 0.8] [--shadow]
 
+Rubric-declared hard-fail lines: a `hard_fail: R4[, R7 ...]` header in the
+rubric forces VERDICT: FAIL when any listed line fails, regardless of score.
+
 With --shadow: always exits 0, but logs the real verdict to
 runs/judge-shadow.jsonl (append-only). Owner verdicts get logged alongside via
 --owner-verdict pass|fail (writes an owner row for the same artifact).
@@ -85,6 +88,11 @@ rubric_version = vm.group(1).strip() if vm else "unversioned"
 line_ids = re.findall(r"^(R\d+)\.", rubric, re.M)
 if not line_ids:
     die(2, "JUDGE ERROR: rubric has no numbered R-lines")
+hm = re.search(r"^hard_fail:\s*(.+)$", rubric, re.M)
+hard_ids = re.findall(r"R\d+", hm.group(1)) if hm else []
+unknown = [i for i in hard_ids if i not in line_ids]
+if unknown:
+    die(2, f"JUDGE ERROR: hard_fail names lines not in the rubric: {unknown}")
 
 prompt = f"""You are a strict quality judge. Score the ARTIFACT against each numbered rubric requirement independently. Judge only what the rubric asks; do not invent requirements. For a FAIL you must cite concrete evidence from the artifact (quote or name the item/section). If a line is not applicable to this artifact (e.g. no ticker appears anywhere for a ticker rule), score it pass and note "n/a".
 
@@ -124,10 +132,13 @@ if missing:
 
 failed = [lines[i] for i in line_ids if not lines[i].get("pass")]
 score = (len(line_ids) - len(failed)) / len(line_ids)
-verdict = "PASS" if score >= a.threshold else "FAIL"
+hard_failed = [f_["id"] for f_ in failed if f_["id"] in hard_ids]
+verdict = "PASS" if score >= a.threshold and not hard_failed else "FAIL"
 
 print(f"JUDGE: {a.judge_model}  RUBRIC: {rubric_version}  SCORE: {score:.2f}  "
       f"THRESHOLD: {a.threshold:.2f}  VERDICT: {verdict}" + ("  (shadow)" if a.shadow else ""))
+if hard_failed:
+    print(f"HARD FAIL: {', '.join(hard_failed)} (rubric hard_fail line failed; score ignored)")
 if failed:
     print("FAILED LINES:")
     rub_lines = {i: re.search(rf"^{i}\.\s*(.+)$", rubric, re.M).group(1) for i in line_ids}
@@ -138,7 +149,7 @@ if failed:
 log_row({"ts": now, "kind": "judge", "artifact": os.path.abspath(a.artifact),
          "judge_model": a.judge_model, "rubric_version": rubric_version,
          "score": round(score, 3), "verdict": verdict, "shadow": a.shadow,
-         "threshold": a.threshold,
+         "threshold": a.threshold, "hard_failed": hard_failed,
          "failed": [{"id": f_["id"], "evidence": f_.get("evidence", "")} for f_ in failed]})
 
 sys.exit(0 if (a.shadow or verdict == "PASS") else 1)
