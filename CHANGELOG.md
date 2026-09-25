@@ -4,6 +4,36 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-09-25] — morning-briefing rubric v4: R10 scored mechanically
+
+The 2026-09-25 regression run listed R10 (weekday matches calendar date) as FAILED while the
+judge's own evidence concluded "Stated=Thursday, computed=Thursday. Match confirmed, passes." It is
+the same self-contradiction v1 showed on 07-20, which v2's evidence contract did not prevent. A
+weekday/date match is exactly computable, so the owner directed that it stop depending on the model.
+
+### Added
+- **`checks/judge.py`** — `mechanical:` rubric header and a `MECHANICAL_CHECKS` registry.
+  `check_weekday_date` strips scripts/styles and tags, finds every weekday+date pair with a year
+  ('Thursday, September 24, 2026', 'Wednesday · July 15, 2026', 'Thu, Sep 24, 2026',
+  'Monday 2026-08-10'), and fails on any mismatch or impossible date. Its result replaces the
+  model's; disagreements print `MECHANICAL OVERRIDE` and log to `mechanical_overrides`.
+
+### Changed
+- **`rubrics/morning-briefing.md`** — `morning-briefing v4`, header `mechanical: R10=weekday-date`.
+  R10's text is unchanged.
+- **`checks/rubric-regression.sh`** — also injects 'Friday, September 24, 2026' and asserts R10
+  reports it mechanically; both assertions must pass.
+- **`SPEC-judge-check.md`** — documents mechanical lines.
+
+### Verified
+- Offline: all 87 archived editions (2026-06-10 → 2026-09-24) pass, every one with at least one
+  recognized pair (0 skipped); a recreated Edition #29 bug ('Tuesday · July 15, 2026') fails;
+  '2026-02-30' fails as an invalid date.
+- Regression: `VERDICT: FAIL`, `HARD FAIL: R4`, R10 "states Friday, computed Thursday"; exit 0.
+- Clean 2026-09-24 edition under v4 (scratch log): `SCORE: 1.00  VERDICT: PASS`, no overrides.
+  This also closes the v3 known gap — the clean-edition check that could not run for lack of
+  OpenRouter credits.
+
 ## [2026-09-25] — morning-briefing rubric v3: R4 becomes a hard-fail line
 
 The owner-requested rubric regression run on 2026-09-25 planted an unresolved placeholder and an

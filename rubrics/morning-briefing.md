@@ -1,5 +1,6 @@
-rubric: morning-briefing v3
+rubric: morning-briefing v4
 hard_fail: R4
+mechanical: R10=weekday-date
 <!-- Judge-checkable from the rendered briefing HTML alone (no pipeline files).
      Source of truth: ai-briefing pipeline/briefing-prompt.md v2.5 (2026-07-22).
      Each line independently scoreable; failures must name evidence.
@@ -35,6 +36,16 @@ hard_fail: R4
            never-invent rule outright; it is not a 10% deduction. The
            `hard_fail:` header lists lines whose failure forces VERDICT: FAIL
            regardless of score; checks/judge.py enforces it.
+     v4 (2026-09-25) — R10 scored MECHANICALLY (owner directive "fix the R10
+           self-contradiction"). The judge model listed R10 as failed while its
+           own evidence concluded "Match confirmed, passes" (regression run
+           2026-09-25; same shape as v1's 07-20 failure that v2's evidence
+           contract was meant to stop). Weekday-vs-date is exactly computable,
+           so the `mechanical:` header hands R10 to check_weekday_date in
+           checks/judge.py: every weekday+date pair on the visible page is
+           checked against the calendar and the code result replaces the
+           model's. Disagreements are printed and logged as
+           mechanical_overrides. R10's text is unchanged.
      R9 unchanged: its 07-22 catch (bare unlinked tickers in take bodies) was
      verified true and is the judge's best evidence of value to date.
 -->

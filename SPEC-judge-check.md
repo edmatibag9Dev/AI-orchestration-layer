@@ -32,6 +32,8 @@ Markdown, one numbered requirement per line (`R1`, `R2`, …), each independentl
 
 **Hard-fail lines (optional).** A second header line `hard_fail: R4[, R7 ...]` names requirements whose failure forces `VERDICT: FAIL` regardless of score — for defects that make an artifact unshippable rather than merely weaker (e.g. an invented date or a missing source). The judge prints `HARD FAIL: <ids>` and logs `hard_failed` in the row. A `hard_fail` id not present in the rubric is a judge error (exit 2). `morning-briefing` v3 declares `hard_fail: R4`.
 
+**Mechanical lines (optional).** A header line `mechanical: R10=weekday-date[, Rn=<check>]` hands a requirement that is exactly computable to a code check in `checks/judge.py` (`MECHANICAL_CHECKS`) instead of the model. The code result replaces the model's for that line; when the two disagree, the judge prints `MECHANICAL OVERRIDE: …` and logs the model's answer under `mechanical_overrides`, so model drift on computable lines stays measurable. An unknown check name or a line not in the rubric is a judge error (exit 2). Use this only for requirements with a deterministic answer — never to replace judgment. `morning-briefing` v4 declares `mechanical: R10=weekday-date`.
+
 ## Invariants
 
 1. **Judge ≠ producer.** The judge model is never the model (or model family, where feasible) that produced the artifact.
