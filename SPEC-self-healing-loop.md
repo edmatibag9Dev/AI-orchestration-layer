@@ -112,6 +112,40 @@ Sweep restarts and owner-commanded reruns are Lane-1 Class-1 repairs (logged). T
 capped repairs escalate as Lane-2/urgent per severity. The command channel itself is an
 approved standing surface: enumerated grammar, owner-only sender, this spec as the manifest.
 
+## Amendment 2026-09-30 — run-record reclassification (SHADOW WEEK, approved by the owner)
+
+**Problem.** STALLED (fired, no heartbeat after 2h) is alert-only. That is right for a run parked on
+a prompt or one that finished without reporting. It is wrong for a session that provably died on a
+transient error. On 2026-09-29 two STALLED routines had scheduler run records reading `failed` with
+"API Error: 500" and "ENOTFOUND"; both sat unrepaired for 15–21h under the alert-only rule.
+
+**Mechanism.** `watch.py` lists routines that fired and stayed silent for 20 minutes on
+`RUN-RECORD-CANDIDATES:`. The runner (fleet-sentinel sweep, ops-watcher) snapshots
+`list_task_runs(limit=3)` for them and reruns `watch.py`, which matches the run to the fire (±2 min)
+and proposes a verdict:
+
+| Run record | Proposal | Restartable? |
+|---|---|---|
+| `failed`, credentials text (checked first) | FAILED / credentials | never |
+| `failed`, transient error (5xx, overloaded, ENOTFOUND, ECONNRESET, ETIMEDOUT, EAI_AGAIN, "Can't reach the API server", socket hang up) | FAILED / transient-api | if guards pass |
+| `failed`, anything else (incl. HTTP 429) | FAILED / unknown | no |
+| `running` | STALLED / parked | no |
+| `succeeded` | STALLED / unreported | no — `succeeded` is not proof of work |
+
+**New guards** (added to guards 1–6 above):
+7. Record-confirmed only: a `failed` record with a transient match.
+8. Network is back: the Slack poller's state file is < 15 minutes old.
+9. Partial-work safety: the session died within 2 minutes of starting, or the routine is on the
+   RERUN-SAFE allowlist (empty; each entry needs the owner's sign-off).
+
+**Shadow week (from 2026-09-30).** Proposals are report-only: the routine's status is unchanged, so
+the existing restart rule cannot act on them. The sentinel appends `shadow-would-restart` /
+`shadow-blocked` rows to `runs/repair.jsonl` (one per failed session; never counted toward cap or
+tripwire). After review, the owner decides whether to enable. Enabling = setting `SHADOW = False`
+in Mission Control's `watch.py`, plus a follow-up amendment here. No agent may enable it.
+
+`ESCALATION-POLICY.md` is unchanged: restarts remain Lane-1 Class-1 repairs.
+
 ## Held for discussion (NOT built)
 
 `fix` commands beyond re-running a routine's own prompt (e.g. `git restore`-class repairs)
