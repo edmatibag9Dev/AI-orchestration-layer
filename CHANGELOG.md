@@ -4,6 +4,23 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-09-30] — Refresh the six scheduled-task backups
+
+The committed copies under `scheduled-tasks/` had drifted from their runtime masters in
+`~/.claude/scheduled-tasks/` (by up to 66 lines, action-item-triage). All six are refreshed.
+
+### Changed
+- **`scheduled-tasks/*/SKILL.md`** (action-item-triage, daily-ai-morning-briefing, evening-digest,
+  fleet-sentinel, ops-watcher, skills-inventory-review) — regenerated from the live masters and
+  scrubbed to the README "Maintenance" convention: home paths to `~/`, the owner's name to
+  "the owner", email to `<OWNER_EMAIL>`, launchd prefixes to `com.<OWNER>.` / `com.<OWNER-SHORT>.`,
+  and the employer name to "presales" (same substitution the 2026-08-18 scrub made). Instruction
+  content is otherwise verbatim; line counts match the masters.
+- Picks up: the fleet-sentinel and ops-watcher run-record shadow step (2026-09-30), the
+  evening-digest attention-layer footer, and action-item-triage's two-source closed-set rules.
+- Kept deliberately, as before: Slack channel names, the alert helper path, and the LAN hostname
+  in the briefing backup.
+
 ## [2026-09-25] — morning-briefing rubric v4: R10 scored mechanically
 
 The 2026-09-25 regression run listed R10 (weekday matches calendar date) as FAILED while the

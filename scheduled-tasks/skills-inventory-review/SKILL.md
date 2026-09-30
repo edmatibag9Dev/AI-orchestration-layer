@@ -28,3 +28,7 @@ ATTENTION-LAYER FOOTER (per ESCALATION-POLICY.md):
 2. If the review cannot complete, say so explicitly in the final report AND file a Lane-2 row (severity "minor") describing what failed.
 3. ALWAYS end — success or failure — by appending one heartbeat line to ~/Documents/Claude/Projects/Mission-Control-Dashboard/runs/heartbeat.jsonl:
    {"task": "skills-inventory-review", "ts": "<ISO-8601 local>", "status": "ok|partial|failed", "note": "<one line>"}
+
+   **TIMESTAMP FORMAT — applies to EVERY `ts` this task writes (digest.jsonl and heartbeat.jsonl). Use a colon in the UTC offset.** Generate it with:
+       /usr/bin/python3 -c "import datetime;print(datetime.datetime.now().astimezone().replace(microsecond=0).isoformat())"
+   which yields `2026-08-30T12:29:48-07:00`. Do NOT use `date '+%Y-%m-%dT%H:%M:%S%z'` — BSD date emits `-0700` with no colon, which Python 3.9's strict `fromisoformat` rejects, and 3.9 is what `/usr/bin/python3` resolves to for launchd-run tooling. Do NOT use `date '+%:z'` either — GNU date supports `%:z`, macOS BSD date does NOT: it passes the literal through, producing a corrupt stamp like `2026-09-02T07:17:49:z` that every reader rejects (observed 2026-09-02, fleet-sentinel heartbeat). Shell `date` is the wrong tool here in all its forms; use the python one-liner above.
