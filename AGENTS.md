@@ -1,4 +1,5 @@
 # AGENTS.md — guide for AI agents working in this repo
+> Standard: REPO-STANDARD 2026-10-09 · Commits, README and staging: CONTRIBUTING.md
 
 This file is the canonical entry point for any AI agent (Claude Code, Cowork, Codex, etc.)
 asked to **use, reference, extend, or rebuild** this project. Read it before acting.
@@ -31,11 +32,13 @@ Design in one line: **frontier model writes specs and reviews; cheap verified wo
 | `checks/fault_report.py` | yes | Reads the fault-attribution sidecar: class counts, model×task_type signal, unattributed backlog. |
 | `rubrics/` | yes | Judge rubrics, one per deliverable type. Line IDs are stable across versions. |
 | `samples/sample.swarm.json` | yes | Scrubbed reference manifest. |
+| `samples/sample.requirements.json` | yes | Scrubbed stage-3 input adapter sample. |
 | `scheduled-tasks/skills-inventory-review/SKILL.md` | yes | Scrubbed backup of the monthly skills-inventory-review scheduled task. Reference copy only — the runtime master lives at `~/.claude/scheduled-tasks/skills-inventory-review/SKILL.md` and is what actually executes. |
 | `scheduled-tasks/ops-watcher/SKILL.md` | yes | Scrubbed backup of the daily 8:00 AM run-health sweep (heartbeat monitoring, dashboard regen, escalation per ESCALATION-POLICY.md). Reference copy only — runtime master under `~/.claude/scheduled-tasks/`. |
 | `scheduled-tasks/evening-digest/SKILL.md` | yes | Scrubbed backup of the daily 7:05 PM Lane-2 digest assembly/delivery routine. Reference copy only — runtime master under `~/.claude/scheduled-tasks/`. |
 | `scheduled-tasks/action-item-triage/SKILL.md` | yes | Scrubbed backup of the daily action-item triage (auto-close via Open Brain evidence, before wiki regen). Reference copy only — runtime master under `~/.claude/scheduled-tasks/`. |
 | `scheduled-tasks/daily-ai-morning-briefing/SKILL.md` | yes | Scrubbed backup of the daily morning AI briefing routine (judged by this repo's `checks/judge.py` + `rubrics/morning-briefing.md`). Reference copy only — runtime master under `~/.claude/scheduled-tasks/`. |
+| `scheduled-tasks/fleet-sentinel/SKILL.md` | yes | Scrubbed backup of the hourly fleet sentinel — the only component authorized to restart routines (Phase 4b). Reference copy only — runtime master under `~/.claude/scheduled-tasks/`. |
 | `CONTRIBUTING.md` | yes | Commit format + README standards (canonical copy). |
 | `CHANGELOG.md` | yes | Dated change log. |
 | `manifests/` | **no (gitignored)** | Real swarm manifests — reference live work and client context. |
@@ -92,63 +95,13 @@ Rules an agent must preserve:
 - Never commit real manifests, eval logs, rubrics containing client/prospect names, employer-specific requirement text, emails, tokens, or keys. Public repo → placeholders only; real values live in gitignored `CONFIG.local.md`.
 - Commit scrubbed `samples/` so the repo previews without leaking live work.
 
-## Verification gates (run before declaring a change done)
+## Verification gates
+
+Run before declaring a change done:
 
 1. `grep -rniE "kloudg.n|@gmail|xoxb-|\bsk-[a-z0-9]{8,}|api[_-]key\s*[:=]" --exclude=CONFIG.local.md --exclude=AGENTS.md .` returns no real identifiers in committed files (AGENTS.md excluded because this gate line matches itself; eyeball it manually).
 2. Any committed sample manifest passes `./ringer.py lint` in a Ringer clone.
 3. README updated and `CHANGELOG.md` has a dated entry for every `feat`/`fix`/`data` commit.
 4. File map above still matches the working tree.
-
----
-
-## What to Stage — Never Commit Blindly
-
-Staging is part of the commit, not a detail beneath it. A commit records what you
-staged, so an unconditional stage records whatever state the working tree happens
-to be in — including damage you did not cause and did not notice.
-
-### Rules
-
-- **Stage named paths.** `git add <path> <path>` — only the files your change
-  actually touched. You should be able to say why each one is in the commit.
-- **Never `git add -A`, `git add .`, `git add --all`, or `git commit -a`** in a
-  repository that already has history. Use them only to bootstrap a fresh
-  `git init`, and verify the staged list before that first commit.
-- **Check for deletions before every commit:**
-
-  ```
-  git diff --cached --name-status --diff-filter=D
-  ```
-
-  If that prints anything you did not deliberately delete, STOP. Unstage with
-  `git reset`, find out why the file is missing, and restore it. Do not commit
-  the removal.
-- **A file missing from the working tree is not a change.** It is a filesystem,
-  sync-client, or tooling problem. Committing its deletion converts a recoverable
-  accident into recorded history and destroys the git copy that would have
-  restored it.
-- **Untracked is not protected.** A file that was never committed has no git copy
-  at all. If a working file matters, commit it or ignore it deliberately — never
-  leave it untracked by accident.
-
-### Staging self-check
-
-- [ ] Staged named paths only — no `-A`, no `.`, no `-a`
-- [ ] `git diff --cached --name-status --diff-filter=D` shows nothing unintended
-- [ ] Every staged path belongs to the change described in the commit message
-
-### Why this rule exists
-
-On 2026-08-30, commit `3df1d05` in the ai-briefing repo — a routine data commit —
-was staged unconditionally while two files were missing from the working tree. A
-two-way sync client had deleted them nine days earlier. The commit recorded both
-deletions, removing the last recoverable copies from git and leaving the sync
-client's quarantine folder as the only source. They were recovered, but only
-because that quarantine had not yet been purged on its retention timer.
-
-The same pattern nearly caused a data leak once before: an untracked `reports/`
-folder holding local absolute paths and an email address sat in a public repo,
-where any `git add .` would have swept it into a public commit.
-
-Unconditional staging fails in both directions. It commits what should never be
-published, and it deletes what should never be lost.
+5. Staged named paths only, and `git diff --cached --name-status --diff-filter=D` prints nothing — staging rules: [CONTRIBUTING.md → What to Stage](CONTRIBUTING.md#what-to-stage--never-commit-blindly).
+6. `python3 ~/.claude/skills/repo-standard/scripts/repo-check.py .` reports no FAIL lines.

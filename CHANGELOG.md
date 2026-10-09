@@ -4,6 +4,21 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-10-09] — Conform to repo standard 2026-10-09
+
+### Changed
+- **`AGENTS.md`** — added the `Standard: REPO-STANDARD 2026-10-09` stamp on line 2; renamed the
+  gates heading to `## Verification gates`; added a staging gate and a final
+  `repo-check.py` gate; replaced the pasted "What to Stage — Never Commit Blindly" block (a
+  verbatim copy of `CONTRIBUTING.md`) with a link to it; added the missing
+  `scheduled-tasks/fleet-sentinel/SKILL.md` and `samples/sample.requirements.json` rows to the
+  file map.
+- **`README.md`** — split "Overview / Purpose" into `## Project Overview` and `## Purpose`;
+  renamed "Files" to `## File Descriptions`; split "Known Limitations / Workarounds" into
+  `## Known Limitations` and `## Workarounds` (one workaround per limitation); folded "Update /
+  Refresh Instructions" into How to Use as `### Update / refresh`; `Last updated` set to 2026-10-09.
+- **`.gitignore`** — added `.env`, `.env.*`, `!.env.example`, `.venv/` and `*.bak*`.
+
 ## [2026-09-30] — Refresh the six scheduled-task backups
 
 The committed copies under `scheduled-tasks/` had drifted from their runtime masters in

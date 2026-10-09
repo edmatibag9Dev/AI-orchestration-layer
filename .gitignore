@@ -17,8 +17,14 @@ harness-runs/
 # Local-only config holding personal identifiers (scrubbed from committed docs)
 CONFIG.local.md
 
+# Secrets and local environment files
+.env
+.env.*
+!.env.example
 
-# Language / OS noise
+# Backups, environments, language / OS noise
+*.bak*
+.venv/
 __pycache__/
 *.pyc
 node_modules/

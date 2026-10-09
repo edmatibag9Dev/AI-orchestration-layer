@@ -2,9 +2,13 @@
 
 A phased orchestration stack: a frontier model plans and reviews, cheap verified workers execute, and every layer is built bottom-up on evidence from an eval log — Ringer dispatch first, LLM-judge verification second, workflow harnesses third, a Chief-of-Agents router last.
 
-## Overview / Purpose
+## Project Overview
 
-This repo is the planning and build home for the next layer of a personal AI harness stack. The existing foundation (memory layer, skills, scheduled tasks) handles recurring individual jobs; this project adds the orchestration layer above it — dispatching batches of work to inexpensive parallel worker models, verifying every result, and accumulating the pass-rate history that eventually makes routing a query instead of a debate. It exists because frontier-plan token caps are regularly hit on mechanical work, and because the four architecture patterns in circulation (batch dispatcher, harness, loop-of-loops, router) are usually conflated when they should be layered.
+This repo is the planning and build home for the next layer of a personal AI harness stack. The existing foundation (memory layer, skills, scheduled tasks) handles recurring individual jobs; this project adds the orchestration layer above it — dispatching batches of work to inexpensive parallel worker models, verifying every result, and accumulating the pass-rate history that eventually makes routing a query instead of a debate.
+
+## Purpose
+
+It exists because frontier-plan token caps are regularly hit on mechanical work, and because the four architecture patterns in circulation (batch dispatcher, harness, loop-of-loops, router) are usually conflated when they should be layered.
 
 ## Features
 
@@ -17,7 +21,7 @@ This repo is the planning and build home for the next layer of a personal AI har
 - **Sample manifest** (`samples/sample.swarm.json`): a reference Ringer manifest showing spec / check / expect_files / verified fields, including one judge-checked task.
 - **Verification-first design**: exit code 0 or a calibrated judge verdict are the only accepted proofs; worker self-reports are never trusted.
 
-## Files
+## File Descriptions
 
 | File | Role |
 |---|---|
@@ -68,27 +72,37 @@ Start with `BUILD-PLAN.md` for the current phase and its exit criteria. Manifest
 
 **Mission Control dashboard:** now lives in the `Mission-Control-Dashboard` repo — open `~/Documents/Claude/Projects/Mission-Control-Dashboard/mission-control.html`.
 
+### Update / refresh
+
+Update `BUILD-PLAN.md` when a phase completes or a decision changes, add a dated `CHANGELOG.md` entry, and refresh this README on every `feat`/`fix`/`data` commit. Real manifests and eval logs stay out of git; commit a scrubbed sample instead when a new pattern is worth preserving. When a routine under `scheduled-tasks/` changes, edit the runtime master under `~/.claude/scheduled-tasks/` first — that is the copy that runs — then re-scrub it into this repo so the backup does not become a stale mirror. **The scrub convention applies to every committed file, not just `scheduled-tasks/`:** absolute home paths to `~/`, owner name to "the owner", owner email to `<OWNER_EMAIL>`, launchd label prefixes to `com.<OWNER>.` / `com.<OWNER-SHORT>.`. Before pushing, scan the tracked files for the owner's first and last name, the macOS account name, and any `/Users/<name>` path: `git ls-files -z | xargs -0 grep -nIE "$SCRUB_PATTERN"`, with `SCRUB_PATTERN` exported locally so the pattern itself is never committed. The review reports the task produces are gitignored and stay local.
+
 ## Data Sources
 
 Architecture synthesized from: the Ringer guide (unlock-ai.natebjones.com/guides/ringer, verified 2026-07-10), Claire Vo's harness-anatomy build (How I AI), Nate B. Jones's loop-of-loops and 4-Patterns videos, and the steer-vs-dispatch Run Spec framework. Source syntheses live in the owner's knowledge base, not in this repo.
 
-## Known Limitations / Workarounds
+## Known Limitations
 
-- The LLM-judge false-pass rate is unknown until shadow-mode calibration completes; the judge gates nothing until judge/owner agreement is ≥80%. Externally facing deliverables keep a permanent human gate regardless.
-- **Shadow mode measures nothing without owner verdicts.** The first 12 shadow rows (2026-07-19..07-30) accumulated with zero owner verdicts — `--owner-verdict` existed but was never surfaced where the owner reads the artifact, so the agreement rate stayed unmeasurable rather than merely unmet. Fixed 2026-07-31 (`checks/verdict.sh` + a mandatory prompt line in the briefing pipeline); `python3 checks/agreement.py` reports the rate, the disagreements, and the unpaired backlog.
-- Rubric revisions can over-correct: removing a false positive can leave a line that no longer fails anything. `checks/rubric-regression.sh` injects a known violation and asserts the line still fires.
+- The LLM-judge false-pass rate is unknown until shadow-mode calibration completes.
+- **Shadow mode measures nothing without owner verdicts.** The first 12 shadow rows (2026-07-19..07-30) accumulated with zero owner verdicts — `--owner-verdict` existed but was never surfaced where the owner reads the artifact, so the agreement rate stayed unmeasurable rather than merely unmet.
+- Rubric revisions can over-correct: removing a false positive can leave a line that no longer fails anything.
 - Worker CLIs must be kept current: an out-of-date Codex CLI (0.139.0) was rejected wholesale by its own default model (`gpt-5.6-sol` requires a newer CLI) — every demo task failed until the CLI self-updated to 0.144.4.
-- Ringer worktree footgun: passing tasks get their worktrees deleted — checks must copy deliverables out before exiting 0.
-- A Cowork sandbox cannot run git on mounted folders; commits and pushes are run by the owner in Terminal.
-- **A routine that heartbeats only sometimes defeats `watch.py`'s `stalled` verdict.** The verdict is guarded on heartbeat history, so a routine that never reports cannot false-alarm, but one that reports at the model's discretion reads as "parked on an approval prompt" on every day it skips the footer. `ops-watcher` was that routine until 2026-09-08 (fleet-sentinel paged the owner on 9/3 and 9/7 for a 9/7 run that had completed); its SKILL.md now carries an unconditional step-8 footer. Any new routine must get its footer in the spec, never left to habit.
+- Ringer worktree footgun: passing tasks get their worktrees deleted.
+- A Cowork sandbox cannot run git on mounted folders.
+- **A routine that heartbeats only sometimes defeats `watch.py`'s `stalled` verdict.** The verdict is guarded on heartbeat history, so a routine that never reports cannot false-alarm, but one that reports at the model's discretion reads as "parked on an approval prompt" on every day it skips the footer. `ops-watcher` was that routine until 2026-09-08 (fleet-sentinel paged the owner on 9/3 and 9/7 for a 9/7 run that had completed).
+
+## Workarounds
+
+- **Judge false-pass rate:** the judge gates nothing until judge/owner agreement is ≥80%. Externally facing deliverables keep a permanent human gate regardless.
+- **Missing owner verdicts:** fixed 2026-07-31 (`checks/verdict.sh` + a mandatory prompt line in the briefing pipeline); `python3 checks/agreement.py` reports the rate, the disagreements, and the unpaired backlog.
+- **Rubric over-correction:** `checks/rubric-regression.sh` injects a known violation and asserts the line still fires.
+- **Stale worker CLIs:** keep the worker CLI current before a run; the failure above cleared once the CLI updated to 0.144.4.
+- **Ringer worktree deletion:** checks must copy deliverables out before exiting 0.
+- **No git in a Cowork sandbox:** commits and pushes are run by the owner in Terminal.
+- **Intermittent heartbeats:** `ops-watcher`'s SKILL.md now carries an unconditional step-8 footer. Any new routine must get its footer in the spec, never left to habit.
 
 ## Build Notes
 
 Phase 1 plumbing is live as of 2026-07-15: Ringer demo verified, and two worker lanes proven end to end — Codex CLI (plan-billed) and OpenCode + OpenRouter (`z-ai/glm-5.2`, ≈$0.01 per verified task; key held in OpenCode's auth store, never in this repo). As of 2026-07-22 the first runtime code lives here: `checks/judge.py` (the SPEC-judge-check LLM-judge, live in shadow mode against the morning briefing) and `rubrics/morning-briefing.md` (rubric **v4** as of 2026-09-25: v2's lines revised from 12 shadow rows on 2026-07-31; v3 adds `hard_fail: R4`, so an invented date, placeholder or missing source fails the edition outright regardless of score; v4 adds `mechanical: R10=weekday-date`, so the weekday/date check is computed in code rather than judged by the model); shadow verdicts accumulate in the gitignored `runs/judge-shadow.jsonl`, and owner verdicts land beside them via `checks/verdict.sh`. Phase 1 adopts Ringer as-is (single-file Python orchestrator, Python 3.11+) rather than building a dispatcher; Phase 2 adds the only novel component (judge checks) as plain shell/Python scripts conforming to `SPEC-judge-check.md`; Phase 3 builds one harness on the Claude Agent SDK. The router is deliberately last: routing decisions come from accumulated per-model, per-task-type pass rates, not intuition.
 
-## Update / Refresh Instructions
-
-Update `BUILD-PLAN.md` when a phase completes or a decision changes, add a dated `CHANGELOG.md` entry, and refresh this README on every `feat`/`fix`/`data` commit. Real manifests and eval logs stay out of git; commit a scrubbed sample instead when a new pattern is worth preserving. When a routine under `scheduled-tasks/` changes, edit the runtime master under `~/.claude/scheduled-tasks/` first — that is the copy that runs — then re-scrub it into this repo so the backup does not become a stale mirror. **The scrub convention applies to every committed file, not just `scheduled-tasks/`:** absolute home paths to `~/`, owner name to "the owner", owner email to `<OWNER_EMAIL>`, launchd label prefixes to `com.<OWNER>.` / `com.<OWNER-SHORT>.`. Before pushing, scan the tracked files for the owner's first and last name, the macOS account name, and any `/Users/<name>` path: `git ls-files -z | xargs -0 grep -nIE "$SCRUB_PATTERN"`, with `SCRUB_PATTERN` exported locally so the pattern itself is never committed. The review reports the task produces are gitignored and stay local.
-
 ---
-*Last updated: 2026-08-17 (backed up the four orchestration-substance routines)*
+*Last updated: 2026-10-09*
