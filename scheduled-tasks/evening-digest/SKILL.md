@@ -28,6 +28,7 @@ This footer is ADAPTED for this job, because this job owns the Lane-2 queue it w
 
 1. Noteworthy but NON-BLOCKING findings from this run (malformed or unparseable rows in digest.jsonl, a Slack delivery that failed, sampling-state or run-record files missing, severity-gate hits worth a second look) → append one Lane-2 JSON line to ~/Documents/Claude/Projects/AI-orchestration-layer/runs/digest.jsonl:
    {"ts": "<ISO-8601 local>", "severity": "info|minor", "category": "<short-kebab>", "text": "<standalone description>", "source": "evening-digest", "status": "new"}
+   `text` shape: open with ONE sentence of 90 characters or fewer that states the finding (Mission Control shows it as the headline); put each supporting point in its own following sentence (shown as one bullet each). Do not start with the source name or date. Full rule: ESCALATION-POLICY.md → Mechanics.
 
    **ORDERING RULE — append only AFTER duty 5's atomic rewrite has completed.** Duty 5 rewrites digest.jsonl by writing a temp file and moving it into place, from a copy read at duty 1. Any row you append BEFORE that move is silently destroyed by your own rewrite. This is the one job where "append-only" is not sufficient protection, because this job is also the rewriter. If the run aborts before duty 5, append the row then — there is no pending rewrite to clobber it.
 

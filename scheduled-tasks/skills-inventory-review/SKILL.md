@@ -60,6 +60,7 @@ OUTPUT
 ATTENTION-LAYER FOOTER (per ESCALATION-POLICY.md):
 1. For noteworthy NON-BLOCKING findings (BREAKS from release notes, new drift, new duplicate uploads, description bloat, broken symlink, repos failing the standard, prepared-fix branches awaiting review), append one Lane-2 JSON line per finding-group to ORCH/runs/digest.jsonl:
    {"ts": "<ISO-8601 local>", "severity": "info|minor", "category": "maintenance-review", "text": "<standalone description incl. report path>", "source": "skills-inventory-review", "status": "new"}
+   `text` shape: open with ONE sentence of 90 characters or fewer that states the finding (Mission Control shows it as the headline); put each supporting point in its own following sentence (shown as one bullet each). Do not start with the source name or date. Full rule: ESCALATION-POLICY.md → Mechanics.
    Append-only; never edit or re-deliver existing rows; no duplicates of items already queued.
 2. If the review cannot complete, say so explicitly in the final report AND file a Lane-2 row (severity "minor") describing what failed.
 3. ALWAYS end — success or failure — by appending one heartbeat line to ~/Documents/Claude/Projects/Mission-Control-Dashboard/runs/heartbeat.jsonl:

@@ -4,6 +4,14 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-10-10] — Digest row text shape in task footers
+
+### Changed
+- **`scheduled-tasks/*/SKILL.md`** (action-item-triage, daily-ai-morning-briefing, evening-digest,
+  fleet-sentinel, ops-watcher, skills-inventory-review) — the Lane-2 digest template now carries the
+  `text` shape rule from ESCALATION-POLICY.md Mechanics: one opening sentence of 90 characters or
+  fewer, then one sentence per supporting point. Runtime masters updated the same day.
+
 ## [2026-10-10] — Digest row text shape
 
 ### Changed

@@ -200,6 +200,7 @@ ATTENTION-LAYER FOOTER (per ESCALATION-POLICY.md, added 2026-07-28 with the owne
 
 1. Noteworthy but NON-BLOCKING findings from this run (skipped/malformed inputs, auth warnings, source-format drift, anything the owner should eventually see but that shouldn't interrupt him) -> append one Lane-2 JSON line to ~/Documents/Claude/Projects/AI-orchestration-layer/runs/digest.jsonl:
    {"ts": "<ISO-8601 local>", "severity": "info|minor", "category": "<short-kebab>", "text": "<standalone description>", "source": "action-item-triage", "status": "new"}
+   `text` shape: open with ONE sentence of 90 characters or fewer that states the finding (Mission Control shows it as the headline); put each supporting point in its own following sentence (shown as one bullet each). Do not start with the source name or date. Full rule: ESCALATION-POLICY.md → Mechanics.
    Append-only: never edit, re-deliver, or delete existing rows -- the evening-digest task owns delivery and status transitions. Do not file duplicates of an item already in the queue.
 
 2. If you CANNOT complete this job, say so explicitly in your final report AND file a Lane-2 row describing what failed (severity "minor"; use "major" only if data was lost).
