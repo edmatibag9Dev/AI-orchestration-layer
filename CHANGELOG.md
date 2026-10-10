@@ -4,6 +4,14 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-10-10] — Maintenance review: exclusions after the first run
+
+### Changed
+- **`scheduled-tasks/skills-inventory-review/SKILL.md`** — re-scrubbed from the master. The
+  remote-less Token Burn exclusion is gone (that repo is now linked to GitHub). New rule: if a
+  repo still has unmerged agent branches that rewrite the same docs, report them and do not
+  prepare fixes on main.
+
 ## [2026-10-10] — Monthly Maintenance Review
 
 ### Added

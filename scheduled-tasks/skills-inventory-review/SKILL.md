@@ -42,7 +42,7 @@ PHASE B — SKILL CHECKS (run all six)
 PHASE C — REPO-STANDARD SWEEP (every owner repo, local or GitHub-only)
 1. Run: `python3 ORCH/maintenance/repo_sweep.py --staging STAGING --out OUT/repo-sweep.json`. It checks every non-fork, non-archived owner repo with ~/.claude/skills/repo-standard/scripts/repo-check.py; repos with no local clone are cloned into STAGING/clones/.
 2. Compare `standard_version` in the sweep with `repo_standard_version_last_seen` in STATE. If it changed (or STATE has none), say so at the top of the report and summarize what changed (`git -C ~/Documents/Claude/Projects/repo-standard log --since=<last review date> --oneline`).
-3. Report per repo: FAIL lines, WARN lines, dirty-file count, local vs staging. Also list skipped repos (forks, archived), duplicate clones, and clones with no remote. Excluded by the owner's decision (2026-10-10): forks (mcp-dayone), third-party clones (ringer), the remote-less local Token Burn Dashboard folder — list them, never fix them.
+3. Report per repo: FAIL lines, WARN lines, dirty-file count, local vs staging. Also list skipped repos (forks, archived), duplicate clones, and clones with no remote. Excluded by the owner's decision (2026-10-10): forks (mcp-dayone) and third-party clones (ringer) — list them, never fix them. Workflow-Documentation-System: if Codex agent branches are still unmerged, report them and do not prepare fixes on main (they rewrite the same docs).
 
 PHASE D — PREPARE FIXES (only if STATE `prepare_fixes` is true; otherwise write "Phase D skipped: prepare_fixes is false" and go to OUTPUT)
 Fixes are drafts: committed on BRANCH in a separate worktree, never pushed. the owner reviews and pushes in an interactive session ("apply this month's maintenance").
