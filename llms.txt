@@ -14,6 +14,7 @@
 - [SPEC-judge-check.md](SPEC-judge-check.md): the judge-check interface contract (Phase 2).
 - [SPEC-self-healing-loop.md](SPEC-self-healing-loop.md): sentinel/repair pattern for scheduled jobs (Phase 4a, pilot live).
 - [samples/sample.swarm.json](samples/sample.swarm.json): scrubbed reference Ringer manifest.
+- [maintenance/](maintenance/): Monthly Maintenance Review scripts — repo-standard sweep, Claude release-notes impact, fix-branch prep (never pushes).
 
 ## Key rules
 - Checks exit 0 only on a verified artifact; worker self-reports are never evidence.

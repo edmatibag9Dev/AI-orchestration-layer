@@ -4,6 +4,27 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-10-10] — Monthly Maintenance Review
+
+### Added
+- **`maintenance/repo_sweep.py`** — checks every non-fork, non-archived owner repo against the
+  repo standard with `repo-check.py`; repos with no local clone are cloned into a staging dir.
+  First sweep: 36 repos checked, 26 pass, 10 fail (6 local clones outside the workspace root,
+  4 GitHub-only repos).
+- **`maintenance/release_notes.py`** — Claude Code changelog since the last saved version,
+  tagged by instruction surface (hooks, skills, settings, scheduled, MCP, …) and prioritized
+  P1 read / P2 scan / drop. 2.1.287 → 2.1.296: 680 entries → 118 P1, 218 P2.
+- **`maintenance/prep_branch.sh`** — opens a fix branch in a separate git worktree; never pushes.
+
+### Changed
+- **`scheduled-tasks/skills-inventory-review/SKILL.md`** — re-scrubbed from the new master.
+  The routine is titled Monthly Maintenance Review and runs four phases: release-note impact,
+  the six skill checks, the repo-standard sweep, and (when `prepare_fixes` is on) prepared,
+  unpushed fixes. Task ID unchanged so dashboards and heartbeats keep working.
+- **`ESCALATION-POLICY.md`** — v1.3 records the owner's decision that preparing those fixes is
+  Lane-1 drafting; pushing stays an owner-directed interactive step.
+- **`README.md`**, **`AGENTS.md`** — file map, feature text, limitation and workaround for the above.
+
 ## [2026-10-09] — Conform to repo standard 2026-10-09
 
 ### Changed

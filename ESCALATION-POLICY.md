@@ -1,6 +1,6 @@
 # ESCALATION-POLICY.md — Decision-rights contract
 
-**Version:** 1.2 · **Date:** 2026-08-31 · **Owner:** <OWNER>
+**Version:** 1.3 · **Date:** 2026-10-10 · **Owner:** <OWNER>
 **Status:** Phase 2.6 deliverable (BUILD-PLAN.md). Parameters set by the owner 2026-07-24. v1.1 folds
 in the 3-lens adversarial mini-eval (Ringer run `escalation-policy-review`, 31 findings:
 loophole/abuse via Codex, spec-coherence via GLM 5.2, enforceability via Kimi K2.7).
@@ -13,6 +13,12 @@ from the owner's Slack user ID only, restricted to the enumerated grammar in the
 `help`, `rerun`, `ack`, `kick`). An owner-issued `rerun` carries the lane of the underlying
 action (Lane-1 restart). The ai-briefing routine's domain alerts stay in #ai-briefing.
 (3) `fix` actions beyond re-running a routine's own prompt remain Lane 3, held for discussion.
+v1.3 (the owner, 2026-10-10, approved in session): the monthly `skills-inventory-review` task
+(Monthly Maintenance Review) may **prepare** repo-standard and release-note fixes as Lane-1
+drafts — commits on a `maint/<YYYY-MM>` branch in a separate worktree or a staging clone, never
+pushed, never in a checked-out working tree, gated by `prepare_fixes` in its state file. Global
+instruction files, harness settings and claude.ai uploads get proposed patches only. Pushing a
+prepared branch is an owner-directed interactive step, not part of the routine.
 
 The owner's attention is the scarcest resource in the system. This contract classifies every
 decision an agent can hit into four lanes, so no agent re-derives when to interrupt the owner and no

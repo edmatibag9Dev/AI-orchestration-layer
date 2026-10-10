@@ -33,7 +33,10 @@ Design in one line: **frontier model writes specs and reviews; cheap verified wo
 | `rubrics/` | yes | Judge rubrics, one per deliverable type. Line IDs are stable across versions. |
 | `samples/sample.swarm.json` | yes | Scrubbed reference manifest. |
 | `samples/sample.requirements.json` | yes | Scrubbed stage-3 input adapter sample. |
-| `scheduled-tasks/skills-inventory-review/SKILL.md` | yes | Scrubbed backup of the monthly skills-inventory-review scheduled task. Reference copy only — the runtime master lives at `~/.claude/scheduled-tasks/skills-inventory-review/SKILL.md` and is what actually executes. |
+| `maintenance/repo_sweep.py` | yes | Monthly Maintenance Review Phase C — repo-standard sweep of every owner repo (local or staging clone). |
+| `maintenance/release_notes.py` | yes | Phase A — Claude Code changelog since the last saved version, tagged and prioritized. State lives in gitignored `runs/maintenance-state.json`. |
+| `maintenance/prep_branch.sh` | yes | Phase D — fix branch in a separate worktree under the staging dir; never pushes. |
+| `scheduled-tasks/skills-inventory-review/SKILL.md` | yes | Scrubbed backup of the Monthly Maintenance Review scheduled task (task ID unchanged: skills-inventory-review). Reference copy only — the runtime master lives at `~/.claude/scheduled-tasks/skills-inventory-review/SKILL.md` and is what actually executes. |
 | `scheduled-tasks/ops-watcher/SKILL.md` | yes | Scrubbed backup of the daily 8:00 AM run-health sweep (heartbeat monitoring, dashboard regen, escalation per ESCALATION-POLICY.md). Reference copy only — runtime master under `~/.claude/scheduled-tasks/`. |
 | `scheduled-tasks/evening-digest/SKILL.md` | yes | Scrubbed backup of the daily 7:05 PM Lane-2 digest assembly/delivery routine. Reference copy only — runtime master under `~/.claude/scheduled-tasks/`. |
 | `scheduled-tasks/action-item-triage/SKILL.md` | yes | Scrubbed backup of the daily action-item triage (auto-close via Open Brain evidence, before wiki regen). Reference copy only — runtime master under `~/.claude/scheduled-tasks/`. |
