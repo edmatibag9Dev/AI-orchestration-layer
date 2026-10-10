@@ -4,6 +4,13 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-10-10] — Digest row text shape
+
+### Changed
+- **`ESCALATION-POLICY.md`** — Mechanics now says how to write a digest row's `text`: one short
+  opening sentence (≤90 characters) stating the finding, then one sentence per supporting point.
+  Mission Control (2026-10-10) shows the first sentence as the headline and the rest as bullets.
+
 ## [2026-10-10] — Maintenance review: exclusions after the first run
 
 ### Changed

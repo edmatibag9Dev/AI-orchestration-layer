@@ -209,6 +209,12 @@ it triggers an immediate taxonomy review of this file. Fewer interrupts is the g
   are logged. Required manifest field; in-flight actuals come from the run's token log.
 - **`runs/digest.jsonl`** (gitignored) — `{ts, severity, category, text, source,
   status: new|sent|expiring|stale}`. Written by any agent filing a Lane-2 item.
+  **`text` shape (2026-10-10):** open with ONE short sentence (≤90 characters) that states the
+  finding — Mission Control shows that sentence as the item's headline and cuts anything longer.
+  Put evidence, sequence, impact and the decision needed in the following sentences; each
+  becomes one bullet under "Details". An all-caps lead-in such as `WHY IT MATTERS:` or
+  `DECISION:` is shown bold. No need to repeat the source or date at the start — both are
+  shown separately.
 - **Digest job** — the evening scheduled task owns: assembly, the Slack send, day-12
   "expiring" lines, day-14 stale marks, and the weekly interrupt rollup. **Slack failure:**
   items stay `new` and prepend to the next successful ping; the JSONL is never dependent on
