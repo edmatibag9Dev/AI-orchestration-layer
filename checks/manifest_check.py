@@ -19,6 +19,8 @@ errors (file missing). Every failure prints on its own line as
   8 sensitive      no [memory] standing_scope bucket is Sensitive-rank
   9 scrub          no line carries an email, token, key or /Users/<name> path;
                    extra owner-specific patterns come from $SCRUB_PATTERN
+ 10 lenses         every [review] lenses entry is in the lens registry
+                   (checks/review_lenses.toml, beside this script; §5.5)
 
 The Sensitive list defaults to the Sensitive-rank buckets in the memory
 system's classification spec. --sensitive-file (one bucket per line, # for
@@ -49,7 +51,11 @@ ENUMS = {
     ("engagement", "mode"): {"none", "per-prospect"},
     ("review", "design"): {"required", "optional", "off"},
     ("review", "change"): {"required", "optional", "off"},
+    ("review", "egress"): {"local", "external"},
+    ("review", "surface"): {"commits", "outputs"},
 }
+LENS_REGISTRY = Path(__file__).resolve().parent / "review_lenses.toml"
+
 REQUIRED = [("spec_version", int), ("id", str), ("name", str), ("kind", str),
             ("repo", str), ("status", str)]
 LISTS = [("memory", "standing_scope"), ("memory", "recall"), ("skills", "prefer"),
@@ -170,6 +176,17 @@ def check(manifest, sensitive):
             fail("triggers", "ringer.triggers", f"{path_part} does not exist")
         elif anchor not in anchors(target):
             fail("triggers", "ringer.triggers", f"no heading with anchor #{anchor} in {path_part}")
+
+    lenses = doc.get("review", {}).get("lenses", []) or []
+    if lenses:
+        try:
+            known = set(tomllib.loads(LENS_REGISTRY.read_text()))
+        except (OSError, tomllib.TOMLDecodeError) as e:
+            known = None
+            fail("lenses", "review.lenses", f"lens registry unreadable ({LENS_REGISTRY.name}): {e}")
+        for lens in lenses:
+            if known is not None and isinstance(lens, str) and lens not in known:
+                fail("lenses", "review.lenses", f"{lens!r} is not in {LENS_REGISTRY.name}; add it there first")
 
     sens = {s.lower() for s in sensitive}
     for bucket in doc.get("memory", {}).get("standing_scope", []) or []:

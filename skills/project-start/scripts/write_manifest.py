@@ -61,7 +61,9 @@ def render(a, kind, repo):
     section("ringer", [("task_types", L(a.task_type)), ("triggers", L(a.trigger))])
     section("review", [("design", q(a.review_design) if a.review_design else None),
                        ("change", q(a.review_change) if a.review_change else None),
-                       ("lenses", L(a.lens))])
+                       ("lenses", L(a.lens)),
+                       ("egress", q(a.review_egress) if a.review_egress else None),
+                       ("surface", q(a.review_surface) if a.review_surface else None)])
     section("board", [("tag", q(a.board_tag) if a.board_tag else None)])
     section("loops", [("routines", L(a.routine))])
     section("done", [("criteria", L(a.done)), ("checks", L(a.check))])
@@ -80,6 +82,8 @@ def main():
     ap.add_argument("--engagement-root", default=DEFAULT_ENGAGEMENT_ROOT)
     ap.add_argument("--review-design", choices=["required", "optional", "off"])
     ap.add_argument("--review-change", choices=["required", "optional", "off"])
+    ap.add_argument("--review-egress", choices=["local", "external"])
+    ap.add_argument("--review-surface", choices=["commits", "outputs"])
     ap.add_argument("--board-tag")
     for flag in ("scope", "recall", "prefer", "avoid", "task-type", "trigger", "lens",
                  "routine", "done", "check", "output"):

@@ -34,6 +34,8 @@ CASES = {
                                "missing-file.md does not exist"]),
     "fail-sensitive.toml": (1, ["FAIL sensitive memory.standing_scope", "Short Trading"]),
     "fail-scrub.toml": (1, ["FAIL scrub", "home path"]),
+    "fail-lenses.toml": (1, ["FAIL lenses review.lenses", "no-such-lens"]),
+    "fail-review-enums.toml": (1, ["FAIL required review.egress", "FAIL required review.surface"]),
 }
 
 

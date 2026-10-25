@@ -82,6 +82,7 @@ It exists because frontier-plan token caps are regularly hit on mechanical work,
 | `checks/fault_report.py` | Fault-attribution report — the Phase 2.6 reader (class counts, routing signal, backlog). |
 | `checks/manifest_check.py` | `project.toml` validator (SPEC-project-manifest §5.3); `checks/test_manifest_check.py` is its regression test, fixtures in `checks/fixtures/manifest/`. |
 | `hooks/project-manifest-bootstrap.sh` | SessionStart hook that turns a project's `project.toml` into one short instruction block at session start (built and installed); test: `checks/test_manifest_bootstrap.py`. |
+| `checks/review_gate.py` | Runs a project's declared `[review]` lenses as adversarial reviews (local subagents, or a Ringer swarm for public repos) and records the result; lens registry `checks/review_lenses.toml`; test: `checks/test_review_gate.py`. |
 | `hooks/memory-first-gate.sh` | Tool-call hook that holds work in an owner-approved project until its memory scope is loaded, then has the session announce it (built, tested and installed); test: `checks/test_memory_gate.py`. |
 | `skills/project-start/` | project-start skill and its manifest writer (`scripts/write_manifest.py`); test: `checks/test_project_start.py`. Built and installed. |
 | `samples/sample.requirements.json` | Scrubbed stage-3 input adapter. |

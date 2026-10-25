@@ -4,6 +4,37 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-10-25] — Review gate (SPEC-project-manifest §5.5)
+
+### Added
+- **`checks/review_gate.py`** (v1.1) — runs a project's owner-approved `[review]` lenses as adversarial
+  reviews: `plan` freezes the surface (files or a git range) and writes one brief per lens; reviewers are
+  in-session subagents by default, or a Ringer adversarial-review swarm (one task per lens, round-robin
+  over three model families) only for already-published content of a public repo; `check-report` is the
+  report contract (lens, surface SHA-256, per-run nonce, inspected list, labelled findings);
+  `synthesize`, `record`, `waive`, `status`.
+- **`checks/review_lenses.toml`** — the lens registry: one FOCUS paragraph for each of the eight lenses
+  the five manifests use.
+- **`checks/test_review_gate.py`** — 42 cases. Validator fixtures `fail-lenses.toml` and
+  `fail-review-enums.toml` (validator test now 17/17).
+
+### Changed
+- **Validator rule 10:** every `[review]` lens must be in the registry; `[review] egress` (`local` |
+  `external`) and `[review] surface` (`commits` | `outputs`) are new enums.
+- **`memory-first-gate.sh approve`** now records `[review]` and its hash too; `list` shows it. The review
+  gate uses the approved `[review]`, so an edit never takes effect until the owner approves again.
+- **`project-manifest-bootstrap.sh --json`** adds `repo`, `review`, `review_sha256` and `outputs`;
+  `[memory]` hashes are unchanged, so existing memory approvals stay valid.
+- project-start writer: `--review-egress`, `--review-surface`; its skill explains both and the approval.
+- SPEC §3 field table and new §5.5.
+
+### Design and review
+- Design reviewed through Ringer's own kit (Codex abuse, GLM coherence, Kimi enforceability; 26
+  findings). Decisions: no push gate yet (no manifest needs one, and a command-string gate is
+  bypassable); reviews local by default; `surface = "outputs"` for the presales repos.
+- v1.0 code reviewed end to end in local mode on a throwaway project (23 findings, 2 P1); all fixed in
+  v1.1 and recorded through `record` itself.
+
 ## [2026-10-25] — Manifest adopted on five projects
 
 ### Changed

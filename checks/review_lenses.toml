@@ -1,0 +1,50 @@
+# review_lenses.toml — the lens registry for [review] lenses (SPEC-project-manifest §5.5)
+#
+# One entry per lens a project.toml may name. `focus` is pasted into the reviewer's brief as its
+# FOCUS paragraph, unchanged, for every reviewer on that lens (external Ringer worker or in-session
+# subagent alike). manifest_check.py rejects a lens that is not listed here. Adding a lens is a
+# change to this file plus a CHANGELOG entry; renaming one breaks every manifest that uses it.
+
+[abuse]
+focus = """ABUSE: how could a model (or a prompt-injected model), a careless operator, or a malicious \
+file satisfy, bypass, forge or exhaust what this surface protects, without the protection really \
+working? How could it be turned against the owner: leaking private or client material, blocking \
+legitimate work, hiding problems? Name the condition, the actor and the outcome."""
+
+[coherence]
+focus = """COHERENCE: contradictions between the surface and the specs, invariants and decisions it \
+must live with, and contradictions inside the surface itself: terms used two ways, decisions that \
+conflict, fields or behaviours that clash with existing ones. Quote both sides of each contradiction."""
+
+[enforceability]
+focus = """ENFORCEABILITY: what the surface claims versus what its code or process can actually \
+observe and enforce. Failure modes: inputs it cannot see, states it never checks, crashes and \
+timeouts, races, stale records, and claims that rest on convention rather than a mechanism."""
+
+[accuracy]
+focus = """ACCURACY: every factual claim, figure, name, date and quotation traced to a source the \
+surface cites or the reviewer can reach. Re-derive every number that would be said aloud or sent. \
+A claim with no source, a figure that does not re-derive, or a quote not found verbatim is a finding."""
+
+[refute-the-wedge]
+focus = """REFUTE THE WEDGE: identify the central claim the surface's strategy rests on and try to \
+refute it: contradicting evidence, a misreading, a figure out of context, an alternative \
+explanation. Default to refuted when uncertain; report it survived only if you actively failed to \
+break it, and say how you tried."""
+
+[demo-safe]
+focus = """DEMO-SAFE: would this break or embarrass in front of the audience? Walk the click-path \
+step by step against the data and setup it depends on: missing or wrong records, roles and \
+permissions, credentials or real data on screen, state a previous run left behind, timing, and any \
+step that depends on something not loaded. Each break is a finding with the step number."""
+
+[refute-the-rating]
+focus = """REFUTE THE RATING: for each favourable fit rating, try to downgrade it. Find the \
+requirement wording the rating glosses over, the capability the cited source does not actually \
+show, or the workaround presented as native. Default to downgrade when the source does not \
+directly support the rating; cite the requirement and the source line for each."""
+
+[refute-the-claim]
+focus = """REFUTE THE CLAIM: for each claim about another vendor or product, try to refute it from \
+public sources: their documentation, release notes, pricing pages, reviews. A claim with no public \
+source, an outdated one, or one contradicted by a newer source is a finding; cite the URL and date."""

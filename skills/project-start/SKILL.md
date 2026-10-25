@@ -43,7 +43,7 @@ sources:
 | `prefer` / `avoid` | Skills this work uses; sibling skills that must not run here (e.g. another presales project's skill). |
 | `engagement` | `per-prospect` for client engagements that span sessions and repos; otherwise `none`. |
 | `triggers` | Only Ringer steps already declared as headings in this project's `SKILL.md` files. Never invent one; the validator checks each anchor exists. |
-| `review` | `design` / `change`: `required`, `optional` or `off`. Required where a wrong design or change is costly. |
+| `review` | `design` / `change`: `required`, `optional` or `off`. Required where a wrong design or change is costly. `lenses` must be in `checks/review_lenses.toml`. `surface`: `outputs` when the project's change is a deliverable kept out of git, else `commits`. `egress`: leave `local` unless the repo is public and the owner wants external reviewers. |
 | `done` | Criteria in plain words, plus the commands that prove them (the repo-standard check for repo projects). |
 | `outputs` | The folders this project may write to. |
 
@@ -80,14 +80,15 @@ echo '{"cwd":"<project-folder>"}' | ~/.claude/hooks/project-manifest-bootstrap.s
 If it prints nothing, the hook is not installed or the manifest did not land; say which.
 
 If the manifest has a `standing_scope`, tell the owner that the memory-first gate
-(SPEC-project-manifest §5.4) ignores it until they approve it, and give them the command to run in
+(SPEC-project-manifest §5.4) and the review gate (§5.5) ignore `[memory]` and `[review]` until they approve them, and give them the command to run in
 their own terminal — it asks them to type `yes`, so an agent cannot run it:
 
 ```bash
 ~/.claude/hooks/memory-first-gate.sh approve "<project-folder>"
 ```
 
-Editing `[memory]` later turns the gate off for that project until the owner approves it again.
+Editing `[memory]` later turns the memory gate off for that project until the owner approves it again;
+editing `[review]` leaves the review gate on the last approved version until then.
 
 ### 6. Record it (repo projects)
 

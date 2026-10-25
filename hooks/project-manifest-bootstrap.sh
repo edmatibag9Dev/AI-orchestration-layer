@@ -87,11 +87,18 @@ scope = [b for b in scope if b.lower() not in SENSITIVE]
 recall = strs("memory", "recall")
 if JSON:
     import hashlib
-    raw = doc.get("memory") if isinstance(doc.get("memory"), dict) else {}
+    sha = lambda sec: hashlib.sha256(json.dumps(doc.get(sec) if isinstance(doc.get(sec), dict)
+                                                else {}, sort_keys=True).encode()).hexdigest()
+    review = {"design": val("review", "design") or "optional",
+              "change": val("review", "change") or "optional",
+              "lenses": strs("review", "lenses"),
+              "egress": val("review", "egress") or "local",
+              "surface": val("review", "surface") or "commits"}
     print(json.dumps({"path": str(manifest), "root": str(manifest.parent), "id": p["id"],
-                      "status": p["status"], "standing_scope": scope, "dropped": dropped,
-                      "recall": recall, "memory_sha256": hashlib.sha256(
-                          json.dumps(raw, sort_keys=True).encode()).hexdigest()}))
+                      "status": p["status"], "repo": p["repo"], "standing_scope": scope,
+                      "dropped": dropped, "recall": recall, "memory_sha256": sha("memory"),
+                      "review": review, "review_sha256": sha("review"),
+                      "outputs": strs("outputs", "allowed")}))
     sys.exit(0)
 if scope or recall:
     parts = []

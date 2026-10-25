@@ -11,6 +11,7 @@
 #   memory-first-gate.sh pre        PreToolUse, matcher "*"
 #   memory-first-gate.sh post       PostToolUse + PostToolUseFailure, matcher "<cold_boot_index>|ToolSearch"
 #   memory-first-gate.sh approve D  owner only, interactive terminal: approve D/project.toml's [memory]
+#                                   and [review] (review_gate.py §5.5 enforces the approved [review])
 #   memory-first-gate.sh list       show approved manifests
 #
 # Kill switch: MEMORY_GATE=off in the environment. State: ~/.claude/state/memory-gate/ (local only).
@@ -38,7 +39,9 @@ except Exception:
     reg = {}
 if mode == "list":
     for path, e in sorted(reg.items()):
-        print(f"{e.get('id')}  scope={e.get('standing_scope')}  approved {e.get('approved_at')}  {path}")
+        rv = e.get("review") or {}
+        print(f"{e.get('id')}  scope={e.get('standing_scope')}  review={rv.get('lenses', 'not approved')}"
+              f"  approved {e.get('approved_at')}  {path}")
     sys.exit(0)
 d = Path(target or ".").expanduser().resolve()
 d = d.parent if d.name == "project.toml" else d
@@ -49,18 +52,21 @@ if m.get("error") or not m.get("path"):
     sys.exit(f"no usable project.toml at or above {d}: {m.get('error', 'none found')}")
 if Path(m["path"]).parent != d:
     sys.exit(f"nearest project.toml is {m['path']}, not in {d}; run approve in that folder")
-if not m["standing_scope"]:
-    sys.exit("this manifest has no standing_scope; nothing to approve")
+if not m["standing_scope"] and not m.get("review", {}).get("lenses"):
+    sys.exit("this manifest has no standing_scope and no review lenses; nothing to approve")
+rv = m.get("review", {})
 print(f"Project:  {m['id']}\nManifest: {m['path']}\nStanding scope: {m['standing_scope']}"
-      f"\nRecall:   {m['recall']}")
+      f"\nRecall:   {m['recall']}\nReview:   design={rv.get('design')} change={rv.get('change')} "
+      f"lenses={rv.get('lenses')} egress={rv.get('egress')} surface={rv.get('surface')}")
 try:
-    answer = input("Approve this [memory] section for the memory-first gate? Type yes: ")
+    answer = input("Approve these [memory] and [review] sections? Type yes: ")
 except EOFError:
     answer = ""
 if answer.strip() != "yes":
     sys.exit("not approved")
 reg[m["path"]] = {"id": m["id"], "standing_scope": m["standing_scope"],
                   "memory_sha256": m["memory_sha256"],
+                  "review": m.get("review"), "review_sha256": m.get("review_sha256"),
                   "approved_at": datetime.date.today().isoformat()}
 state.mkdir(parents=True, exist_ok=True)
 tmp = reg_file.with_suffix(".tmp")
