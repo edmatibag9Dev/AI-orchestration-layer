@@ -4,6 +4,16 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-10-25] — Manifest adopted on five projects
+
+### Changed
+- **SPEC-project-manifest §8 step 4** now records the manifest on the owner's three other presales repos
+  (demo prep, RFx gap analysis, competitive gap analysis), written with the project-start skill after the
+  owner confirmed `[memory]` and `[review]` for each. Each has a per-prospect engagement record, change
+  review required, sibling presales skills as `avoid`, and no Ringer trigger yet. Hook blocks run about
+  234, 209 and 202 tokens. All five manifests are approved for the memory-first gate.
+- Spec status line: adopted on five projects.
+
 ## [2026-10-25] — Manifest exit check passed
 
 ### Changed

@@ -1,6 +1,6 @@
 # SPEC-project-manifest.md — `project.toml`, the project manifest
 
-*Owner: the owner · Drafted: 2026-10-25 · Status: BUILT 2026-10-25 — validator, hook (installed), skill (installed), adopted on two projects, Codex portability test passed; memory-first gate (§5.4) installed; exit check passed on the second attempt · spec_version 1*
+*Owner: the owner · Drafted: 2026-10-25 · Status: BUILT 2026-10-25 — validator, hook (installed), skill (installed), adopted on five projects, Codex portability test passed; memory-first gate (§5.4) installed; exit check passed on the second attempt · spec_version 1*
 
 One small file per project that says which pieces of the stack engage when a session works on it:
 which memory buckets load, which skills to prefer, where its Ringer steps are declared, which review
@@ -289,6 +289,11 @@ only after its folder changes or a new session starts. A turn with no tool calls
 2. `project-manifest-bootstrap.sh` in `hooks/`, installed as the third SessionStart hook. **Built, tested and installed 2026-10-25.**
 3. project-start skill. **Built, tested and installed 2026-10-25** (`~/.claude/skills/project-start` links to this repo).
 4. Adopt on two projects: meeting research (engagement, Ringer, review) and this repo (no engagement). **Done 2026-10-25:** both manifests written through the project-start skill; the hook prints about 251 and 185 tokens.
+   **Extended 2026-10-25** to the owner's three other presales repos (demo prep, RFx gap analysis,
+   competitive gap analysis), same skill and validator. Each has a per-prospect engagement record,
+   change review required, and the sibling presales skills listed as `avoid`; none declares a Ringer
+   trigger yet. The hook prints about 234, 209 and 202 tokens. The owner approved all five manifests
+   for the memory-first gate (§5.4).
 5. Portability test: a Codex session in each project reads the manifest and states what it would load.
    **Passed 2026-10-25** (Ringer run `manifest-readability`, Codex `gpt-5.6-sol`): given only `AGENTS.md`
    and `project.toml`, with no global instructions and no hook, each session reproduced every manifest
