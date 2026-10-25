@@ -8,7 +8,7 @@ This repo is the planning and build home for the next layer of a personal AI har
 
 ### Architecture flow
 
-One engagement, followed from start to finish. The project manager (PM) is not a long-running chat. It is an **engagement record** that every fresh session reads at the start and writes back to at the end, in whichever repo the step belongs to. It stays out of git because it carries prospect material from step 0.
+One engagement, followed from start to finish. The project manager (PM) is not a long-running chat. It is an **engagement record** that every fresh session reads at the start and writes back to at the end, in whichever repo the step belongs to. It lives at `~/Documents/Claude/Engagements/<prospect>/ENGAGEMENT.md` (started from a template), holds pointers to each repo's outputs rather than the outputs themselves, and stays out of git because it carries prospect material from step 0.
 
 ```mermaid
 flowchart TD
@@ -31,7 +31,8 @@ flowchart TD
   classDef decided fill:#ECF0F6,stroke:#2B4C7E,color:#1A2F50,stroke-dasharray:4 3
   classDef gap fill:#FDF3E1,stroke:#E0A33E,color:#8A5A0B,stroke-dasharray:4 3
   class B,E,F,G built
-  class A,C,H,I,K,PM decided
+  class A,C,H,I,K decided
+  class PM built
   class D,J,OPS gap
 ```
 

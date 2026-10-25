@@ -1,6 +1,6 @@
 # BUILD-PLAN.md — AI Orchestration Layer
 
-**Date:** 2026-07-15 · **Status:** Phase 1 COMPLETE (2026-07-22) · Phase 2 CALIBRATING (rubric v2 + owner-verdict wiring 2026-07-31; agreement still unmeasured until verdicts accumulate) · Phase 2.5 INSTALLED (2026-07-24) · Phase 2.6 policy built (2026-07-24), exit criteria open · Phase 4 attention-layer pilot live (2026-07-27), Mission Control extracted to its own repo (2026-07-28)
+**Date:** 2026-07-15 · **Status:** Phase 1 COMPLETE (2026-07-22) · Phase 2 CALIBRATING (rubric v2 + owner-verdict wiring 2026-07-31; agreement still unmeasured until verdicts accumulate) · Phase 2.5 INSTALLED (2026-07-24) · Phase 2.6 policy built (2026-07-24), exit criteria open · Phase 4 attention-layer pilot live (2026-07-27), Mission Control extracted to its own repo (2026-07-28) · Ringer revived and nudge hooks removed (2026-10-25) · Project lifecycle + traveling-PM decisions locked (2026-10-25)
 **Sources:** Ringer guide (Nate B. Jones), harness anatomy (Claire Vo / Claude Agent SDK), loop-of-loops, 4 Patterns, steer-vs-dispatch Run Spec.
 
 ---
@@ -42,6 +42,23 @@ Layer 0  EXISTING FOUNDATION
 4. Token reality: frontier plan caps are hit regularly → cheap lanes (OpenRouter via OpenCode) have real ROI. Frontier budget reserved for specs + review.
 5. Router deferred: a router with nothing to route to is meta-work. Built when the scoreboard answers "which model owns which task type" from verified history.
 
+## Decisions made (2026-10-25) — project lifecycle and the traveling PM
+
+The question: how do memory, skills, instructions, Ringer, the task board and harnesses start working
+together when a project starts, and stay together across sessions? The flow is drawn in
+[`docs/architecture-flow.html`](docs/architecture-flow.html) and in the README.
+
+| Decision | Choice | Why |
+|---|---|---|
+| What the project manager (PM) is | An **engagement record**, not a long-running session. Every fresh session reads it at the start and writes back at the end, in whichever repo owns its step. It persists until the engagement is marked done or stopped. | Real engagements run 2–3 weeks across two or more repos. A long session loses detail to compaction, is tied to one folder and one agent, and loses anything not written down. The owner was already doing this by hand (an index file plus handoff files per session). |
+| Where the record lives | `~/Documents/Claude/Engagements/<prospect-slug>/ENGAGEMENT.md` (template in `_TEMPLATE/`). A neutral folder outside every repo. **Never in git.** Pointers to repo outputs only, never deliverables. | Prospect material starts at step 0 (meeting research). The owner's project-routing rule forbids writing one project's output into another's folder; a neutral record of pointers keeps that rule intact while giving every session the same "start here". |
+| Project manifest | A separate `project.toml` next to `AGENTS.md`. Non-repo projects get one too and record `repo = "none"` with the reason. Spec to write: `SPEC-project-manifest.md`. | A separate file is portable to any agent (Codex, a local model). A missing repo becomes a recorded decision instead of drift. |
+| When Ringer is used | A task goes to a swarm only if it passes four tests: independent, checkable by a script, doable from a written brief, and its data is allowed to leave the machine. The trigger is a **step declared in the project's own `SKILL.md`**, never a hook. | The nudge hooks fired 97 times between 2026-07-24 and 2026-10-25 and no run followed. Nudges arrive mid-task, when switching costs more than finishing. A declared step costs zero tokens until it is reached. |
+| First real workloads, in order | (1) meeting-research per-source verification (built 2026-10-25), (2) demo-data files, (3) the RFx harness on the next real RFx. | Meeting research runs on every engagement and already had an independent, checkable, per-source shape. Demo work happens sometimes; RFx less often. |
+| What may leave the machine | Public source URLs, participant names and titles, organisation names, and plain questions about public facts. Never notes, intake answers, RFP text, deal strategy, or why a claim matters. | Owner's explicit, scoped approval. Enforced by construction: the manifest builder copies only URLs and questions into worker specs. |
+| Agent seats | PM seat: Claude Code today, portable because the state lives in files. Workers: Codex, GLM, Kimi through Ringer. Reviewers: a different model family from the author. Local-model lane: none yet; its first use would be content that must not leave the machine. | Hooks, skills and session capture run in Claude Code today; the Codex session adapter is still a pilot. Worker numbers come from the eval log, not preference. |
+| Held until the above is built | Model-provider (OpenRouter) usage view; versioning the global instruction files; task-board vs Mission Control consolidation; a Codex-as-PM portability test. | Owner's sequencing call. |
+
 ## Phase 1 — Ringer on code work (weeks 1–2)
 
 Goal: proven plumbing + eval log accumulating.
@@ -58,6 +75,10 @@ Goal: proven plumbing + eval log accumulating.
   - `agents-drift-fix` (20 tasks, 15 GLM / 5 Codex): regenerated every drifted File map to the `Path | Committed? | Purpose` standard. 16 first-try, 4 retry-rescued, 0 final failures; all 20 pushed.
   - Eval log at 46 rows across 4 task types. First real routing evidence — docs work: GLM 5.2 0.76 first-try at ~23k tokens/task (~1–2¢), Codex 0.83 first-try at ~78k tokens. Recurring worker failure mode both models share: attempt 1 occasionally produces *no output file*; executed checks caught it every time.
   - Check-craft lessons: scope path extraction to the table's Path column (backticked prose in other columns caused a false FAIL); have workers write deliverables in their own task dir and let the check copy into the target repo — sidesteps sandbox write restrictions on every engine.
+- **Status (2026-10-25): REVIVED after three dormant months; nudge hooks REMOVED.** The kill signal above fired in practice: no swarm ran from 2026-07-24 to 2026-10-25, while the two hooks `install-agent` added (PostToolUse Edit|Write after 8+ edits, PreToolUse Bash on direct model calls) fired 97 times with no run following. Both hooks were removed from the global settings; the Ringer skill stays. **Do not re-run `./ringer.py install-agent`** — it writes the hooks back. Triggers are now declared steps in project skills (see Decisions made 2026-10-25).
+  - Web-fetch probe (`worker-web-fetch-probe`): Codex, GLM 5.2 and Kimi K2.7 each fetched a public HTML page and a PDF; an executed check re-downloaded both and confirmed every quote verbatim. Codex first failed before doing any work: its CLI config had drifted to a default model the plan rejects; fixed by setting the default back to `gpt-5.6-sol` (and pinning per task in manifests). Kimi's one retry was a check bug: `pdftotext -layout` split a real quote on a two-column page; checks now accept a quote found in either reading-order or layout extraction.
+  - The local Ringer clone was synced with upstream (31 commits, including the Ringside redesign); local commits are model notes and a shorter skill description, never pushed.
+  - First production use: per-source verification in the meeting-research skill now runs as a Ringer swarm (manifest builder + quote-in-source check in that skill's repo). First live run waits for the next engagement.
 
 Guardrails inherited from Ringer: stdin closed, sandbox explicit, verification executes the artifact, raw logs only. Worktree footgun: checks copy deliverables out before exit 0.
 
@@ -262,6 +283,8 @@ Goal: a scheduled job that errors gets diagnosed and fixed by an agent, unattend
 - Judge false-pass rate unknown until shadow mode ends — judge never gates external work.
 - Review-cost economics: a swarm producing 7 artifacts creates 7 review burdens. Every manifest answers "how much review am I willing to spend?" before running.
 - Infrastructure without workload: Phase 1 exit criteria require real backlog tasks.
+- Nudges are not triggers (learned 2026-10-25): advice injected mid-task is read and ignored. A tool gets used when a workflow step declares it, at planning time, not when a hook suggests it.
+- No ops view of model-provider spend: daily OpenRouter traffic exists outside Ringer runs, and no dashboard says which system made it. Held until the lifecycle work is built.
 - Compounding check: in 6 months the system should know which models own which task types, which spec styles pass first-try, and which rubric lines get overridden. If those aren't accumulating, it's a tool, not infrastructure.
 - Lock-in: architecture is portable, tools are not. Ringer, the SDK, and OpenRouter are current implementations, not the architecture.
 

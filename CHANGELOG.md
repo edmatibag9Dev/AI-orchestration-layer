@@ -4,6 +4,23 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-10-25] — BUILD-PLAN: lifecycle decisions, Ringer revival, engagement-record location
+
+### Added
+- **`BUILD-PLAN.md` "Decisions made (2026-10-25)"** — locked decisions for the project lifecycle: the PM
+  is an engagement record, not a session; where it lives; `project.toml` as a separate manifest; the
+  four tests and SKILL.md-declared triggers for Ringer; workload order; what may leave the machine;
+  agent seats; and what is held.
+- **Phase 1 status (2026-10-25)** — Ringer revived after three dormant months, nudge hooks removed
+  (do not re-run `install-agent`), web-fetch probe results across three worker lanes, the Codex
+  default-model drift and its fix, and the clone's sync with upstream.
+- Two risks: nudges are not triggers; no ops view of model-provider spend.
+
+### Changed
+- The engagement record now has a home: `~/Documents/Claude/Engagements/<prospect>/ENGAGEMENT.md`,
+  outside every repo and never in git. README and `docs/architecture-flow.html` (step 1) updated to
+  show it as built.
+
 ## [2026-10-25] — Architecture flow: README diagram and interactive stepper
 
 ### Added

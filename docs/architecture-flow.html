@@ -87,9 +87,9 @@ footer{margin-top:28px;font-size:13px;color:var(--muted)}
 <script>
 const P=[['pm','Engagement record (PM)'],['manifest','project.toml'],['repo','Repo + AGENTS.md'],['brain','Memory store'],['hooks','Session hooks'],['skills','Skills'],['review','Adversarial review'],['ringer','Ringer swarm'],['harness','Harness'],['board','Task board'],['mc','Mission Control'],['ops','Model-provider usage view']];
 const S=[
-{t:'Engagement starts (step 0: meeting research)',
+{t:'Engagement starts (step 0: meeting research)',chg:1,
  before:{x:'A meeting gets scheduled. Meeting research starts in its own repo. Nothing links it to a later demo or RFx.',on:['repo','skills'],gap:['pm','manifest','board']},
- after:{x:'Decided, not built: the engagement record is the PM. It travels across sessions until the engagement is done or stopped, and it stays out of git because prospect material starts here.',on:['repo','skills'],gap:['pm','manifest','board']},
+ after:{x:'The engagement record is the PM: ~/Documents/Claude/Engagements/<prospect>/ENGAGEMENT.md, from a template. It travels across sessions until the engagement is done or stopped, holds pointers only, and stays out of git because prospect material starts here. project.toml is still to be specified.',on:['repo','skills'],nw:['pm'],gap:['manifest','board']},
  target:{x:'Project-start opens the engagement record and a project.toml. Meeting research, demo prep and RFx sessions all point to the same record.',on:['pm','manifest','repo','brain','board','skills']}},
 {t:'Session opens',chg:1,
  before:{x:'Global hooks fire: cold boot at default scope and session capture. Two Ringer nudge hooks are also armed.',on:['hooks','brain'],gap:['manifest','pm']},
