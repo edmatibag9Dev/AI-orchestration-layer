@@ -1,6 +1,6 @@
 # SPEC-project-manifest.md — `project.toml`, the project manifest
 
-*Owner: the owner · Drafted: 2026-10-25 · Status: DRAFT — validator built 2026-10-25; hook built 2026-10-25, not installed; skill not built · spec_version 1*
+*Owner: the owner · Drafted: 2026-10-25 · Status: DRAFT — validator built 2026-10-25; hook built and installed 2026-10-25; skill built 2026-10-25, not installed · spec_version 1*
 
 One small file per project that says which pieces of the stack engage when a session works on it:
 which memory buckets load, which skills to prefer, where its Ringer steps are declared, which review
@@ -136,7 +136,7 @@ allowed = ["logs/", "reports/"]
 
 ## 5. Readers
 
-### 5.1 SessionStart hook — `hooks/project-manifest-bootstrap.sh` (built 2026-10-25, not installed)
+### 5.1 SessionStart hook — `hooks/project-manifest-bootstrap.sh` (built and installed 2026-10-25)
 
 A third SessionStart hook, after `coldboot-bootstrap.sh`. Same posture as that hook: **echo-only, no
 credentials, never touches a store, fail-open, exit 0 always.**
@@ -168,7 +168,7 @@ the fullest example prints about 248 tokens. Regression test: `python3 checks/te
 The hook never runs `[done] checks` and never calls Ringer. The model acts on the block; the
 existing gates (scope gate, escalation lanes, permission prompts) still decide what is allowed.
 
-### 5.2 project-start skill
+### 5.2 project-start skill — `skills/project-start/` (built 2026-10-25, not installed)
 
 Triggered by "start a project", "new project <X>", or "adopt <folder> as a project".
 
@@ -181,6 +181,11 @@ Triggered by "start a project", "new project <X>", or "adopt <folder> as a proje
    create a prospect record at project start; the first session for a prospect does that.
 6. Run the validator (§5.3). Show the owner the file. Commit only on the owner's OK (repo projects).
 7. Add a link to `project.toml` in the project's `AGENTS.md` file map.
+
+As built: steps 4–6 run through `skills/project-start/scripts/write_manifest.py`, which writes
+`project.toml.new`, runs the validator, and renames it only on a pass, so a rejected manifest never
+reaches the hook. A folder inside a repo but not at its top level counts as a folder project.
+Regression test: `python3 checks/test_project_start.py`.
 
 ### 5.3 Validator — `checks/manifest_check.py` (built 2026-10-25)
 
@@ -228,8 +233,8 @@ run-time cases).
 ## 8. Build order and exit criteria
 
 1. `checks/manifest_check.py` with fixtures (one valid, one per failure class). **Done 2026-10-25.**
-2. `project-manifest-bootstrap.sh` in `hooks/`, installed as the third SessionStart hook. **Built and tested 2026-10-25; installing waits for the owner.**
-3. project-start skill.
+2. `project-manifest-bootstrap.sh` in `hooks/`, installed as the third SessionStart hook. **Built, tested and installed 2026-10-25.**
+3. project-start skill. **Built and tested 2026-10-25; installing (the `~/.claude/skills/` symlink) waits for the owner.**
 4. Adopt on two projects: meeting research (engagement, Ringer, review) and this repo (no engagement).
 5. Portability test: a Codex session in each project reads the manifest and states what it would load.
 

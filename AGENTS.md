@@ -37,6 +37,9 @@ Design in one line: **frontier model writes specs and reviews; cheap verified wo
 | `checks/fixtures/manifest/` | yes | Validator fixtures: `valid.toml`, one `fail-*.toml` per rule, and `SKILL.fixture.md` for trigger anchors. Generic placeholders only. |
 | `hooks/project-manifest-bootstrap.sh` | yes | SessionStart hook (SPEC-project-manifest §5.1): finds `project.toml`, prints one instruction block under 250 tokens. Echo-only, fail-open, exit 0 always. Canonical copy; the installed copy lives in `~/.claude/hooks/`. Not installed yet. |
 | `checks/test_manifest_bootstrap.py` | yes | Regression test for the hook: fixtures, both spec examples, nested folders, retired project, garbage payload, missing python3, `[done] checks` never run. Must print `13/13 cases passed`. |
+| `skills/project-start/SKILL.md` | yes | project-start skill (SPEC-project-manifest §5.2): classify, repo or reasoned no-repo, propose values, owner confirms `[memory]`/`[review]`, write, show the hook block, record. Not installed yet (no `~/.claude/skills/` symlink). |
+| `skills/project-start/scripts/write_manifest.py` | yes | The skill's writer: detects git and `origin`, refuses Sensitive buckets and existing manifests, checks the engagement template, writes `project.toml.new`, validates, renames only on pass. |
+| `checks/test_project_start.py` | yes | Regression test for the writer on throwaway folders, ending with the hook end to end. Must print `13/13 cases passed`. |
 | `rubrics/` | yes | Judge rubrics, one per deliverable type. Line IDs are stable across versions. |
 | `samples/sample.swarm.json` | yes | Scrubbed reference manifest. |
 | `samples/sample.requirements.json` | yes | Scrubbed stage-3 input adapter sample. |

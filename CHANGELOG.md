@@ -4,6 +4,24 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-10-25] — project-start skill (build step 3, not installed)
+
+### Added
+- **`skills/project-start/SKILL.md`** — SPEC-project-manifest §5.2. Classify the project, decide repo
+  or a recorded no-repo reason (calling `repo-standard` when a repo is needed), propose every field,
+  get the owner's explicit OK on `[memory]` and `[review]`, write with a dry run first, show the block
+  the hook will print, and record the file map row and commit only on the owner's word. It never
+  creates a prospect record, never sets a Sensitive scope, and never invents a Ringer trigger.
+- **`skills/project-start/scripts/write_manifest.py`** — the writer. Detects git and the `origin`
+  remote, refuses Sensitive buckets, existing manifests (without `--force`), a repo with no remote,
+  a folder with no reason, and a missing engagement template; writes `project.toml.new`, runs the
+  validator, and renames only on a pass, leaving nothing behind on failure.
+- **`checks/test_project_start.py`** — 13 cases on throwaway folders and scratch git repos, ending
+  with a written manifest driving the SessionStart hook. 13/13 pass.
+
+### Changed
+- Spec status, §5.1, §5.2 and §8: hook installed; skill built, not installed.
+
 ## [2026-10-25] — Manifest SessionStart hook (build step 2, not installed)
 
 ### Added
