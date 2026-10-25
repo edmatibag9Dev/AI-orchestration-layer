@@ -4,6 +4,17 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-10-25] — Manifest exit check passed
+
+### Changed
+- **SPEC-project-manifest §8 step 6** records the second exit check: **passed.** With the memory-first
+  gate installed and both pilot manifests approved by the owner, each project's session was held on its
+  first prompt, ran the default and standing-scope cold boots and the recall searches, announced its
+  scope once, and continued normally. The gate audit shows `passed` with one held prompt in each
+  (15.9 s and 11.5 s). One run was an earlier session continued, not a new one.
+- Spec status, §5.4 heading, `AGENTS.md`, `README.md` and the BUILD-PLAN status line now say the gate is
+  installed.
+
 ## [2026-10-25] — Memory-first gate (SPEC-project-manifest §5.4)
 
 ### Added

@@ -1,6 +1,6 @@
 # SPEC-project-manifest.md — `project.toml`, the project manifest
 
-*Owner: the owner · Drafted: 2026-10-25 · Status: BUILT 2026-10-25 — validator, hook (installed), skill (installed), adopted on two projects, Codex portability test passed; first exit check failed, memory-first gate (§5.4) built and tested, not yet installed · spec_version 1*
+*Owner: the owner · Drafted: 2026-10-25 · Status: BUILT 2026-10-25 — validator, hook (installed), skill (installed), adopted on two projects, Codex portability test passed; memory-first gate (§5.4) installed; exit check passed on the second attempt · spec_version 1*
 
 One small file per project that says which pieces of the stack engage when a session works on it:
 which memory buckets load, which skills to prefer, where its Ringer steps are declared, which review
@@ -205,7 +205,7 @@ Sensitive-rank buckets in the memory system's classification spec; `--sensitive-
 never committed. Regression test: `python3 checks/test_manifest_check.py` (11 fixtures plus 4
 run-time cases).
 
-### 5.4 Memory-first gate — `hooks/memory-first-gate.sh` (built and tested 2026-10-25, not installed)
+### 5.4 Memory-first gate — `hooks/memory-first-gate.sh` (built, tested and installed 2026-10-25)
 
 **Why.** The first exit check (2026-10-25) showed the §5.1 block alone is not enough. In one pilot
 project the session used the standing scope but never announced it. In the other, whose task was a
@@ -303,7 +303,15 @@ only after its folder changes or a new session starts. A turn with no tool calls
 
 6. Exit check, first attempt 2026-10-25: **failed.** Both pilot sessions printed the block; one used
    the standing scope without announcing it, the other made no memory call at all. Response: the
-   memory-first gate (§5.4), built and tested the same day; installing it waits on the owner.
+   memory-first gate (§5.4), built and tested the same day.
+   Second attempt 2026-10-25, after the gate was installed and the owner approved both manifests:
+   **passed.** In each project the gate held the first prompt's tool calls; the session ran
+   ToolSearch, the default cold boot, the standing-scope cold boot and the recall searches, announced
+   "Memory scope: <bucket> (standing, from project.toml)" once, and every later call ran. The gate
+   audit recorded `passed` with one held prompt (15.9 s and 11.5 s). One of the two was an earlier
+   session continued rather than a new one; the gate engaged because that session had no gate state
+   yet. The broken-manifest part of the exit criterion is covered by the bootstrap regression test
+   (13/13), not a live session.
 
 **Exit:** in both projects a fresh session announces the standing scope without a manual step, follows
 the engagement and review lines, and a deliberately broken manifest produces the one-line notice and

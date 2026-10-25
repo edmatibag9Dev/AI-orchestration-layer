@@ -1,6 +1,6 @@
 # BUILD-PLAN.md — AI Orchestration Layer
 
-**Date:** 2026-07-15 · **Status:** Phase 1 COMPLETE (2026-07-22) · Phase 2 CALIBRATING (rubric v2 + owner-verdict wiring 2026-07-31; agreement still unmeasured until verdicts accumulate) · Phase 2.5 INSTALLED (2026-07-24) · Phase 2.6 policy built (2026-07-24), exit criteria open · Phase 4 attention-layer pilot live (2026-07-27), Mission Control extracted to its own repo (2026-07-28) · Ringer revived and nudge hooks removed (2026-10-25) · Project lifecycle + traveling-PM decisions locked (2026-10-25) · Project manifest built (2026-10-25); memory-first gate built and tested, not installed (2026-10-25)
+**Date:** 2026-07-15 · **Status:** Phase 1 COMPLETE (2026-07-22) · Phase 2 CALIBRATING (rubric v2 + owner-verdict wiring 2026-07-31; agreement still unmeasured until verdicts accumulate) · Phase 2.5 INSTALLED (2026-07-24) · Phase 2.6 policy built (2026-07-24), exit criteria open · Phase 4 attention-layer pilot live (2026-07-27), Mission Control extracted to its own repo (2026-07-28) · Ringer revived and nudge hooks removed (2026-10-25) · Project lifecycle + traveling-PM decisions locked (2026-10-25) · Project manifest built (2026-10-25); memory-first gate installed, manifest exit check passed (2026-10-25)
 **Sources:** Ringer guide (Nate B. Jones), harness anatomy (Claire Vo / Claude Agent SDK), loop-of-loops, 4 Patterns, steer-vs-dispatch Run Spec.
 
 ---
