@@ -1,0 +1,24 @@
+[project]
+spec_version = 1
+id = "example-project"
+name = "Example project"
+kind = "repo"
+repo = "example-owner/example-repo"
+status = "active"
+
+[memory]
+standing_scope = ["AI Orchestration"]
+
+[engagement]
+mode = "none"
+
+[ringer]
+task_types = ["research"]
+triggers = ["SKILL.fixture.md#verify-each-source"]
+
+[review]
+design = "required"
+change = "optional"
+
+[outputs]
+allowed = ["out/"]

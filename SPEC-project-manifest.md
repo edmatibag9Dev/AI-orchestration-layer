@@ -1,6 +1,6 @@
 # SPEC-project-manifest.md — `project.toml`, the project manifest
 
-*Owner: the owner · Drafted: 2026-10-25 · Status: DRAFT — not built · spec_version 1*
+*Owner: the owner · Drafted: 2026-10-25 · Status: DRAFT — validator built 2026-10-25; hook and skill not built · spec_version 1*
 
 One small file per project that says which pieces of the stack engage when a session works on it:
 which memory buckets load, which skills to prefer, where its Ringer steps are declared, which review
@@ -177,12 +177,18 @@ Triggered by "start a project", "new project <X>", or "adopt <folder> as a proje
 6. Run the validator (§5.3). Show the owner the file. Commit only on the owner's OK (repo projects).
 7. Add a link to `project.toml` in the project's `AGENTS.md` file map.
 
-### 5.3 Validator — `checks/manifest_check.py` (to build)
+### 5.3 Validator — `checks/manifest_check.py` (built 2026-10-25)
 
 Exit 0 only when: required keys present and typed; `id` is a slug; `repo = "none"` has a reason;
 `[engagement] root` exists and is outside every git repo; every `[ringer] triggers` entry resolves to
 a heading anchor in a file that exists; no `standing_scope` bucket appears on the local Sensitive
 list; no line matches the public-repo scrub patterns. Prints every failure, one per line.
+
+As built: exit `0` pass, `1` fail, `2` usage error. The Sensitive list defaults to the three
+Sensitive-rank buckets in the memory system's classification spec; `--sensitive-file` replaces it
+(one bucket per line). Owner-specific identifiers are added through `$SCRUB_PATTERN`, so they are
+never committed. Regression test: `python3 checks/test_manifest_check.py` (11 fixtures plus 4
+run-time cases).
 
 ## 6. Invariants
 
@@ -216,7 +222,7 @@ list; no line matches the public-repo scrub patterns. Prints every failure, one 
 
 ## 8. Build order and exit criteria
 
-1. `checks/manifest_check.py` with fixtures (one valid, one per failure class).
+1. `checks/manifest_check.py` with fixtures (one valid, one per failure class). **Done 2026-10-25.**
 2. `project-manifest-bootstrap.sh` in `hooks/`, installed as the third SessionStart hook.
 3. project-start skill.
 4. Adopt on two projects: meeting research (engagement, Ringer, review) and this repo (no engagement).

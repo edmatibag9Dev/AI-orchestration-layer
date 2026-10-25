@@ -79,6 +79,7 @@ It exists because frontier-plan token caps are regularly hit on mechanical work,
 | `checks/rate_check.py` | Stage-3 rating check: verbatim citation resolution, six rules, per-req failure reasons. |
 | `checks/matrix_check.py` | Integration gate over the merged matrix. |
 | `checks/fault_report.py` | Fault-attribution report — the Phase 2.6 reader (class counts, routing signal, backlog). |
+| `checks/manifest_check.py` | `project.toml` validator (SPEC-project-manifest §5.3); `checks/test_manifest_check.py` is its regression test, fixtures in `checks/fixtures/manifest/`. |
 | `samples/sample.requirements.json` | Scrubbed stage-3 input adapter. |
 | `rubrics/morning-briefing.md` | Briefing rubric (v2, 2026-07-31). Line IDs stable across versions. |
 | `samples/sample.swarm.json` | Reference manifest (committed sample; real manifests are gitignored). |

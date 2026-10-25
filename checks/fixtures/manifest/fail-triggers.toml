@@ -1,0 +1,10 @@
+[project]
+spec_version = 1
+id = "example-project"
+name = "Example project"
+kind = "repo"
+repo = "example-owner/example-repo"
+status = "active"
+
+[ringer]
+triggers = ["SKILL.fixture.md#no-such-step", "missing-file.md#verify-each-source"]

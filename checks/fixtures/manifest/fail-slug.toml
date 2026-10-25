@@ -1,0 +1,7 @@
+[project]
+spec_version = 1
+id = "Example_Project"
+name = "Example project"
+kind = "repo"
+repo = "example-owner/example-repo"
+status = "active"

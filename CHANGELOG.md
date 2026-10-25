@@ -4,6 +4,23 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-10-25] — project.toml validator (build step 1)
+
+### Added
+- **`checks/manifest_check.py`** — the SPEC-project-manifest §5.3 validator. Nine rules: parse,
+  known spec version, required keys with types and allowed values, slug id, a reason when
+  `repo = "none"`, engagement root that exists and sits outside every git repo, Ringer trigger
+  anchors that resolve to real headings, no Sensitive-rank bucket in standing scope, and a
+  publishable scrub (emails, tokens, keys, home paths, plus `$SCRUB_PATTERN`). Every failure prints on
+  its own line; exit 0 / 1 / 2.
+- **`checks/test_manifest_check.py`** and **`checks/fixtures/manifest/`** — one valid fixture, ten
+  failure fixtures (each trips only its own rule), and run-time cases for an engagement root outside
+  git, a `--sensitive-file` override, `$SCRUB_PATTERN`, and a missing file. 15/15 pass. Both spec
+  examples also pass against the real skill file and engagement folder.
+
+### Changed
+- `SPEC-project-manifest.md` status and §5.3/§8 updated: validator built; hook and skill not built.
+
 ## [2026-10-25] — SPEC-project-manifest (draft)
 
 ### Added
