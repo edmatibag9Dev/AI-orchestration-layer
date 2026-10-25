@@ -80,6 +80,7 @@ It exists because frontier-plan token caps are regularly hit on mechanical work,
 | `checks/matrix_check.py` | Integration gate over the merged matrix. |
 | `checks/fault_report.py` | Fault-attribution report — the Phase 2.6 reader (class counts, routing signal, backlog). |
 | `checks/manifest_check.py` | `project.toml` validator (SPEC-project-manifest §5.3); `checks/test_manifest_check.py` is its regression test, fixtures in `checks/fixtures/manifest/`. |
+| `hooks/project-manifest-bootstrap.sh` | SessionStart hook that turns a project's `project.toml` into one short instruction block at session start (built, not installed yet); test: `checks/test_manifest_bootstrap.py`. |
 | `samples/sample.requirements.json` | Scrubbed stage-3 input adapter. |
 | `rubrics/morning-briefing.md` | Briefing rubric (v2, 2026-07-31). Line IDs stable across versions. |
 | `samples/sample.swarm.json` | Reference manifest (committed sample; real manifests are gitignored). |

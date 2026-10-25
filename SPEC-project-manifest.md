@@ -1,6 +1,6 @@
 # SPEC-project-manifest.md — `project.toml`, the project manifest
 
-*Owner: the owner · Drafted: 2026-10-25 · Status: DRAFT — validator built 2026-10-25; hook and skill not built · spec_version 1*
+*Owner: the owner · Drafted: 2026-10-25 · Status: DRAFT — validator built 2026-10-25; hook built 2026-10-25, not installed; skill not built · spec_version 1*
 
 One small file per project that says which pieces of the stack engage when a session works on it:
 which memory buckets load, which skills to prefer, where its Ringer steps are declared, which review
@@ -136,7 +136,7 @@ allowed = ["logs/", "reports/"]
 
 ## 5. Readers
 
-### 5.1 SessionStart hook — `project-manifest-bootstrap.sh`
+### 5.1 SessionStart hook — `hooks/project-manifest-bootstrap.sh` (built 2026-10-25, not installed)
 
 A third SessionStart hook, after `coldboot-bootstrap.sh`. Same posture as that hook: **echo-only, no
 credentials, never touches a store, fail-open, exit 0 always.**
@@ -159,6 +159,11 @@ Review: design=<design>, change=<change>, lenses=<lenses>.
 Done when: <criteria>. Prove with: <checks>.
 Output only to: <allowed>.
 ```
+
+As built: the working directory comes from the hook payload's `cwd` (falling back to the shell's);
+a Sensitive bucket in `standing_scope` is dropped with a one-line note even if the validator was
+skipped (defense in depth for invariant 2); check commands print in backticks. About 65 ms per run;
+the fullest example prints about 248 tokens. Regression test: `python3 checks/test_manifest_bootstrap.py`.
 
 The hook never runs `[done] checks` and never calls Ringer. The model acts on the block; the
 existing gates (scope gate, escalation lanes, permission prompts) still decide what is allowed.
@@ -223,7 +228,7 @@ run-time cases).
 ## 8. Build order and exit criteria
 
 1. `checks/manifest_check.py` with fixtures (one valid, one per failure class). **Done 2026-10-25.**
-2. `project-manifest-bootstrap.sh` in `hooks/`, installed as the third SessionStart hook.
+2. `project-manifest-bootstrap.sh` in `hooks/`, installed as the third SessionStart hook. **Built and tested 2026-10-25; installing waits for the owner.**
 3. project-start skill.
 4. Adopt on two projects: meeting research (engagement, Ringer, review) and this repo (no engagement).
 5. Portability test: a Codex session in each project reads the manifest and states what it would load.

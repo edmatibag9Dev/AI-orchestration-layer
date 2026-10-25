@@ -4,6 +4,25 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-10-25] — Manifest SessionStart hook (build step 2, not installed)
+
+### Added
+- **`hooks/project-manifest-bootstrap.sh`** — SPEC-project-manifest §5.1. Walks up from the
+  session's working directory (from the hook payload) to the first `project.toml`, below `$HOME`,
+  and prints one instruction block: standing memory scope and recall queries, preferred and avoided
+  skills, the engagement-record step, declared Ringer steps, review gates, done criteria and checks,
+  allowed output. Echo-only, no credentials, never runs checks or Ringer; a missing, malformed,
+  newer-version or retired manifest prints at most one line; always exits 0. Drops a Sensitive
+  bucket from the scope with a note. About 65 ms; the fullest example prints about 248 tokens.
+- **`checks/test_manifest_bootstrap.py`** — 13 cases, all passing: no manifest, both spec examples
+  (one from a nested folder), the valid fixture, three malformed fixtures, Sensitive drop, retired
+  project, payload `cwd` vs. process `cwd`, garbage payload, missing `python3`, and proof that
+  `[done] checks` are never executed. The test caught a 257-token block (over budget) and a
+  misleading `..` after a check command; both fixed before this entry.
+
+### Changed
+- Spec status, §5.1 and §8 updated: hook built and tested, not installed in settings yet.
+
 ## [2026-10-25] — project.toml validator (build step 1)
 
 ### Added
