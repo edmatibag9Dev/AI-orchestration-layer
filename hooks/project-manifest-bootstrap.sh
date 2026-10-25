@@ -1,6 +1,6 @@
 #!/bin/bash
 # project-manifest-bootstrap.sh — SessionStart hook, SPEC-project-manifest.md §5.1
-# v1.0 · built 2026-10-25 · canonical copy: AI-orchestration-layer/hooks/ · installed: ~/.claude/hooks/
+# v1.1 · built 2026-10-25, --json added 2026-10-25 · canonical copy: AI-orchestration-layer/hooks/ · installed: ~/.claude/hooks/
 #
 # Finds the project's project.toml (walk up from the session's cwd, stopping below $HOME) and prints
 # one instruction block: memory scope, skills, engagement record, Ringer steps, review gates, done
@@ -8,8 +8,12 @@
 # touches a store, never runs [done] checks or Ringer. Fail-open by construction: a missing,
 # malformed, retired or newer-version manifest prints at most one line, and the script always exits 0.
 # Runs after coldboot-bootstrap.sh, which makes the default-scope cold-boot call first.
+#
+# `--json` (v1.1, for memory-first-gate.sh §5.4): same lookup and checks, but prints the resolved
+# manifest as one JSON object — {} when there is none or it is retired, {"error": ...} when invalid.
 
 PAYLOAD=""
+MODE="${1:-}"
 if [ ! -t 0 ]; then PAYLOAD="$(cat 2>/dev/null)"; fi
 
 read -r -d '' PY <<'PYEOF'
@@ -20,8 +24,15 @@ KNOWN = {1}
 SENSITIVE = {"trading", "short trading", "business"}  # classification spec, Sensitive rank
 REQUIRED = {"spec_version": int, "id": str, "name": str, "kind": str, "repo": str, "status": str}
 
+JSON = len(sys.argv) > 2 and sys.argv[2] == "--json"
+
 def say(line):
-    print(line)
+    print(json.dumps({"error": line}) if JSON else line)
+    sys.exit(0)
+
+def nothing():
+    if JSON:
+        print("{}")
     sys.exit(0)
 
 try:
@@ -39,7 +50,7 @@ for d in [here, *here.parents]:
         manifest = d / "project.toml"
         break
 if manifest is None:
-    sys.exit(0)
+    nothing()
 
 try:
     import tomllib
@@ -57,7 +68,7 @@ for key, typ in REQUIRED.items():
 if p["spec_version"] not in KNOWN:
     say(f"project.toml invalid: spec_version {p['spec_version']} is newer than this hook knows; proceeding without it")
 if p["status"] == "retired":
-    sys.exit(0)
+    nothing()
 
 def strs(sec, key):
     v = doc.get(sec, {}).get(key) if isinstance(doc.get(sec), dict) else None
@@ -74,6 +85,14 @@ scope = strs("memory", "standing_scope")
 dropped = [b for b in scope if b.lower() in SENSITIVE]
 scope = [b for b in scope if b.lower() not in SENSITIVE]
 recall = strs("memory", "recall")
+if JSON:
+    import hashlib
+    raw = doc.get("memory") if isinstance(doc.get("memory"), dict) else {}
+    print(json.dumps({"path": str(manifest), "root": str(manifest.parent), "id": p["id"],
+                      "status": p["status"], "standing_scope": scope, "dropped": dropped,
+                      "recall": recall, "memory_sha256": hashlib.sha256(
+                          json.dumps(raw, sort_keys=True).encode()).hexdigest()}))
+    sys.exit(0)
 if scope or recall:
     parts = []
     if scope:
@@ -121,5 +140,5 @@ if allowed:
 print("\n".join(lines))
 PYEOF
 
-python3 -c "$PY" "$PAYLOAD" 2>/dev/null || true
+python3 -c "$PY" "$PAYLOAD" "$MODE" 2>/dev/null || true
 exit 0

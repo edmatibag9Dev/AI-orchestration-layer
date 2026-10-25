@@ -1,6 +1,6 @@
 # BUILD-PLAN.md — AI Orchestration Layer
 
-**Date:** 2026-07-15 · **Status:** Phase 1 COMPLETE (2026-07-22) · Phase 2 CALIBRATING (rubric v2 + owner-verdict wiring 2026-07-31; agreement still unmeasured until verdicts accumulate) · Phase 2.5 INSTALLED (2026-07-24) · Phase 2.6 policy built (2026-07-24), exit criteria open · Phase 4 attention-layer pilot live (2026-07-27), Mission Control extracted to its own repo (2026-07-28) · Ringer revived and nudge hooks removed (2026-10-25) · Project lifecycle + traveling-PM decisions locked (2026-10-25)
+**Date:** 2026-07-15 · **Status:** Phase 1 COMPLETE (2026-07-22) · Phase 2 CALIBRATING (rubric v2 + owner-verdict wiring 2026-07-31; agreement still unmeasured until verdicts accumulate) · Phase 2.5 INSTALLED (2026-07-24) · Phase 2.6 policy built (2026-07-24), exit criteria open · Phase 4 attention-layer pilot live (2026-07-27), Mission Control extracted to its own repo (2026-07-28) · Ringer revived and nudge hooks removed (2026-10-25) · Project lifecycle + traveling-PM decisions locked (2026-10-25) · Project manifest built (2026-10-25); memory-first gate built and tested, not installed (2026-10-25)
 **Sources:** Ringer guide (Nate B. Jones), harness anatomy (Claire Vo / Claude Agent SDK), loop-of-loops, 4 Patterns, steer-vs-dispatch Run Spec.
 
 ---
@@ -52,7 +52,8 @@ together when a project starts, and stay together across sessions? The flow is d
 |---|---|---|
 | What the project manager (PM) is | An **engagement record**, not a long-running session. Every fresh session reads it at the start and writes back at the end, in whichever repo owns its step. It persists until the engagement is marked done or stopped. | Real engagements run 2–3 weeks across two or more repos. A long session loses detail to compaction, is tied to one folder and one agent, and loses anything not written down. The owner was already doing this by hand (an index file plus handoff files per session). |
 | Where the record lives | `~/Documents/Claude/Engagements/<prospect-slug>/ENGAGEMENT.md` (template in `_TEMPLATE/`). A neutral folder outside every repo. **Never in git.** Pointers to repo outputs only, never deliverables. | Prospect material starts at step 0 (meeting research). The owner's project-routing rule forbids writing one project's output into another's folder; a neutral record of pointers keeps that rule intact while giving every session the same "start here". |
-| Project manifest | A separate `project.toml` next to `AGENTS.md`. Non-repo projects get one too and record `repo = "none"` with the reason. Spec to write: `SPEC-project-manifest.md`. | A separate file is portable to any agent (Codex, a local model). A missing repo becomes a recorded decision instead of drift. |
+| Project manifest | A separate `project.toml` next to `AGENTS.md`. Non-repo projects get one too and record `repo = "none"` with the reason. Spec: `SPEC-project-manifest.md` (built 2026-10-25: validator, SessionStart hook, project-start skill, adopted on two projects, Codex portability test passed). | A separate file is portable to any agent (Codex, a local model). A missing repo becomes a recorded decision instead of drift. |
+| How memory loads (added after the first exit check) | A **memory-first gate** (SPEC-project-manifest §5.4): in an attended session whose manifest the owner approved, ordinary tool calls are held until the default and standing-scope cold boots have run. It enforces the attempt, never the result, and releases after two held prompts or when the memory server is missing. | The first exit check (2026-10-25) failed: one pilot session never announced its scope and the other made no memory call at all. Printed instructions are skipped when the task does not itself need memory. |
 | When Ringer is used | A task goes to a swarm only if it passes four tests: independent, checkable by a script, doable from a written brief, and its data is allowed to leave the machine. The trigger is a **step declared in the project's own `SKILL.md`**, never a hook. | The nudge hooks fired 97 times between 2026-07-24 and 2026-10-25 and no run followed. Nudges arrive mid-task, when switching costs more than finishing. A declared step costs zero tokens until it is reached. |
 | First real workloads, in order | (1) meeting-research per-source verification (built 2026-10-25), (2) demo-data files, (3) the RFx harness on the next real RFx. | Meeting research runs on every engagement and already had an independent, checkable, per-source shape. Demo work happens sometimes; RFx less often. |
 | What may leave the machine | Public source URLs, participant names and titles, organisation names, and plain questions about public facts. Never notes, intake answers, RFP text, deal strategy, or why a claim matters. | Owner's explicit, scoped approval. Enforced by construction: the manifest builder copies only URLs and questions into worker specs. |
@@ -153,6 +154,11 @@ item is the install/sequencing home.
   sub-second, 722 activatable rows indexed).
 - Exit criteria: new ad-hoc session calls `cold_boot_index` unprompted; firing rate ≥95%
   measured from `activation_audit` after ~2 weeks; 5s timeout fail-open honored.
+- **Evidence (2026-10-25):** of two fresh sessions in manifest projects, one made the default
+  cold-boot call and one made none, so the printed instruction alone does not meet the bar. For
+  projects with an approved manifest the memory-first gate (SPEC-project-manifest §5.4) now enforces
+  the call; its local `audit.jsonl` adds firing data. Sessions without a manifest still rely on the
+  printed instruction.
 
 ## Phase 2.6 — Escalation policy + sampling plan (before Phase 3; ~1 session)
 

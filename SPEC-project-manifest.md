@@ -1,6 +1,6 @@
 # SPEC-project-manifest.md — `project.toml`, the project manifest
 
-*Owner: the owner · Drafted: 2026-10-25 · Status: BUILT 2026-10-25 — validator, hook (installed), skill (installed), adopted on two projects, Codex portability test passed; exit check waits for a real fresh session in each project · spec_version 1*
+*Owner: the owner · Drafted: 2026-10-25 · Status: BUILT 2026-10-25 — validator, hook (installed), skill (installed), adopted on two projects, Codex portability test passed; first exit check failed, memory-first gate (§5.4) built and tested, not yet installed · spec_version 1*
 
 One small file per project that says which pieces of the stack engage when a session works on it:
 which memory buckets load, which skills to prefer, where its Ringer steps are declared, which review
@@ -168,6 +168,11 @@ the fullest example prints about 248 tokens. Regression test: `python3 checks/te
 The hook never runs `[done] checks` and never calls Ringer. The model acts on the block; the
 existing gates (scope gate, escalation lanes, permission prompts) still decide what is allowed.
 
+`--json` (v1.1, 2026-10-25): the same lookup and checks, printed as one JSON object for the gate
+(§5.4) — `{path, root, id, status, standing_scope, dropped, recall, memory_sha256}`, `{}` when there
+is no manifest or it is retired, `{"error": ...}` when it is invalid. One parser serves both readers,
+so the gate inherits the Sensitive drop. Still echo-only.
+
 ### 5.2 project-start skill — `skills/project-start/` (built and installed 2026-10-25)
 
 Triggered by "start a project", "new project <X>", or "adopt <folder> as a project".
@@ -199,6 +204,54 @@ Sensitive-rank buckets in the memory system's classification spec; `--sensitive-
 (one bucket per line). Owner-specific identifiers are added through `$SCRUB_PATTERN`, so they are
 never committed. Regression test: `python3 checks/test_manifest_check.py` (11 fixtures plus 4
 run-time cases).
+
+### 5.4 Memory-first gate — `hooks/memory-first-gate.sh` (built and tested 2026-10-25, not installed)
+
+**Why.** The first exit check (2026-10-25) showed the §5.1 block alone is not enough. In one pilot
+project the session used the standing scope but never announced it. In the other, whose task was a
+plain file read, the session made no memory call at all — not even the default cold boot that
+`coldboot-bootstrap.sh` asks for. Printed instructions are skipped when the task does not itself need
+memory.
+
+**What.** A PreToolUse hook (matcher `*`) plus a PostToolUse / PostToolUseFailure hook (matcher
+`mcp__open-brain__cold_boot_index|ToolSearch`). In an **attended** session whose manifest the owner
+**approved**, it denies ordinary tool calls, with the load steps as the reason Claude reads, until
+the session has called the memory server's `cold_boot_index` with default scope and with exactly the
+standing scope (either order). Then it adds one context line — *announce "Memory scope: <buckets>
+(standing, from project.toml)" once* — and is silent for the rest of the session.
+
+| Rule | Behaviour |
+|---|---|
+| Attended only | Gated only when `CLAUDE_CODE_SESSION_ATTENDED=1`. Headless and scheduled runs are Safe-only and ignore standing scopes (SPEC-activation §2.4), so they are never pushed to widen. |
+| Owner approval | A manifest counts only if its path and a SHA-256 of its `[memory]` table are in `~/.claude/state/memory-gate/approved.json`. `memory-first-gate.sh approve <folder>` writes the entry; it refuses without an interactive terminal, so the owner runs it, not an agent. Unlisted or edited `[memory]` → gate off, audited once as `unapproved`. |
+| Exact scope | The scoped call must equal the standing set. A superset (for example one adding a Sensitive bucket) does not count. The announce text comes from the manifest, never from call arguments. |
+| One server | Only `mcp__open-brain__` counts and is allow-listed; sibling memory servers do neither. |
+| Always allowed | `ToolSearch` (loads the deferred memory tools), every `mcp__open-brain__` tool, the app's plan and wrap-up tools, and every subagent call (`agent_id` present; the parent passed before it could call Agent). |
+| Attempt, not result | An errored cold boot counts (PostToolUseFailure). A `select:` ToolSearch for `cold_boot_index` that returns no match means the server is missing → release. Availability stays fail-open (SPEC-activation C11). |
+| Hold cap | Holds are counted per user prompt (`prompt_id`), so parallel calls in one message are one hold. Release on the 3rd held prompt; inside one prompt, release on the 5th separate burst (held calls more than 2 s apart). Releases are audited as `exhausted`. |
+| Folder changes | The manifest is re-resolved whenever the payload `cwd` changes, so a session that starts in a parent folder is gated once it moves into the project. |
+| Fail-open | Bad payload, missing python3, crash or timeout → the call is allowed. Kill switch: `MEMORY_GATE=off` in the environment. |
+
+**State.** `~/.claude/state/memory-gate/` (local, never committed): one JSON file per session (file
+lock, because parallel calls each fire the hook), `approved.json`, and `audit.jsonl` — one row per
+outcome (`passed`, `exhausted` with a reason, `unapproved`) with seconds to outcome. That is local
+firing-rate data next to the memory server's own audit. Session files older than 30 days are pruned.
+
+**Mechanics relied on** (probed live 2026-10-25, Claude Code 2.1.308): `prompt_id` is on every tool
+hook and constant for a whole user prompt; subagent calls share the parent's `session_id` and add
+`agent_id`; ToolSearch fires both hooks and its response lists `matches`; MCP calls carry
+`mcp_server.name`; the attended variable is `1` in the desktop app and `0` under `claude -p`.
+
+**Live test (2026-10-25).** Wired temporarily into one session through a folder-local settings file:
+the first Bash call was held with the four steps, the default and scoped calls passed it in 14 s, the
+announce line arrived, the next call ran, and the audit recorded `passed`. Regression test:
+`python3 checks/test_memory_gate.py` (26 cases).
+
+**Limits.** State files are user-writable, so this is a convention with an audit trail, not a
+security boundary — the same posture SPEC-activation gives standing scopes until its Phase 4. Approval
+is read when the folder resolves, so a session already running in a newly approved project engages
+only after its folder changes or a new session starts. A turn with no tool calls never fires the hook.
+`claude --bare` skips all hooks.
 
 ## 6. Invariants
 
@@ -248,6 +301,10 @@ run-time cases).
    standing scope); that instruction lives only in this harness's hook. A non-Claude session acts on
    `[memory]` only when its own session adapter supplies the how. Tracked in §9.
 
+6. Exit check, first attempt 2026-10-25: **failed.** Both pilot sessions printed the block; one used
+   the standing scope without announcing it, the other made no memory call at all. Response: the
+   memory-first gate (§5.4), built and tested the same day; installing it waits on the owner.
+
 **Exit:** in both projects a fresh session announces the standing scope without a manual step, follows
 the engagement and review lines, and a deliberately broken manifest produces the one-line notice and
 nothing else.
@@ -261,8 +318,9 @@ nothing else.
 - **Local Sensitive list.** The validator needs the Sensitive-rank bucket names without calling the
   memory server. Options: a small file in AI-Memory-System it can read, or the validator skips the
   check and relies on the server.
-- **SPEC-activation amendment.** §2.2 names `CLAUDE.md` as the standing-scope home. AI-Memory-System
-  owns that change.
+- **SPEC-activation amendment.** §2.2 names `CLAUDE.md` as the standing-scope home, and C11 calls the
+  cold boot "a convenience, not a gate". The memory-first gate (§5.4) enforces the attempt and keeps
+  the availability promise, but C11's wording should say so. AI-Memory-System owns both changes.
 - **Task-board filter.** Tasks are memory-store thoughts with free-form `metadata`; nothing writes
   `metadata.project` yet and the board has no project filter. The ai-task-manager repo owns that
   change.

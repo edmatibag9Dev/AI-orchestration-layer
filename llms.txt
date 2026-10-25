@@ -14,7 +14,7 @@
 ## Engine / Data
 - [SPEC-judge-check.md](SPEC-judge-check.md): the judge-check interface contract (Phase 2).
 - [SPEC-self-healing-loop.md](SPEC-self-healing-loop.md): sentinel/repair pattern for scheduled jobs (Phase 4a, pilot live).
-- [SPEC-project-manifest.md](SPEC-project-manifest.md): the `project.toml` contract — memory scope, skills, engagement, Ringer steps, review gates, done criteria (draft).
+- [SPEC-project-manifest.md](SPEC-project-manifest.md): the `project.toml` contract — memory scope, skills, engagement, Ringer steps, review gates, done criteria (built), plus the memory-first gate (§5.4).
 - [skills/project-start/SKILL.md](skills/project-start/SKILL.md): writes a project's `project.toml` (the manifest's writer skill).
 - [samples/sample.swarm.json](samples/sample.swarm.json): scrubbed reference Ringer manifest.
 - [maintenance/](maintenance/): Monthly Maintenance Review scripts — repo-standard sweep, Claude release-notes impact, fix-branch prep (never pushes).

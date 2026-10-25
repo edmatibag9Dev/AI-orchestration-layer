@@ -71,7 +71,7 @@ It exists because frontier-plan token caps are regularly hit on mechanical work,
 | `SPEC-judge-check.md` | Interface contract for the LLM-judge check pattern (Phase 2). |
 | `SPEC-self-healing-loop.md` | Sentinel/repair pattern for scheduled jobs (Phase 4a pilot live; Phase 4b fleet sentinel + Slack command channel, approved 2026-08-31). Operator view: `Mission-Control-Dashboard/OPS-RUNBOOK.md`. |
 | `SPEC-presales-harness.md` | Phase 3 harness design — stage map, adapters, tool policies, human gates, executed checks. |
-| `SPEC-project-manifest.md` | `project.toml` contract — what engages when a session works on a project (DRAFT, not built yet). |
+| `SPEC-project-manifest.md` | `project.toml` contract — what engages when a session works on a project (built 2026-10-25). |
 | `checks/judge.py` | LLM-judge runner (shadow scoring + owner-verdict logging). |
 | `checks/verdict.sh` | One-line owner verdict: `checks/verdict.sh today pass`. |
 | `checks/agreement.py` | Judge/owner agreement report — the ≥80% graduation instrument. |
@@ -82,6 +82,7 @@ It exists because frontier-plan token caps are regularly hit on mechanical work,
 | `checks/fault_report.py` | Fault-attribution report — the Phase 2.6 reader (class counts, routing signal, backlog). |
 | `checks/manifest_check.py` | `project.toml` validator (SPEC-project-manifest §5.3); `checks/test_manifest_check.py` is its regression test, fixtures in `checks/fixtures/manifest/`. |
 | `hooks/project-manifest-bootstrap.sh` | SessionStart hook that turns a project's `project.toml` into one short instruction block at session start (built and installed); test: `checks/test_manifest_bootstrap.py`. |
+| `hooks/memory-first-gate.sh` | Tool-call hook that holds work in an owner-approved project until its memory scope is loaded, then has the session announce it (built and tested, not installed); test: `checks/test_memory_gate.py`. |
 | `skills/project-start/` | project-start skill and its manifest writer (`scripts/write_manifest.py`); test: `checks/test_project_start.py`. Built and installed. |
 | `samples/sample.requirements.json` | Scrubbed stage-3 input adapter. |
 | `rubrics/morning-briefing.md` | Briefing rubric (v2, 2026-07-31). Line IDs stable across versions. |

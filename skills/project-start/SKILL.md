@@ -79,6 +79,16 @@ echo '{"cwd":"<project-folder>"}' | ~/.claude/hooks/project-manifest-bootstrap.s
 
 If it prints nothing, the hook is not installed or the manifest did not land; say which.
 
+If the manifest has a `standing_scope`, tell the owner that the memory-first gate
+(SPEC-project-manifest §5.4) ignores it until they approve it, and give them the command to run in
+their own terminal — it asks them to type `yes`, so an agent cannot run it:
+
+```bash
+~/.claude/hooks/memory-first-gate.sh approve "<project-folder>"
+```
+
+Editing `[memory]` later turns the gate off for that project until the owner approves it again.
+
 ### 6. Record it (repo projects)
 
 Add a `project.toml` row to the project's `AGENTS.md` file map, then commit `project.toml` and

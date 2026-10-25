@@ -4,6 +4,37 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-10-25] — Memory-first gate (SPEC-project-manifest §5.4)
+
+### Added
+- **`hooks/memory-first-gate.sh`** — PreToolUse/PostToolUse hook. In an attended session whose
+  `project.toml` the owner approved, it holds ordinary tool calls until the session has called the
+  memory server's `cold_boot_index` with default scope and with exactly the standing scope, then adds
+  one context line asking the session to announce the scope. Releases after two held user prompts,
+  after five separate held bursts in one prompt, or when ToolSearch shows the memory tool is missing.
+  Fail-open on any error; kill switch `MEMORY_GATE=off`. `approve <folder>` (interactive terminal
+  only) and `list` manage the local approval registry.
+- **`checks/test_memory_gate.py`** — 26 cases, all passing.
+- **`project-manifest-bootstrap.sh --json`** (v1.1) — the same lookup and checks, printed as JSON, so
+  the gate reuses the one parser and its Sensitive-bucket drop. Default output unchanged (13/13).
+- **SPEC-project-manifest §5.4** — rules, state, the hook mechanics it relies on, live test, limits.
+
+### Changed
+- §8 records the first exit check: **failed** (one pilot session never announced its scope, the other
+  made no memory call). BUILD-PLAN gains a "How memory loads" decision row and Phase 2.5 evidence.
+- project-start step 5 tells the owner how to approve a manifest for the gate.
+- Stale "DRAFT, not built" labels for the spec corrected in `AGENTS.md`, `README.md`, `llms.txt`, and
+  the BUILD-PLAN decision row.
+
+### Design and review
+- The design went through an independent review on the repo's three lenses (abuse, coherence,
+  enforceability): 2 blockers, 4 major, 5 minor. All are addressed: owner approval registry
+  (a planted manifest cannot force a widen), holds counted per prompt (parallel calls cannot exhaust
+  it), attended sessions only (scheduled runs stay Safe-only), exact scope match, one memory server,
+  and re-resolving when the folder changes.
+- Four Claude Code behaviours were probed live before building: the attended-session variable,
+  `prompt_id` per user prompt, ToolSearch hook payloads, and subagent `agent_id`.
+
 ## [2026-10-25] — Manifest build step 5: Codex portability test passed
 
 ### Added
