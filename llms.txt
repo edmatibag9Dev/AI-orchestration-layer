@@ -9,6 +9,7 @@
 - [AGENTS.md](AGENTS.md): canonical agent guide — file map, data contract, invariants.
 - [README.md](README.md): human quickstart and command reference.
 - [BUILD-PLAN.md](BUILD-PLAN.md): architecture, phased plan, decisions, risks, metrics.
+- [docs/architecture-flow.html](docs/architecture-flow.html): interactive engagement-lifecycle flow (before / after / target).
 
 ## Engine / Data
 - [SPEC-judge-check.md](SPEC-judge-check.md): the judge-check interface contract (Phase 2).

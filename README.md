@@ -6,6 +6,41 @@ A phased orchestration stack: a frontier model plans and reviews, cheap verified
 
 This repo is the planning and build home for the next layer of a personal AI harness stack. The existing foundation (memory layer, skills, scheduled tasks) handles recurring individual jobs; this project adds the orchestration layer above it — dispatching batches of work to inexpensive parallel worker models, verifying every result, and accumulating the pass-rate history that eventually makes routing a query instead of a debate.
 
+### Architecture flow
+
+One engagement, followed from start to finish. The project manager (PM) is not a long-running chat. It is an **engagement record** that every fresh session reads at the start and writes back to at the end, in whichever repo the step belongs to. It stays out of git because it carries prospect material from step 0.
+
+```mermaid
+flowchart TD
+  A["1 · Engagement starts<br/>meeting research is step 0"] --> B["2 · Session opens<br/>cold boot + session capture"]
+  B --> C["3 · Plan the work<br/>tag each task swarm or inline"]
+  C --> D["4 · Adversarial design review"]
+  D --> E["5 · Do the work<br/>frontier model researches"]
+  E --> F["6 · Verify each source<br/>Ringer: one task per source"]
+  F --> G["7 · Close the session<br/>capstone to the memory store"]
+  G --> H{"8 · Next?"}
+  H -->|demo| I["Demo prep<br/>data files via Ringer"]
+  H -->|RFx| J["RFx harness"]
+  H -->|done or stopped| K["Archive the record<br/>lessons to memory"]
+  PM[("Engagement record<br/>the traveling PM")] -.-> B
+  PM -.-> C
+  G -.-> PM
+  OPS["Model-provider usage view"] -.-> F
+
+  classDef built fill:#EAF4F1,stroke:#2C7A6B,color:#184F46
+  classDef decided fill:#ECF0F6,stroke:#2B4C7E,color:#1A2F50,stroke-dasharray:4 3
+  classDef gap fill:#FDF3E1,stroke:#E0A33E,color:#8A5A0B,stroke-dasharray:4 3
+  class B,E,F,G built
+  class A,C,H,I,K,PM decided
+  class D,J,OPS gap
+```
+
+Teal = built and working. Navy dashed = decided, not built yet. Amber dashed = missing, or built and never run. Status as of 2026-10-25.
+
+A task goes to a Ringer swarm only when it passes four tests: it is independent of other tasks, it has a check a script can run, a worker can do it from a written brief, and its data is allowed to leave the machine. The trigger is a step declared in the project's own `SKILL.md`, not a hook.
+
+**Interactive version:** open [`docs/architecture-flow.html`](docs/architecture-flow.html) in a browser (it opens straight from disk). It steps through all eight steps in three views (before 2026-10-25, after, and the agreed target) and shows which pieces work at each step.
+
 ## Purpose
 
 It exists because frontier-plan token caps are regularly hit on mechanical work, and because the four architecture patterns in circulation (batch dispatcher, harness, loop-of-loops, router) are usually conflated when they should be layered.
@@ -29,6 +64,7 @@ It exists because frontier-plan token caps are regularly hit on mechanical work,
 | `README.md` | This human quickstart. |
 | `llms.txt` | Machine-readable index. |
 | `BUILD-PLAN.md` | Architecture, phased plan, decisions, risks, success metrics. |
+| `docs/architecture-flow.html` | Interactive engagement-lifecycle stepper (before / after / target views). Self-contained; opens from disk. |
 | `ESCALATION-POLICY.md` | Decision-rights contract: four lanes, sampling plan, fault attribution, interrupt metric (Phase 2.6). |
 | `SPEC-judge-check.md` | Interface contract for the LLM-judge check pattern (Phase 2). |
 | `SPEC-self-healing-loop.md` | Sentinel/repair pattern for scheduled jobs (Phase 4a pilot live; Phase 4b fleet sentinel + Slack command channel, approved 2026-08-31). Operator view: `Mission-Control-Dashboard/OPS-RUNBOOK.md`. |
@@ -110,4 +146,4 @@ Architecture synthesized from: the Ringer guide (unlock-ai.natebjones.com/guides
 Phase 1 plumbing is live as of 2026-07-15: Ringer demo verified, and two worker lanes proven end to end — Codex CLI (plan-billed) and OpenCode + OpenRouter (`z-ai/glm-5.2`, ≈$0.01 per verified task; key held in OpenCode's auth store, never in this repo). As of 2026-07-22 the first runtime code lives here: `checks/judge.py` (the SPEC-judge-check LLM-judge, live in shadow mode against the morning briefing) and `rubrics/morning-briefing.md` (rubric **v4** as of 2026-09-25: v2's lines revised from 12 shadow rows on 2026-07-31; v3 adds `hard_fail: R4`, so an invented date, placeholder or missing source fails the edition outright regardless of score; v4 adds `mechanical: R10=weekday-date`, so the weekday/date check is computed in code rather than judged by the model); shadow verdicts accumulate in the gitignored `runs/judge-shadow.jsonl`, and owner verdicts land beside them via `checks/verdict.sh`. Phase 1 adopts Ringer as-is (single-file Python orchestrator, Python 3.11+) rather than building a dispatcher; Phase 2 adds the only novel component (judge checks) as plain shell/Python scripts conforming to `SPEC-judge-check.md`; Phase 3 builds one harness on the Claude Agent SDK. The router is deliberately last: routing decisions come from accumulated per-model, per-task-type pass rates, not intuition.
 
 ---
-*Last updated: 2026-10-09*
+*Last updated: 2026-10-25*

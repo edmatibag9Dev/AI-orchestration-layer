@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Architecture Flow</title>
+<style>
+:root{
+  --bg:#FFFFFF;--surface:#F7F9F9;--border:#DDE3E3;--text:#0B0F0F;--muted:#4D5757;--faint:#97A3A3;
+  --brand:#2C7A6B;--brand-text:#1F6457;
+  --on-bg:#EAF4F1;--on-bd:#2C7A6B;--on-tx:#184F46;
+  --nw-bg:#ECF0F6;--nw-bd:#2B4C7E;--nw-tx:#1A2F50;
+  --gap-bg:#FDF3E1;--gap-bd:#E0A33E;--gap-tx:#8A5A0B;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0F1414;--surface:#161D1C;--border:#2A3433;--text:#ECF1F0;--muted:#A9B5B4;--faint:#6B7777;
+  --brand:#5BAE9E;--brand-text:#5BAE9E;
+  --on-bg:#133E37;--on-bd:#5BAE9E;--on-tx:#CFE6E0;
+  --nw-bg:#14243D;--nw-bd:#7FA6D6;--nw-tx:#D3DEEC;
+  --gap-bg:#3A2A0E;--gap-bd:#E0A33E;--gap-tx:#F3D49A;
+}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+main{max-width:920px;margin:0 auto;padding:32px 16px 48px}
+h1{font:600 30px/1.2 Fraunces,Georgia,"Times New Roman",serif;margin:0 0 6px}
+.sub{color:var(--muted);margin:0 0 4px}
+.asof{font:13px "IBM Plex Mono",ui-monospace,Menlo,monospace;color:var(--muted);margin:0 0 20px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+button{font:inherit;font-size:14px;color:var(--text);background:transparent;border:1px solid var(--border);border-radius:8px;padding:6px 12px;cursor:pointer}
+button:hover{background:var(--surface)}
+button.sel{border-color:var(--brand);color:var(--brand-text)}
+button.chg{border-style:dashed}
+.spacer{flex:1}
+.card{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:16px 20px}
+.stepno{font-size:13px;color:var(--muted)}
+.stitle{font-size:20px;font-weight:600;margin:2px 0 8px}
+.stext{min-height:5.6em}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin-top:14px}
+.pc{border-radius:8px;padding:10px 12px;font-size:13px;border:1px solid var(--border);color:var(--faint);background:var(--surface)}
+.pc.on{background:var(--on-bg);border-color:var(--on-bd);color:var(--on-tx)}
+.pc.nw{background:var(--nw-bg);border:1.5px solid var(--nw-bd);color:var(--nw-tx)}
+.pc.gap{background:var(--gap-bg);border:1px dashed var(--gap-bd);color:var(--gap-tx)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-top:14px}
+.sw{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:6px}
+.nav{display:flex;gap:8px;margin-top:12px}
+footer{margin-top:28px;font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+<main>
+<h1>Architecture flow</h1>
+<p class="sub">One engagement, followed from start to finish through the orchestration stack: memory, skills, session hooks, the traveling project manager (PM) record, adversarial review, Ringer swarms, and harnesses.</p>
+<p class="asof">Status as of 2026-10-25 · snapshot, not live · source of truth: BUILD-PLAN.md and CHANGELOG.md</p>
+
+<div class="bar">
+  <button id="m-before" onclick="setMode('before')">Before 2026-10-25</button>
+  <button id="m-after" onclick="setMode('after')">After 2026-10-25</button>
+  <button id="m-target" onclick="setMode('target')">Agreed target</button>
+  <span class="spacer"></span>
+  <span id="pills" class="bar" style="margin:0"></span>
+</div>
+
+<div class="card">
+  <div class="stepno" id="stepno"></div>
+  <div class="stitle" id="stitle"></div>
+  <div class="stext" id="stext"></div>
+  <div class="grid" id="grid"></div>
+  <div class="legend">
+    <span><span class="sw" style="background:var(--on-bg);border:1px solid var(--on-bd)"></span>working</span>
+    <span><span class="sw" style="background:var(--nw-bg);border:1.5px solid var(--nw-bd)"></span>built or changed 2026-10-25</span>
+    <span><span class="sw" style="background:var(--gap-bg);border:1px dashed var(--gap-bd)"></span>missing, manual, or dormant</span>
+    <span><span class="sw" style="background:var(--surface);border:1px solid var(--border)"></span>idle</span>
+    <span>dashed step number = changed 2026-10-25</span>
+  </div>
+</div>
+
+<div class="nav">
+  <button onclick="go(-1)">&larr; Back</button>
+  <button onclick="go(1)">Next &rarr;</button>
+</div>
+
+<noscript><p>This page needs JavaScript to step through the flow. The static overview is in README.md.</p></noscript>
+
+<footer>Maintained by edmatibag9Dev. Edit the step data in this file when BUILD-PLAN.md changes, and update the "status as of" date.</footer>
+</main>
+
+<script>
+const P=[['pm','Engagement record (PM)'],['manifest','project.toml'],['repo','Repo + AGENTS.md'],['brain','Memory store'],['hooks','Session hooks'],['skills','Skills'],['review','Adversarial review'],['ringer','Ringer swarm'],['harness','Harness'],['board','Task board'],['mc','Mission Control'],['ops','Model-provider usage view']];
+const S=[
+{t:'Engagement starts (step 0: meeting research)',
+ before:{x:'A meeting gets scheduled. Meeting research starts in its own repo. Nothing links it to a later demo or RFx.',on:['repo','skills'],gap:['pm','manifest','board']},
+ after:{x:'Decided, not built: the engagement record is the PM. It travels across sessions until the engagement is done or stopped, and it stays out of git because prospect material starts here.',on:['repo','skills'],gap:['pm','manifest','board']},
+ target:{x:'Project-start opens the engagement record and a project.toml. Meeting research, demo prep and RFx sessions all point to the same record.',on:['pm','manifest','repo','brain','board','skills']}},
+{t:'Session opens',chg:1,
+ before:{x:'Global hooks fire: cold boot at default scope and session capture. Two Ringer nudge hooks are also armed.',on:['hooks','brain'],gap:['manifest','pm']},
+ after:{x:'Both Ringer nudge hooks removed after 97 ignored nudges. Only cold boot and session capture fire.',on:['brain'],nw:['hooks'],gap:['manifest','pm']},
+ target:{x:'The hook reads project.toml and the record’s one “start here”. Memory loads this project’s buckets.',on:['pm','hooks','manifest','brain','skills']}},
+{t:'Plan the work',
+ before:{x:'Tasks live in chat, an index file, or handoff files. Ringer is suggested mid-edit by nudges, which get ignored.',on:[],gap:['board','pm'],dorm:['ringer']},
+ after:{x:'Rule agreed: tag each task swarm or inline with four tests: independent, checkable, self-contained, and data allowed to leave. Ringer triggers live in each project’s SKILL.md, not in hooks.',on:[],gap:['board','pm']},
+ target:{x:'The PM tags each task on the board. Swarm tasks go to Ringer at the step the skill declares.',on:['pm','board','manifest','mc','skills']}},
+{t:'Adversarial review of the design',
+ before:{x:'Required in one repo only. Ringer’s adversarial-review template exists but is unused.',on:[],gap:['review','manifest'],dorm:['ringer']},
+ after:{x:'Unchanged. Ringer is proven again, so the template can run when a manifest requires it.',on:['ringer'],gap:['review','manifest']},
+ target:{x:'The manifest names the review lenses. Ringer runs one reviewer per model family. The PM logs which findings were real.',on:['pm','review','ringer','manifest']}},
+{t:'Do the work: participant research',
+ before:{x:'Frontier-model subagents research participants, the organisation and incumbent systems in parallel.',on:['skills','repo']},
+ after:{x:'Unchanged. Research stays with the frontier model; only verification moves.',on:['skills','repo']},
+ target:{x:'Same research, with the PM logging decisions and open items to the engagement record.',on:['pm','skills','repo','brain']}},
+{t:'Verify each source',chg:1,
+ before:{x:'Subagents of the same model family verify the research. Ringer has had no run since 2026-07-24.',on:['skills'],gap:['review','ops'],dorm:['ringer']},
+ after:{x:'Built: one Ringer task per source on Codex, GLM or Kimi workers. The check re-fetches each source and fails any quote not in it word for word. All three lanes passed a web-fetch probe. Only URLs and plain questions leave the machine.',on:['repo'],nw:['ringer','skills','review'],gap:['ops']},
+ target:{x:'The PM assigns tiers from the verdicts. Every attempt adds an eval row, and the router learns from it. Spend shows in an ops view.',on:['pm','ringer','skills','review','brain','ops']}},
+{t:'Close the session',
+ before:{x:'A capstone hook writes the session summary to the memory store. Handoff files are written by hand. The board is not updated.',on:['hooks','brain'],gap:['board','pm']},
+ after:{x:'Same mechanism.',on:['hooks','brain'],gap:['board','pm','ops']},
+ target:{x:'The PM writes decisions, open items and the next “start here”. Capstone, board, Mission Control and provider spend follow.',on:['pm','hooks','brain','board','mc','ops']}},
+{t:'Next: demo, RFx, or done',chg:1,
+ before:{x:'Demo prep reads the meeting brief read-only. The RFx harness is built but has never run. Lessons come back only through search.',on:['brain','skills'],gap:['pm'],dorm:['harness']},
+ after:{x:'Order agreed: meeting verification first, demo-data files second, and the RFx harness on the next real RFx. Codex default-model drift found; pinned per task for now.',on:['brain','skills'],gap:['pm','harness']},
+ target:{x:'Demo-data files and the prep doc review run through Ringer. The RFx harness runs on real RFx work. The record archives and lessons go to the memory store.',on:['pm','ringer','harness','review','brain','skills']}}];
+const LAB={before:'before 2026-10-25',after:'after 2026-10-25',target:'agreed target'};
+let i=0,mode='after';
+function setMode(m){mode=m;render()}
+function go(d){i=(i+d+S.length)%S.length;render()}
+function jump(j){i=j;render()}
+function render(){
+  const s=S[i],v=s[mode];
+  document.getElementById('stepno').textContent='Step '+(i+1)+' of '+S.length+' · '+LAB[mode];
+  document.getElementById('stitle').textContent=s.t;
+  document.getElementById('stext').textContent=v.x;
+  document.getElementById('grid').innerHTML=P.map(([k,n])=>{let c='',t=n;
+    if((v.nw||[]).includes(k)){c='nw';t=n+' · changed'}
+    else if((v.on||[]).includes(k))c='on';
+    else if((v.dorm||[]).includes(k)){c='gap';t=n+' · dormant'}
+    else if((v.gap||[]).includes(k)){c='gap';t=n+' · missing'}
+    return '<div class="pc '+c+'">'+t+'</div>'}).join('');
+  document.getElementById('pills').innerHTML=S.map((x,j)=>'<button class="'+(j===i?'sel ':'')+(x.chg?'chg':'')+'" aria-label="Step '+(j+1)+'" onclick="jump('+j+')">'+(j+1)+'</button>').join('');
+  ['before','after','target'].forEach(m=>document.getElementById('m-'+m).classList.toggle('sel',mode===m));
+}
+render();
+</script>
+</body>
+</html>

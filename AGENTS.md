@@ -18,6 +18,7 @@ Design in one line: **frontier model writes specs and reviews; cheap verified wo
 | `README.md` | yes | Human quickstart. |
 | `llms.txt` | yes | Machine-readable index. |
 | `BUILD-PLAN.md` | yes | Architecture, phased plan, decisions, risks, metrics. |
+| `docs/architecture-flow.html` | yes | Interactive engagement-lifecycle stepper (before / after / target views, status-as-of date). Self-contained single file; opens from disk. Keep it in step with BUILD-PLAN.md. |
 | `SPEC-judge-check.md` | yes | Interface contract for LLM-judge checks (Phase 2). |
 | `SPEC-self-healing-loop.md` | yes | Sentinel/repair pattern for scheduled jobs (Phase 4a). |
 | `SPEC-presales-harness.md` | yes | Phase 3 harness design: stage map, adapters, tool policy, gates, checks. |

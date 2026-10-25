@@ -4,6 +4,21 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-10-25] — Architecture flow: README diagram and interactive stepper
+
+### Added
+- **`docs/architecture-flow.html`** — self-contained interactive stepper that follows one engagement
+  through eight steps in three views (before 2026-10-25, after, agreed target) and shows which pieces
+  work at each step: engagement record (PM), project.toml, repo, memory store, session hooks, skills,
+  adversarial review, Ringer swarm, harness, task board, Mission Control, model-provider usage view.
+- **README "Architecture flow"** — a Mermaid overview of the same lifecycle (built / decided / missing),
+  the four tests that send a task to a Ringer swarm, and a link to the interactive page.
+
+### Changed
+- Architecture decisions recorded in the flow: the PM is a traveling engagement record, not a
+  long-running session; it stays out of git; Ringer triggers are declared in each project's SKILL.md;
+  the two Ringer nudge hooks were removed (97 nudges since 2026-07-24, no runs followed).
+
 ## [2026-10-10] — Digest row text shape in task footers
 
 ### Changed
