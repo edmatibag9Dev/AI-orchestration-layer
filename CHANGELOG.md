@@ -4,6 +4,17 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-10-25] — SPEC-project-manifest (draft)
+
+### Added
+- **`SPEC-project-manifest.md`** (status DRAFT, not built) — the `project.toml` contract: where it
+  lives and how a session finds it; field table for `[project]`, `[memory]`, `[skills]`,
+  `[engagement]`, `[ringer]`, `[review]`, `[board]`, `[loops]`, `[done]`, `[outputs]`; a repo example
+  and a no-repo example; readers (an echo-only SessionStart hook, the project-start skill, a
+  validator); eight invariants; how it relates to the standing-scope rule in the memory system's
+  activation spec (interim rule: if both declare a scope, use the intersection); build order, exit
+  criteria and open questions.
+
 ## [2026-10-25] — BUILD-PLAN: lifecycle decisions, Ringer revival, engagement-record location
 
 ### Added

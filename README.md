@@ -70,6 +70,7 @@ It exists because frontier-plan token caps are regularly hit on mechanical work,
 | `SPEC-judge-check.md` | Interface contract for the LLM-judge check pattern (Phase 2). |
 | `SPEC-self-healing-loop.md` | Sentinel/repair pattern for scheduled jobs (Phase 4a pilot live; Phase 4b fleet sentinel + Slack command channel, approved 2026-08-31). Operator view: `Mission-Control-Dashboard/OPS-RUNBOOK.md`. |
 | `SPEC-presales-harness.md` | Phase 3 harness design — stage map, adapters, tool policies, human gates, executed checks. |
+| `SPEC-project-manifest.md` | `project.toml` contract — what engages when a session works on a project (DRAFT, not built yet). |
 | `checks/judge.py` | LLM-judge runner (shadow scoring + owner-verdict logging). |
 | `checks/verdict.sh` | One-line owner verdict: `checks/verdict.sh today pass`. |
 | `checks/agreement.py` | Judge/owner agreement report — the ≥80% graduation instrument. |
