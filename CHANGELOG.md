@@ -4,6 +4,24 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-10-25] — Manifest build step 5: Codex portability test passed
+
+### Added
+- **Step 5 recorded in `SPEC-project-manifest.md` §8.** Ringer run `manifest-readability`: one Codex
+  (`gpt-5.6-sol`) task per pilot project, told to read only `AGENTS.md` and `project.toml` — no global
+  instructions, no hook — and report what it would load and do. An executed check compared every field
+  with the real manifest. Both passed on the first attempt (about 20 seconds and 16–23k tokens each),
+  both found the manifest through the `AGENTS.md` file-map row, neither reported anything unclear, and
+  the meeting-research session also applied that repo's scope gate first.
+- **Finding: the manifest carries the *what*, the harness carries the *how*.** Codex named the right
+  memory buckets but not the memory tool or its two-call order, which only this harness's hook
+  provides. Added to §9 as an open question owned by the memory system's Codex session adapter.
+
+### Changed
+- Spec status is now BUILT; the remaining exit check is a real fresh session in each project.
+- Stale "not installed" notes for the project-start skill corrected in the spec, `AGENTS.md` and
+  `README.md` (installed since its commit).
+
 ## [2026-10-25] — Adopt project.toml
 
 ### Added

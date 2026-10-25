@@ -1,6 +1,6 @@
 # SPEC-project-manifest.md — `project.toml`, the project manifest
 
-*Owner: the owner · Drafted: 2026-10-25 · Status: DRAFT — validator built 2026-10-25; hook built and installed 2026-10-25; skill built 2026-10-25, not installed · spec_version 1*
+*Owner: the owner · Drafted: 2026-10-25 · Status: BUILT 2026-10-25 — validator, hook (installed), skill (installed), adopted on two projects, Codex portability test passed; exit check waits for a real fresh session in each project · spec_version 1*
 
 One small file per project that says which pieces of the stack engage when a session works on it:
 which memory buckets load, which skills to prefer, where its Ringer steps are declared, which review
@@ -168,7 +168,7 @@ the fullest example prints about 248 tokens. Regression test: `python3 checks/te
 The hook never runs `[done] checks` and never calls Ringer. The model acts on the block; the
 existing gates (scope gate, escalation lanes, permission prompts) still decide what is allowed.
 
-### 5.2 project-start skill — `skills/project-start/` (built 2026-10-25, not installed)
+### 5.2 project-start skill — `skills/project-start/` (built and installed 2026-10-25)
 
 Triggered by "start a project", "new project <X>", or "adopt <folder> as a project".
 
@@ -234,15 +234,29 @@ run-time cases).
 
 1. `checks/manifest_check.py` with fixtures (one valid, one per failure class). **Done 2026-10-25.**
 2. `project-manifest-bootstrap.sh` in `hooks/`, installed as the third SessionStart hook. **Built, tested and installed 2026-10-25.**
-3. project-start skill. **Built and tested 2026-10-25; installing (the `~/.claude/skills/` symlink) waits for the owner.**
+3. project-start skill. **Built, tested and installed 2026-10-25** (`~/.claude/skills/project-start` links to this repo).
 4. Adopt on two projects: meeting research (engagement, Ringer, review) and this repo (no engagement). **Done 2026-10-25:** both manifests written through the project-start skill; the hook prints about 251 and 185 tokens.
 5. Portability test: a Codex session in each project reads the manifest and states what it would load.
+   **Passed 2026-10-25** (Ringer run `manifest-readability`, Codex `gpt-5.6-sol`): given only `AGENTS.md`
+   and `project.toml`, with no global instructions and no hook, each session reproduced every manifest
+   field verbatim on its first attempt (an executed check compared all fields with the real file),
+   found the manifest through the `AGENTS.md` file-map row, and reported nothing unclear. In the
+   meeting-research repo it also applied the scope gate first, from the `AGENTS.md` mirror of the
+   routing rule.
+   **Finding — the manifest carries the *what*; the harness carries the *how*.** Codex named the
+   right buckets but not the memory tool or its two-call order (default scope first, then the
+   standing scope); that instruction lives only in this harness's hook. A non-Claude session acts on
+   `[memory]` only when its own session adapter supplies the how. Tracked in §9.
 
 **Exit:** in both projects a fresh session announces the standing scope without a manual step, follows
 the engagement and review lines, and a deliberately broken manifest produces the one-line notice and
 nothing else.
 
 ## 9. Open questions
+
+- **Memory "how" for non-Claude agents.** The step 5 test showed a Codex session reads `[memory]`
+  correctly but has no instruction for the memory tool or its call order. The Codex session adapter
+  (a pilot in the memory system) has to supply it; the manifest stays harness-neutral by design.
 
 - **Local Sensitive list.** The validator needs the Sensitive-rank bucket names without calling the
   memory server. Options: a small file in AI-Memory-System it can read, or the validator skips the
