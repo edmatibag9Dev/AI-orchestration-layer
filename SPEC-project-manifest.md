@@ -235,7 +235,7 @@ run-time cases).
 1. `checks/manifest_check.py` with fixtures (one valid, one per failure class). **Done 2026-10-25.**
 2. `project-manifest-bootstrap.sh` in `hooks/`, installed as the third SessionStart hook. **Built, tested and installed 2026-10-25.**
 3. project-start skill. **Built and tested 2026-10-25; installing (the `~/.claude/skills/` symlink) waits for the owner.**
-4. Adopt on two projects: meeting research (engagement, Ringer, review) and this repo (no engagement).
+4. Adopt on two projects: meeting research (engagement, Ringer, review) and this repo (no engagement). **Done 2026-10-25:** both manifests written through the project-start skill; the hook prints about 251 and 185 tokens.
 5. Portability test: a Codex session in each project reads the manifest and states what it would load.
 
 **Exit:** in both projects a fresh session announces the standing scope without a manual step, follows

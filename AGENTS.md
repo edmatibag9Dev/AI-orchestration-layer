@@ -16,6 +16,7 @@ Design in one line: **frontier model writes specs and reviews; cheap verified wo
 |---|---|---|
 | `AGENTS.md` | yes | This guide. |
 | `README.md` | yes | Human quickstart. |
+| `project.toml` | yes | This repo's own project manifest (SPEC-project-manifest): standing memory scope, preferred skills, Ringer task types, review gates (design review required), owned routines, done criteria and checks. Read at session start by the SessionStart hook. `[memory]` and `[review]` change only with the owner's OK. |
 | `llms.txt` | yes | Machine-readable index. |
 | `BUILD-PLAN.md` | yes | Architecture, phased plan, decisions, risks, metrics. |
 | `docs/architecture-flow.html` | yes | Interactive engagement-lifecycle stepper (before / after / target views, status-as-of date). Self-contained single file; opens from disk. Keep it in step with BUILD-PLAN.md. |

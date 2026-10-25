@@ -1,0 +1,29 @@
+[project]
+spec_version = 1
+id = "ai-orchestration-layer"
+name = "AI Orchestration Layer"
+kind = "repo"
+repo = "edmatibag9Dev/AI-orchestration-layer"
+status = "active"
+
+[memory]
+standing_scope = ["AI Orchestration"]
+recall = ["orchestration build plan decisions", "Ringer run results and model notes"]
+
+[skills]
+prefer = ["ringer", "repo-standard", "project-start"]
+
+[ringer]
+task_types = ["docs", "code-review", "probe"]
+
+[review]
+design = "required"
+change = "optional"
+lenses = ["abuse", "coherence", "enforceability"]
+
+[loops]
+routines = ["skills-inventory-review", "ops-watcher", "evening-digest", "action-item-triage", "daily-ai-morning-briefing", "fleet-sentinel"]
+
+[done]
+criteria = ["No vendor, prospect or owner identifiers in committed files", "README, CHANGELOG and file map match the change"]
+checks = ["python3 checks/test_manifest_check.py", "python3 checks/test_manifest_bootstrap.py", "python3 checks/test_project_start.py", "python3 ~/.claude/skills/repo-standard/scripts/repo-check.py . --public"]

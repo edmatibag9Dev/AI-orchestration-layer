@@ -4,6 +4,19 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-10-25] — Adopt project.toml
+
+### Added
+- **`project.toml`** — this repo adopts its own manifest (build step 4). Standing memory scope
+  `AI Orchestration`; prefer `ringer`, `repo-standard`, `project-start`; Ringer task types `docs`,
+  `code-review`, `probe`; review: design required (abuse, coherence, enforceability), change
+  optional; owns the six routines backed up in `scheduled-tasks/`; done checks = the three test
+  suites plus `repo-check --public`. Written with the project-start skill after the owner confirmed
+  `[memory]` and `[review]`; the hook prints about 185 tokens.
+
+### Changed
+- `SPEC-project-manifest.md` §8: step 4 done (both manifests adopted).
+
 ## [2026-10-25] — project-start skill (build step 3, not installed)
 
 ### Added

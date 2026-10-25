@@ -63,6 +63,7 @@ It exists because frontier-plan token caps are regularly hit on mechanical work,
 |---|---|
 | `AGENTS.md` | Canonical guide for AI agents working in this repo — file map, data contract, invariants. |
 | `README.md` | This human quickstart. |
+| `project.toml` | This repo's project manifest — what a session here loads at start (memory scope, skills, review gates, done checks). |
 | `llms.txt` | Machine-readable index. |
 | `BUILD-PLAN.md` | Architecture, phased plan, decisions, risks, success metrics. |
 | `docs/architecture-flow.html` | Interactive engagement-lifecycle stepper (before / after / target views). Self-contained; opens from disk. |
