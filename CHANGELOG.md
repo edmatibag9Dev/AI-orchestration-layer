@@ -25,6 +25,8 @@ Gitignored data/output files are never committed.
 - project-start step 5 tells the owner how to approve a manifest for the gate.
 - Stale "DRAFT, not built" labels for the spec corrected in `AGENTS.md`, `README.md`, `llms.txt`, and
   the BUILD-PLAN decision row.
+- BUILD-PLAN "Held" row now records the Codex portability test as half done: the manifest-read half
+  passed (§8 step 5); the act-as-PM half waits on the Codex session adapter supplying the memory "how" (§9).
 
 ### Design and review
 - The design went through an independent review on the repo's three lenses (abuse, coherence,
