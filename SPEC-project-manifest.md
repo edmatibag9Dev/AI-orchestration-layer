@@ -346,7 +346,7 @@ Regression test: `python3 checks/test_review_gate.py` (42 cases).
 
 | Existing rule | Today | With the manifest |
 |---|---|---|
-| Standing scope (SPEC-activation §2.2) | A `scope: [...]` line in the project's `CLAUDE.md` | `[memory] standing_scope`. Until AI-Memory-System amends §2.2, both are valid; if both exist and differ, the hook uses their **intersection** and prints the conflict. |
+| Standing scope (SPEC-activation §2.2) | A `scope: [...]` line in the project's `CLAUDE.md` (until 2026-10-25) | `[memory] standing_scope`, owner-approved by hash. SPEC-activation v2.2 (2026-10-25) made this the only home; the one `CLAUDE.md` declaration was migrated, so the interim intersection rule is gone. |
 | Project routing (owner's global instructions) | Output paths listed in a global table | `[outputs] allowed` per project; the global table stays the source for presales routing. |
 | Engagement record | Global instruction steps + each presales repo's scope gate | `[engagement]` makes it machine-readable, so non-presales projects can opt in. |
 | Ringer triggers | Declared in `SKILL.md` | Unchanged; indexed in `[ringer] triggers`. |
@@ -400,9 +400,8 @@ nothing else.
 - **Local Sensitive list.** The validator needs the Sensitive-rank bucket names without calling the
   memory server. Options: a small file in AI-Memory-System it can read, or the validator skips the
   check and relies on the server.
-- **SPEC-activation amendment.** §2.2 names `CLAUDE.md` as the standing-scope home, and C11 calls the
-  cold boot "a convenience, not a gate". The memory-first gate (§5.4) enforces the attempt and keeps
-  the availability promise, but C11's wording should say so. AI-Memory-System owns both changes.
+- ~~**SPEC-activation amendment.**~~ Closed 2026-10-25: SPEC-activation v2.2 moves the standing-scope
+  home to `project.toml` (§2.2) and records the memory-first gate's enforced attempt in C11.
 - **Task-board filter.** Tasks are memory-store thoughts with free-form `metadata`; nothing writes
   `metadata.project` yet and the board has no project filter. The ai-task-manager repo owns that
   change.

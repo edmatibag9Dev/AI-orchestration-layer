@@ -4,6 +4,15 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-10-25] — Standing scope home settled (SPEC-activation v2.2)
+
+### Changed
+- **SPEC-project-manifest §7:** the standing-scope row now records that SPEC-activation v2.2 (in the memory
+  system's repo) makes `[memory] standing_scope` the only home, owner-approved by hash. The last `CLAUDE.md`
+  declaration was migrated to a `project.toml` the same day, so the interim intersection rule is gone.
+- **§9:** the SPEC-activation open question is closed; C11 there now describes the memory-first gate's
+  enforced attempt for approved manifests.
+
 ## [2026-10-25] — Review gate (SPEC-project-manifest §5.5)
 
 ### Added
