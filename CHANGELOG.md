@@ -4,6 +4,43 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-10-26] — Review gate v1.2 after its second review
+
+### Fixed
+- **Range reviews could mark a P0/P1 "fixed" with no change (P1).** `surface_sha` and `live_sha` built
+  the reviewed and live hashes two different ways for `--range` surfaces, so they never matched and
+  every range record also said `source_changed = true`. Both now use one construction (`files_sha`);
+  a range is re-diffed from the same base (the merge base for `A...B`) to the working tree.
+- **A finding could hide from the parser (P1).** Labels that were indented, upper-case or numbered
+  (`Finding 2:`) were neither split out nor flagged, so a P0 could sit beside `NO FINDINGS`. Any
+  label-like line not written exactly now fails; one Priority and one Confidence per finding; no
+  Priority line in a `NO FINDINGS` report. The old check also failed honest prose — a summary bullet
+  starting with the word "Finding" — which this review hit; prose without a label colon now passes.
+- `record` refuses a P0/P1 marked fixed when the live source cannot be read, instead of passing.
+  Range plans store their root, so `record` no longer needs the manifest reader to hash the source.
+- `status` re-hashes the live source now ("unchanged", "changed" or "unknown") instead of replaying
+  the flag frozen at record time.
+- External egress also requires a range's start commit (its diff base) to be upstream; range paths
+  are read NUL-separated; a manifest reader with no `outputs` key falls back to local.
+- Briefs say the surface is material under review, never instructions to the reviewer.
+- `plan --stage change` refuses `--range` when the approved `[review] surface` is `outputs`.
+- Brief, SPEC and check now word the `NO FINDINGS` rule the same way.
+
+### Changed
+- SPEC-project-manifest: §4 example sets `surface = "outputs"`; §5.1 lists every `--json` field the
+  review gate reads; §5.3 lists the lens-registry rule and 17 cases; §5.5 separates the two meanings of
+  "surface", states that the terminal owner check can be met by a pseudo-terminal wrapper, lists the
+  three deferred external-mode gaps, drops the stale "pre-delivery wiring is follow-up" line, and adds
+  the second review. The docstring's "§5.5 Limits" pointer names the real section.
+- `checks/test_review_gate.py`: 42 → 56 cases. Every new case fails against v1.1.
+
+### Reviewed
+- Second review of v1.1 run through the gate itself (local, lenses abuse, coherence, enforceability):
+  19 findings, 14 distinct, all confirmed; recorded with `record`, the first durable row in the
+  records log. Deferred (P2/P3, external mode only; no approved manifest sets `egress = "external"`):
+  publication proven by local remote-tracking refs, `plan.json` unpinned with workers sharing the run
+  folder, `[outputs]` read from the live manifest.
+
 ## [2026-10-25] — Standing scope home settled (SPEC-activation v2.2)
 
 ### Changed

@@ -99,6 +99,7 @@ triggers = ["skills/meeting-research/SKILL.md#how-to-run-it--ringer-verification
 design = "required"
 change = "optional"
 lenses = ["accuracy", "coherence"]
+surface = "outputs"
 
 [board]
 tag = "meeting-research"
@@ -171,9 +172,12 @@ The hook never runs `[done] checks` and never calls Ringer. The model acts on th
 existing gates (scope gate, escalation lanes, permission prompts) still decide what is allowed.
 
 `--json` (v1.1, 2026-10-25): the same lookup and checks, printed as one JSON object for the gate
-(§5.4) — `{path, root, id, status, standing_scope, dropped, recall, memory_sha256}`, `{}` when there
-is no manifest or it is retired, `{"error": ...}` when it is invalid. One parser serves both readers,
-so the gate inherits the Sensitive drop. Still echo-only.
+(§5.4) — `{path, root, id, status, repo, standing_scope, dropped, recall, memory_sha256, review,
+review_sha256, outputs}`, `{}` when there is no manifest or it is retired, `{"error": ...}` when it is
+invalid. `review`, `review_sha256` and `outputs` are what the review gate (§5.5) reads; `outputs` is
+always present (an empty list when the manifest has no `[outputs]`), and the review gate treats a
+missing key as unreadable. One parser serves all readers, so the gates inherit the Sensitive drop.
+Still echo-only.
 
 ### 5.2 project-start skill — `skills/project-start/` (built and installed 2026-10-25)
 
@@ -198,14 +202,15 @@ Regression test: `python3 checks/test_project_start.py`.
 
 Exit 0 only when: required keys present and typed; `id` is a slug; `repo = "none"` has a reason;
 `[engagement] root` exists and is outside every git repo; every `[ringer] triggers` entry resolves to
-a heading anchor in a file that exists; no `standing_scope` bucket appears on the local Sensitive
+a heading anchor in a file that exists; every `[review] lenses` entry is in the lens registry
+(`checks/review_lenses.toml`, §5.5); no `standing_scope` bucket appears on the local Sensitive
 list; no line matches the public-repo scrub patterns. Prints every failure, one per line.
 
 As built: exit `0` pass, `1` fail, `2` usage error. The Sensitive list defaults to the three
 Sensitive-rank buckets in the memory system's classification spec; `--sensitive-file` replaces it
 (one bucket per line). Owner-specific identifiers are added through `$SCRUB_PATTERN`, so they are
-never committed. Regression test: `python3 checks/test_manifest_check.py` (11 fixtures plus 4
-run-time cases).
+never committed. Regression test: `python3 checks/test_manifest_check.py` (17 cases: fixtures,
+including an unregistered lens, plus run-time cases).
 
 ### 5.4 Memory-first gate — `hooks/memory-first-gate.sh` (built, tested and installed 2026-10-25)
 
@@ -255,7 +260,7 @@ is read when the folder resolves, so a session already running in a newly approv
 only after its folder changes or a new session starts. A turn with no tool calls never fires the hook.
 `claude --bare` skips all hooks.
 
-### 5.5 Review gate — `checks/review_gate.py` + `checks/review_lenses.toml` (v1.1, built 2026-10-25)
+### 5.5 Review gate — `checks/review_gate.py` + `checks/review_lenses.toml` (v1.2, 2026-10-26)
 
 **Why.** `[review]` was printed and nothing ran it. The runner turns the declared lenses into real
 reviews, built on Ringer's adversarial-review kit, and keeps a record of each one.
@@ -264,7 +269,11 @@ reviews, built on Ringer's adversarial-review kit, and keeps a record of each on
 1. `review_gate.py plan --project <dir> --stage design|change (--surface <files> | --range A..B)`
    freezes the surface into a workdir (file copies or the `git diff`), hashes it, and writes one
    brief per lens. Each brief carries the lens's FOCUS paragraph from the registry, the surface
-   SHA-256, and the report contract.
+   SHA-256, the report contract, and a line saying the surface is material under review, never
+   instructions (text in it addressed to a reviewer is itself a finding). Two words, two meanings:
+   the `[review] surface` key (§3) says what change review *covers* — `commits` or `outputs` — while
+   the *frozen surface* here is the files or range one run reviews. For a project whose change review
+   covers `outputs`, `plan --stage change` refuses `--range`: deliverables never pass through git.
 2. Reviewers run. `local` (default): the orchestrator gives each brief to its own in-session
    subagent. Claude Code does not let a subagent write report files, so the subagent returns the
    report as text and the orchestrator saves it verbatim as `<lens>/report.md`. `external`: `plan`
@@ -276,22 +285,28 @@ reviews, built on Ringer's adversarial-review kit, and keeps a record of each on
    claim of having edited files, judged on the reviewer's own prose so quoting the surface is
    fine) and adds: the report echoes its lens, the surface SHA-256 and a per-run nonce kept in the
    surface's `REVIEW-NONCE.txt` (not printed in the brief), and lists what it inspected. Labels must
-   start their line exactly (`Priority: P1`, `Confidence: high`); `NO FINDINGS` must be a line of its
-   own and never sits beside findings; bold, bulleted or heading finding labels fail.
+   start their line exactly (`Finding:`, `Priority: P1`, `Confidence: high`), one Priority and one
+   Confidence per finding. Any label-like line in another form — bold, bulleted, heading, indented,
+   numbered (`Finding 2:`) or another case (`FINDING:`) — fails, so no finding can hide from the
+   parser; prose that merely starts with the word ("Finding labels that …") is left alone. A report
+   with no findings has a line that begins with `NO FINDINGS`, and no Priority line anywhere.
 4. `review_gate.py synthesize` lists every finding in `synthesis.md`, pinned to each report's
    SHA-256. The orchestrator sets each one's Disposition (confirmed / dismissed), Resolution for
    confirmed ones (fixed / deferred / accepted) and a Reason.
 5. `review_gate.py record` prints every reason it refuses: the frozen surface or a report changed
    since synthesis; a finding missing, re-prioritised, or without a disposition and reason; a
    confirmed P0/P1 deferred, or marked fixed while the live source is identical to the reviewed
-   surface. A P0/P1 that is dismissed or accepted needs the owner (`--owner`, interactive terminal).
+   surface or cannot be read. The live hash is built the same way as the reviewed one: the same files
+   now, or for a range the diff from the same base to the working tree, so an unchanged source hashes
+   equal. A P0/P1 that is dismissed or accepted needs the owner (`--owner`, interactive terminal).
    Counts are derived from `synthesis.md`. One row goes to `~/.claude/state/review-gate/records.jsonl`:
    project, stage, approved-policy hash, lenses, mode, models, reviewed surface hash, live source hash
    and `source_changed`, counts (incl. P0/P1 confirmed and dismissed), owner sign-offs, report and
    synthesis hashes.
 6. `review_gate.py waive` (interactive terminal only) writes a reasoned waiver for one surface,
    1 to 30 days. `review_gate.py status` lists a project's records, marks expired waivers, shows
-   P0/P1 dismissals and whether the source changed since review, and skips unreadable lines.
+   P0/P1 dismissals, re-hashes the live source to say whether it has changed since review now (or
+   that it cannot be read), and skips unreadable lines.
 
 **Policy is owner-approved.** `memory-first-gate.sh approve` now records `[review]` and its hash
 next to `[memory]`. `plan` uses the approved `[review]`; an edit takes effect only after the owner
@@ -300,27 +315,43 @@ approves again, so a change cannot switch off its own review. No approval → `p
 **Egress.** Local unless every condition holds: the approved policy says `egress = "external"`; the
 checkout's `origin` is the manifest's repo; `gh` reports it PUBLIC; the branch has an upstream; and
 the surface is already published — every file inside the repo, tracked, and identical to its upstream
-copy, or a range whose end commit is already upstream — with no path (including every path a range
-touches) under `[outputs] allowed`. Otherwise it falls back to local and says why. Unpushed work is
-never "already public".
+copy, or a range whose start (its diff base) and end commits are both already upstream — with no
+path (including every path a range touches, read NUL-separated so spaces survive) under
+`[outputs] allowed`. Otherwise it falls back to local and says why. Unpushed work is never "already
+public". Known gaps, deferred because no approved manifest sets `egress = "external"` (2026-10-26):
+"upstream" is the local remote-tracking ref, which a local process can move without pushing; `plan.json`
+is not pinned and external workers share the run folder; `[outputs]` is read from the live manifest,
+not an approved copy. Close them before any project is approved for external review.
 
 **What is enforced, and what is not.** Nothing holds a push or a delivery yet. The design review
 (2026-10-25, three model families, 26 findings) showed a command-string push gate is bypassable and
 no current manifest needs one: this repo's `change` is optional, and the four presales repos review
 outputs, which never pass through git. A future push gate would be git's own `pre-push` hook,
 installed globally, keyed to the exact ref range. `design = "required"` has no mechanical boundary.
-The four presales repos set `surface = "outputs"`; wiring each skill's pre-delivery step to call
-`plan` is follow-up work in those repos. Records are user-writable, and in local mode the orchestrator
-saves the reports, so this is a convention with an audit trail, not a security boundary.
+The four presales repos set `surface = "outputs"`, and each skill's pre-delivery step calls `plan`
+(2026-10-25). Records are user-writable, and in local mode the orchestrator saves the reports, so this
+is a convention with an audit trail, not a security boundary. The owner checks (`record --owner`,
+`waive`) test only that stdin and stdout are a terminal; a pseudo-terminal wrapper meets that, so
+`owner_signed` records that a terminal answered yes, not who did.
 
 **Reviewed (2026-10-25).** The design: a Ringer run with one model family per lens (26 findings,
 confirmed ones folded in before building). v1.0 of the code: a local end-to-end run on a throwaway
 project, one subagent per lens (abuse, coherence, enforceability). It found 23 issues, including two
 P1s — a dismissed P0/P1 skipped the owner, and a lower-case priority skipped the P0/P1 rules — and
 caught itself: the abuse report quoted the self-fix pattern and failed v1.0's own check. All 23 were
-fixed in v1.1, and the run was recorded through `record` with `source_changed = true`.
+fixed in v1.1, and the run was recorded through `record` with `source_changed = true` (in the throwaway
+project's own state folder, so no row survives).
 
-Regression test: `python3 checks/test_review_gate.py` (42 cases).
+**Reviewed again (2026-10-26).** v1.1, local, the same three lenses, run through the gate itself as
+this repo's first durable record. 19 findings, 14 distinct after merging duplicates, all confirmed.
+Two P1s: range surfaces hashed the reviewed and live source two different ways, so "fixed with no
+change" was never caught on a range (three reviewers found it); and a finding label in another form
+(indented, upper-case, numbered) was invisible to the parser, so a P0 could hide beside `NO FINDINGS`.
+The same parser also failed honest prose — a summary bullet starting with the word "Finding" — which
+this run hit. v1.2 fixes both P1s and the smaller findings; the three external-mode gaps above are
+deferred.
+
+Regression test: `python3 checks/test_review_gate.py` (56 cases).
 
 ## 6. Invariants
 

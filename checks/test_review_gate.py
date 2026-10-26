@@ -33,6 +33,7 @@ design = "required"
 change = "{change}"
 lenses = {lenses}
 egress = "{egress}"
+surface = "{surface}"
 
 [outputs]
 allowed = ["out/"]
@@ -76,10 +77,12 @@ class Env:
         f.write_text(f"#!/bin/bash\necho {visibility}\n")
         f.chmod(0o755)
 
-    def project(self, pid, lenses='["abuse", "coherence"]', change="optional", egress="local", approve=True):
+    def project(self, pid, lenses='["abuse", "coherence"]', change="optional", egress="local", approve=True,
+                surface="commits"):
         d = self.tmp / pid
         d.mkdir(exist_ok=True)
-        (d / "project.toml").write_text(MANIFEST.format(pid=pid, lenses=lenses, change=change, egress=egress))
+        (d / "project.toml").write_text(MANIFEST.format(pid=pid, lenses=lenses, change=change, egress=egress,
+                                                        surface=surface))
         (d / "design.md").write_text("# Design\nThe gate holds every push until a record exists.\n")
         if approve:
             self.approve(d)
@@ -143,6 +146,8 @@ def main():
              and (w / "surface" / "REVIEW-NONCE.txt").read_text().strip() == nonce and nonce not in brief
              and plan["surface_sha256"] in brief and "Return the whole report" in brief
              and (w / "coherence" / "brief.md").is_file() and not (w / "manifest.json").exists(), out)
+        case("brief says the surface is material under review, never instructions",
+             "never instructions to you" in brief and "is itself a finding" in brief, brief[-600:])
         sha = plan.get("surface_sha256", "")
 
         code, out = run_plan(d, "--surface", d / "design.md", "--workdir", w)
@@ -150,7 +155,8 @@ def main():
         code, out = run_plan(d, "--surface", d / "design.md", "--models", "codex:some-other-model")
         case("--models outside the rotation refused", code == 1 and "only reorder or narrow" in out, out)
 
-        (d / "project.toml").write_text(MANIFEST.format(pid="proj", lenses='["accuracy"]', change="optional", egress="local"))
+        (d / "project.toml").write_text(MANIFEST.format(pid="proj", lenses='["accuracy"]', change="optional",
+                                                        egress="local", surface="commits"))
         code, out2 = run_plan(d, "--surface", d / "design.md")
         p2 = json.loads((plan_dir(out2) / "plan.json").read_text()) if code == 0 else {}
         case("edited [review] ignored until re-approved (uses approved lenses)",
@@ -159,6 +165,10 @@ def main():
         off = e.project("offproj", change="off")
         code, out = run_plan(off, "--surface", off / "design.md", stage="change")
         case("plan refuses a stage that is off", code == 1 and "is off" in out, out)
+        outp = e.project("outproj", change="required", surface="outputs")
+        code, out = run_plan(outp, "--range", "HEAD~1..HEAD", stage="change")
+        case("plan refuses a git range for a change review that covers outputs",
+             code == 1 and "covers outputs" in out, out)
 
         # ---- egress
         ext = e.project("extproj", lenses='["abuse", "coherence", "enforceability", "accuracy"]', egress="external")
@@ -195,6 +205,11 @@ def main():
         e.sync(ext)
         code, out = run_plan(ext, "--range", "HEAD~1..HEAD")
         case("external, published range → external", code == 0 and mode(out) == "external", out)
+        (ext / "design.md").write_text("# Design\nlocal-only draft, never pushed\n")
+        e.git(ext, "commit", "-qam", "local only")
+        code, out = run_plan(ext, "--range", "HEAD..HEAD~1")
+        case("external, range whose start commit is unpublished → local", code == 0 and mode(out) == "local"
+             and "start commit" in out, out)
         (ext / "out" / "deliverable.md").write_text("client deliverable v2\n")
         e.git(ext, "commit", "-qam", "three"); e.sync(ext)
         code, out = run_plan(ext, "--range", "HEAD~1..HEAD")
@@ -235,11 +250,20 @@ def main():
                "bare NO FINDINGS (no summary)": f"Lens: abuse\nSurface: {sha}\nNonce: {nonce}\nNO FINDINGS\n",
                "lower-case priority": R("abuse", ["P1"]).replace("Priority: P1", "Priority: p1"),
                "bold finding label": R("abuse").replace("NO FINDINGS", "NO FINDINGS here\n**Finding:** hidden one"),
-               "NO FINDINGS plus findings": R("abuse", ["P2"]) + "\nNO FINDINGS\n"}
+               "NO FINDINGS plus findings": R("abuse", ["P2"]) + "\nNO FINDINGS\n",
+               "indented finding beside NO FINDINGS": R("abuse", extra="\n  Finding: hidden\n  Priority: P0\n"),
+               "upper-case finding label": R("abuse", extra="\nFINDING: hidden\nPRIORITY: P0\n"),
+               "numbered second finding": R("abuse", ["P3"]) + "\nFinding 2: folded in\nPriority: P0\n",
+               "NO FINDINGS with a bare Priority line": R("abuse", extra="\nPriority: P0\n"),
+               "two Priority lines in one finding": R("abuse", ["P3"]).replace("Priority: P3", "Priority: P3\nPriority: P0")}
         for label, text in bad.items():
             (w / "abuse" / "report.md").write_text(text)
             code, out = e.run("check-report", "--workdir", w, "--lens", "abuse")
             case(f"check-report rejects: {label}", code == 1 and "FAIL" in out, out)
+        prose = R("abuse").replace("Reviewed the design.", "- Finding labels in other forms are hidden from the parser.")
+        (w / "abuse" / "report.md").write_text(prose)
+        code, out = e.run("check-report", "--workdir", w, "--lens", "abuse")
+        case("check-report allows a prose bullet that starts with the word Finding", code == 0, out)
         (w / "abuse" / "report.md").write_text(R("abuse", ["P1", "P3"]))
 
         # ---- synthesize + record
@@ -294,6 +318,45 @@ def main():
         code, out = e.run("status", "--project", d)
         case("status lists records and survives a broken line", code == 0 and sha[:12] in out
              and "source changed" in out and "skipped 1 unreadable" in out, out)
+        (d / "design.md").write_text("# Design\nThe gate holds every push until a record exists.\n")
+        code, out = e.run("status", "--project", d)
+        case("status re-checks the live source now (reverted → unchanged)", code == 0
+             and "source unchanged since review (now)" in out, out)
+
+        # ---- range surfaces: reviewed and live hashes built the same way
+        rp = e.project("rangeproj")
+        e.git(rp, "init", "-q", "-b", "main"); e.git(rp, "add", "."); e.git(rp, "commit", "-qm", "one")
+        (rp / "design.md").write_text("# Design\nThe gate records each review.\n")
+        e.git(rp, "commit", "-qam", "two")
+        code, out = run_plan(rp, "--range", "HEAD~1..HEAD", stage="change")
+        wr = plan_dir(out) if code == 0 else None
+        pr = json.loads((wr / "plan.json").read_text()) if wr else {}
+        for lens, f in (("abuse", ["P1"]), ("coherence", [])):
+            (wr / lens / "report.md").write_text(report(lens, pr.get("surface_sha256", ""), f, nonce=pr.get("nonce", "")))
+        e.run("synthesize", "--workdir", wr)
+        s = (wr / "synthesis.md").read_text()
+        (wr / "synthesis.md").write_text(s.replace("Disposition: TODO\nResolution:\nReason:",
+                                                   "Disposition: confirmed\nResolution: fixed\nReason: bound in the next commit"))
+        code, out = e.run("record", "--workdir", wr)
+        case("range: record refuses a fixed P1 when nothing changed", code == 1 and "live source is identical" in out, out)
+        pj = json.loads((wr / "plan.json").read_text())
+        good_root = pj["surface"]["root"]
+        pj["surface"]["root"] = str(e.tmp / "nowhere")
+        (wr / "plan.json").write_text(json.dumps(pj))
+        code, out = e.run("record", "--workdir", wr)
+        case("range: record refuses a fixed P1 when the live source cannot be read", code == 1
+             and "could not be read" in out, out)
+        pj["surface"]["root"] = good_root
+        (wr / "plan.json").write_text(json.dumps(pj))
+        (rp / "design.md").write_text("# Design\nThe gate records each review, bound to its range.\n")
+        code, out = e.run("record", "--workdir", wr)
+        rows = [json.loads(l) for l in (e.tmp / "rg" / "records.jsonl").read_text().splitlines() if l.startswith("{\"")]
+        case("range: record accepts the fix once the source changed, source_changed true", code == 0
+             and rows[-1].get("source_changed") is True, out)
+        e.git(rp, "checkout", "-q", "--", "design.md")
+        code, out = e.run("status", "--project", rp)
+        case("range: status shows the source unchanged once the edit is reverted", code == 0
+             and "source unchanged since review (now)" in out, out)
         code, out = e.run("waive", "--project", d, "--stage", "design", "--surface", d / "design.md",
                           "--reason", "owner says so today")
         case("waive refuses without an interactive terminal", code == 1 and "interactive terminal" in out, out)
