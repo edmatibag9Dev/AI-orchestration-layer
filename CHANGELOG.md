@@ -4,6 +4,25 @@ All notable changes to AI Orchestration Layer are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/); dates are America/Los_Angeles.
 Gitignored data/output files are never committed.
 
+## [2026-10-26] — Memory-first gate v1.1: scheduled runs are never held
+
+### Fixed
+- **Scheduled runs were held and made to load a standing scope.** The gate assumed scheduled runs are
+  unattended; the desktop app's scheduled runs set `CLAUDE_CODE_SESSION_ATTENDED=1`. Four runs that
+  moved into this repo (two fleet sentinel runs, an evening digest, a morning briefing; 2026-10-25 and
+  2026-10-26) were held, loaded the standing scope and continued (9.6 to 43 s), against
+  SPEC-activation §2.4: scheduled runs are Safe-only and ignore standing scopes. All four runs succeeded.
+- `hooks/memory-first-gate.sh` v1.1 reads the session transcript once (`transcript_path` in the hook
+  payload). A first user prompt starting with `<scheduled-task ` marks the session scheduled: it is
+  never held, gets no announce line, and the audit records `skipped-scheduled` the first time it
+  enters an approved project. An unreadable transcript is asked again next call and gated meanwhile.
+- The stale comment and SPEC-project-manifest §5.4 now describe this; §5.4's "mechanics relied on"
+  records the correction.
+
+### Changed
+- `checks/test_memory_gate.py`: 25 → 33 cases. The four scheduled-run cases fail against v1.0. A replay
+  of the two held scheduled transcripts through v1.1 allows them; an interactive transcript is still held.
+
 ## [2026-10-26] — Review gate v1.2 after its second review
 
 ### Fixed

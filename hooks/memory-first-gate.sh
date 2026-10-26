@@ -1,8 +1,8 @@
 #!/bin/bash
 # memory-first-gate.sh — PreToolUse / PostToolUse hook, SPEC-project-manifest.md §5.4
-# v1.0 · built 2026-10-25 · canonical copy: AI-orchestration-layer/hooks/ · installed: ~/.claude/hooks/
+# v1.1 · 2026-10-26 (v1.0 built 2026-10-25) · canonical copy: AI-orchestration-layer/hooks/ · installed: ~/.claude/hooks/
 #
-# In an attended session whose project.toml the owner approved, holds ordinary tool calls until the
+# In an attended, non-scheduled session whose project.toml the owner approved, holds ordinary tool calls until the
 # session has called the memory server's cold_boot_index with default scope and with exactly the
 # standing scope. Then silent for the rest of the session. Enforces the attempt, never the result:
 # an errored call counts, and a missing memory server releases the gate (SPEC-activation C11).
@@ -77,8 +77,10 @@ PYEOF
   exec python3 -c "$APY" "$MODE" "$BOOT" "${2:-}"    # stdin stays the terminal for the prompt
 fi
 
-# Hook modes. Only attended (interactive) sessions are gated: scheduled and headless runs are
-# Safe-only and ignore standing scopes (SPEC-activation §2.4).
+# Hook modes. Only attended sessions are gated. Scheduled and headless runs are Safe-only and ignore
+# standing scopes (SPEC-activation §2.4), so the gate must never make them load one. Headless runs are
+# unattended. The desktop app's scheduled runs report as attended, so the Python below also skips any
+# session whose first prompt is a <scheduled-task> block (read once from the transcript).
 [ "$CLAUDE_CODE_SESSION_ATTENDED" = "1" ] || exit 0
 
 read -r -d '' PY <<'PYEOF'
@@ -148,6 +150,32 @@ def approved(m):
         return False
     return isinstance(e, dict) and e.get("memory_sha256") == m.get("memory_sha256")
 
+def scheduled_run(path):
+    """True when the transcript's first user prompt is a <scheduled-task> block, False when it is
+    something else, None when it cannot be read yet (asked again on the next call)."""
+    try:
+        with open(path, errors="replace") as f:
+            for i, line in enumerate(f):
+                if i > 400:
+                    return False
+                try:
+                    e = json.loads(line)
+                except Exception:
+                    continue
+                if not isinstance(e, dict) or e.get("type") != "user" or e.get("isMeta"):
+                    continue
+                c = (e.get("message") or {}).get("content")
+                if isinstance(c, list):
+                    c = next((p.get("text", "") for p in c if isinstance(p, dict) and p.get("type") == "text"), None)
+                if isinstance(c, str):
+                    return c.lstrip().startswith("<scheduled-task ")
+        return None
+    except (OSError, TypeError):
+        return None
+
+if st.get("scheduled") is None:
+    st["scheduled"] = scheduled_run(d.get("transcript_path"))
+
 cwd = d.get("cwd") or os.getcwd()
 if st["cwd"] != cwd:                      # re-resolve whenever the working folder changes
     st["cwd"] = cwd
@@ -165,6 +193,12 @@ if st["cwd"] != cwd:                      # re-resolve whenever the working fold
         audit("unapproved")
 
 m = st["m"]
+
+if st.get("scheduled"):                   # never hold a scheduled run; audit once per approved project
+    if st["active"] and m["path"] not in st["passed"]:
+        st["passed"].append(m["path"])
+        audit("skipped-scheduled")
+    save(); done()
 
 if MODE == "post":
     if tool == "ToolSearch":

@@ -96,6 +96,15 @@ def cold(sid, cwd, scope=None, prompt="p1", event="PostToolUse", server="open-br
             "tool_input": ti, "prompt_id": prompt, "mcp_server": {"name": server, "source": "sdk"}}
 
 
+def transcript(e, first, as_list=False):
+    """A transcript file like Claude Code writes: a hook line, then the first user prompt."""
+    f = e.tmp / f"t-{uuid.uuid4().hex}.jsonl"
+    content = [{"type": "text", "text": first}] if as_list else first
+    f.write_text(json.dumps({"type": "system", "subtype": "hook", "content": "SessionStart"}) + "\n"
+                 + json.dumps({"type": "user", "message": {"role": "user", "content": content}}) + "\n")
+    return str(f)
+
+
 def case(name, ok, detail=""):
     results.append(ok)
     print(f"{'PASS' if ok else 'FAIL'}  {name}" + (f"  — {detail}" if detail and not ok else ""))
@@ -260,6 +269,29 @@ def main():
         (proj / "sub").mkdir()
         inside = e.run("pre", call(s, proj / "sub"))[1]
         case("cwd moves into an approved project: gate engages", outside is None and held(inside))
+
+        # 23b scheduled runs are never held (SPEC-activation §2.4); audited once per project
+        sched = '<scheduled-task name="evening-digest" file="/x/SKILL.md">\nThis is an automated run.'
+        for label, tp in (("string content", transcript(e, sched)), ("list content", transcript(e, sched, True))):
+            s = sid()
+            outs = [e.run("pre", call(s, proj, transcript_path=tp))[1],
+                    e.run("pre", call(s, proj, transcript_path=tp, prompt="p2"))[1]]
+            rows = [r["outcome"] for r in e.audit() if r["session_id"] == s]
+            case(f"scheduled run ({label}): never held, audited once as skipped-scheduled",
+                 outs == [None, None] and rows == ["skipped-scheduled"], f"{outs} {rows}")
+        s = sid()
+        tp = transcript(e, sched)
+        outside = e.run("pre", call(s, e.tmp, transcript_path=tp))[1]
+        inside = e.run("pre", call(s, proj, transcript_path=tp))[1]
+        case("scheduled run moving into an approved project: not held", outside is None and inside is None)
+        s = sid()
+        e.run("post", cold(s, proj) | {"transcript_path": transcript(e, sched)})
+        out = e.run("post", cold(s, proj, ["Bucket A"]) | {"transcript_path": transcript(e, sched)})[1]
+        case("scheduled run: no standing-scope announcement", out is None, str(out))
+        for label, tp in (("ordinary first prompt", transcript(e, "Fix the bug in the gate.")),
+                          ("marker later in the prompt", transcript(e, "Explain <scheduled-task name=x> to me")),
+                          ("unreadable transcript", str(e.tmp / "missing.jsonl"))):
+            case(f"{label}: still held", held(e.run("pre", call(sid(), proj, transcript_path=tp))[1]))
 
         # 24 approve refuses without a terminal
         r = subprocess.run(["/bin/bash", str(GATE), "approve", str(proj)], capture_output=True,

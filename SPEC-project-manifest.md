@@ -229,7 +229,7 @@ standing scope (either order). Then it adds one context line — *announce "Memo
 
 | Rule | Behaviour |
 |---|---|
-| Attended only | Gated only when `CLAUDE_CODE_SESSION_ATTENDED=1`. Headless and scheduled runs are Safe-only and ignore standing scopes (SPEC-activation §2.4), so they are never pushed to widen. |
+| Attended, not scheduled | Gated only when `CLAUDE_CODE_SESSION_ATTENDED=1` and the session is not a scheduled run. Headless and scheduled runs are Safe-only and ignore standing scopes (SPEC-activation §2.4), so they are never pushed to widen. The desktop app's scheduled runs report as attended, so the gate reads the session's transcript once (`transcript_path`): a first user prompt that starts with `<scheduled-task ` marks the session scheduled, it is never held, and the first time it enters an approved project the audit records `skipped-scheduled`. An unreadable transcript is asked again on the next call and gated meanwhile. |
 | Owner approval | A manifest counts only if its path and a SHA-256 of its `[memory]` table are in `~/.claude/state/memory-gate/approved.json`. `memory-first-gate.sh approve <folder>` writes the entry; it refuses without an interactive terminal, so the owner runs it, not an agent. Unlisted or edited `[memory]` → gate off, audited once as `unapproved`. |
 | Exact scope | The scoped call must equal the standing set. A superset (for example one adding a Sensitive bucket) does not count. The announce text comes from the manifest, never from call arguments. |
 | One server | Only `mcp__open-brain__` counts and is allow-listed; sibling memory servers do neither. |
@@ -241,18 +241,22 @@ standing scope (either order). Then it adds one context line — *announce "Memo
 
 **State.** `~/.claude/state/memory-gate/` (local, never committed): one JSON file per session (file
 lock, because parallel calls each fire the hook), `approved.json`, and `audit.jsonl` — one row per
-outcome (`passed`, `exhausted` with a reason, `unapproved`) with seconds to outcome. That is local
+outcome (`passed`, `exhausted` with a reason, `unapproved`, `skipped-scheduled`) with seconds to outcome. That is local
 firing-rate data next to the memory server's own audit. Session files older than 30 days are pruned.
 
 **Mechanics relied on** (probed live 2026-10-25, Claude Code 2.1.308): `prompt_id` is on every tool
 hook and constant for a whole user prompt; subagent calls share the parent's `session_id` and add
 `agent_id`; ToolSearch fires both hooks and its response lists `matches`; MCP calls carry
 `mcp_server.name`; the attended variable is `1` in the desktop app and `0` under `claude -p`.
+Corrected 2026-10-26: it is also `1` for the desktop app's scheduled runs. Four of them (two fleet
+sentinel runs, an evening digest, a morning briefing) were held after moving into this repo on
+2026-10-25 and 2026-10-26, loaded the standing scope, and continued, against SPEC-activation §2.4.
+v1.1 of the gate skips them by the `<scheduled-task ` marker at the start of the first prompt.
 
 **Live test (2026-10-25).** Wired temporarily into one session through a folder-local settings file:
 the first Bash call was held with the four steps, the default and scoped calls passed it in 14 s, the
 announce line arrived, the next call ran, and the audit recorded `passed`. Regression test:
-`python3 checks/test_memory_gate.py` (26 cases).
+`python3 checks/test_memory_gate.py` (33 cases).
 
 **Limits.** State files are user-writable, so this is a convention with an audit trail, not a
 security boundary — the same posture SPEC-activation gives standing scopes until its Phase 4. Approval
